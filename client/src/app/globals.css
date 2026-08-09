@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 246, 248, 252;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #f6f8fc;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 48%),
+    radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 44%),
+    radial-gradient(at 50% 100%, rgba(34, 197, 94, 0.05) 0%, transparent 40%);
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(79, 70, 229, 0.18);
+  color: #0f172a;
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/40;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600;
+}
+
+.auth-shell {
+  @apply relative min-h-screen overflow-hidden;
+}
+
+.auth-orb {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+}
+
+.surface-card {
+  @apply bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_24px_80px_-28px_rgba(15,23,42,0.28)];
+}
+
+.page-surface {
+  @apply relative overflow-hidden rounded-[32px] border border-white/60 bg-white/75 shadow-[0_24px_90px_-36px_rgba(15,23,42,0.24)] backdrop-blur-xl;
+}
+
+.dashboard-shell {
+  @apply relative min-h-screen overflow-hidden;
+}
+
+.dashboard-orb {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+}

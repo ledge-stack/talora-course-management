@@ -1,0 +1,42 @@
+{
+  "name": "talora-course-management",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
+    "install:all": "npm install && npm install -w server && npm install -w client",
+    "lint": "eslint . --ext .ts,.tsx,.js",
+    "format": "prettier --write .",
+    "prepare": "husky install",
+    "test": "jest --passWithNoTests"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^7.2.1",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/parser": "^8.66.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^8.0.0",
+    "jest": "^30.4.2",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.12"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,js,jsx,json,md}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}

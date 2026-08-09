@@ -1,0 +1,6 @@
+node_modules
+client/.next
+server/dist
+dist
+.husky
+coverage
