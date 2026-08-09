@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
     "install:all": "npm install && npm install -w server && npm install -w client",
-    "lint": "eslint . --ext .ts,.tsx,.js",
+    "lint": "eslint server --ext .ts",
     "format": "prettier --write .",
     "prepare": "husky install",
     "test": "jest --passWithNoTests"
@@ -36,6 +36,11 @@
       "git add"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ledge-stack/talora-course-management.git"
+  },
+  "homepage": "https://github.com/ledge-stack/talora-course-management",
   "dependencies": {
     "@prisma/client": "^5.22.0"
   }

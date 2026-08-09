@@ -44,7 +44,8 @@ app.get('/api/courses', async (req, res) => {
       }
     });
     res.json(courses);
-  } catch (err) {
+  } catch (error) {
+    console.error('[API] Failed to fetch courses:', error);
     res.status(500).json({ error: 'Failed to fetch courses' });
   }
 });

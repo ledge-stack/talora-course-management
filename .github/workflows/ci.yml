@@ -26,5 +26,5 @@ jobs:
         run: npm run build -w client
       - name: Run tests
         run: npm test
-      - name: Lint (root)
-        run: npx eslint . --ext .ts,.tsx,.js --max-warnings=0
+      - name: Lint (server)
+        run: npm run lint
