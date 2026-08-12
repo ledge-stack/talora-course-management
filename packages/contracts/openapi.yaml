@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: Talora API Specification
+  description: API-first university class and group coordination platform.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Primary API base path
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+  /me:
+    get:
+      summary: Get current authenticated user profile and scoped roles
+      responses:
+        '200':
+          description: Current user profile
+  /offerings/{offeringId}/groups:
+    get:
+      summary: List groups for a course offering
+      parameters:
+        - name: offeringId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of groups
+    post:
+      summary: Create a group for a course offering
+      parameters:
+        - name: offeringId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Group created
+  /groups/{groupId}/invitations:
+    post:
+      summary: Invite student to group
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invitation sent
+  /group-change-requests:
+    post:
+      summary: Submit a group change request
+      responses:
+        '201':
+          description: Group change request created
+  /announcements:
+    get:
+      summary: List announcements
+      responses:
+        '200':
+          description: List of announcements
+  /assignments:
+    get:
+      summary: List assignments
+      responses:
+        '200':
+          description: List of assignments
+  /submissions:
+    post:
+      summary: Submit assignment solution
+      responses:
+        '201':
+          description: Submission uploaded
+  /issues:
+    post:
+      summary: Raise a student issue or report
+      responses:
+        '201':
+          description: Issue submitted
+  /imports:
+    post:
+      summary: Upload roster spreadsheet for import validation
+      responses:
+        '202':
+          description: Import job queued
+  /exports:
+    post:
+      summary: Request asynchronous group list export
+      responses:
+        '202':
+          description: Export job queued

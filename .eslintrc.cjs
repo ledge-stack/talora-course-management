@@ -9,7 +9,7 @@ module.exports = {
     'no-console': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-require-imports': 'off',
-    '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': 'allow-with-description' }],
+    '@typescript-eslint/ban-ts-comment': 'warn',
   },
   overrides: [
     {

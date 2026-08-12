@@ -1,25 +1,29 @@
 version: '3.8'
+
 services:
-  db:
-    image: postgres:15
+  postgres:
+    image: postgres:16-alpine
+    container_name: talora-postgres
     environment:
       POSTGRES_USER: talora
-      POSTGRES_PASSWORD: talora
-      POSTGRES_DB: talora
+      POSTGRES_PASSWORD: talorapassword
+      POSTGRES_DB: taloradb
     ports:
-      - '5432:5432'
-    volumes:
-      - db-data:/var/lib/postgresql/data
+      - "5432:5432"
 
-  server:
-    build: ./server
+  redis:
+    image: redis:7-alpine
+    container_name: talora-redis
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio
+    container_name: talora-minio
+    command: server /data --console-address ":9001"
     environment:
-      DATABASE_URL: postgres://talora:talora@db:5432/talora
-      PORT: 5000
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
     ports:
-      - '5000:5000'
-    depends_on:
-      - db
-
-volumes:
-  db-data:
+      - "9000:9000"
+      - "9001:9001"
