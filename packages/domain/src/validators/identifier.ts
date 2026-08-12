@@ -29,13 +29,13 @@ export function validateRegistrationNumber(regNumber: string): ValidationResult 
   if (!regNumber) {
     return { valid: false, error: 'Registration number is required' };
   }
-  // Pattern: YY/U/XXXXX or YY/U/XXXXX/EVE or YY/U/XXXXX/PS
-  const regex = /^(\d{2})\/U\/\d{4,6}(?:\/(?:EVE|PS))?$/i;
+  // Pattern: YY/[A-Z]/XXXXX with optional /EVE, /PS, or /PSA suffix
+  const regex = /^(\d{2})\/[a-zA-Z]\/\d{4,6}(?:\/(?:EVE|PS|PSA))?$/i;
   const match = regNumber.trim().match(regex);
   if (!match) {
     return {
       valid: false,
-      error: 'Invalid registration number format. Expected YY/U/XXXXX, YY/U/XXXXX/EVE, or YY/U/XXXXX/PS',
+      error: 'Invalid registration number format. Expected YY/[Letter]/XXXXX with optional /EVE, /PS, or /PSA suffix',
     };
   }
   return { valid: true, yearPrefix: match[1] };
