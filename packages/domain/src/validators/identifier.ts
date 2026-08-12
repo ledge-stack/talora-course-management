@@ -13,13 +13,13 @@ export function validateStudentNumber(studentNumber: string): ValidationResult {
   if (!studentNumber) {
     return { valid: false, error: 'Student number is required' };
   }
-  // Pattern: YY007XXXXXa (2 digits year, 007 prefix, 5 digits, 1 letter)
-  const regex = /^(\d{2})007\d{5}[a-zA-Z]$/;
+  // Pattern: YY007XXXXX (2 digits year, 007 prefix, 5 digits)
+  const regex = /^(\d{2})007\d{5}$/;
   const match = studentNumber.trim().match(regex);
   if (!match) {
     return {
       valid: false,
-      error: 'Invalid student number format. Expected format matching YY007XXXXXa',
+      error: 'Invalid student number format. Expected format matching YY007XXXXX',
     };
   }
   return { valid: true, yearPrefix: match[1] };
