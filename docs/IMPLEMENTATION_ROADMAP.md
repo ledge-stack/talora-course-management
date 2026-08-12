@@ -12,7 +12,7 @@ This document outlines the sequential implementation plan broken down into 17 Gi
 
 ### 2. Implement Domain Models and Identifier Validation Logic
 - **File:** `packages/domain/src/validators/identifier.ts`, `packages/domain/src/rules/groupRules.ts`
-- **Description:** Implement validation rules for student numbers (`YY007XXXXX`), registration numbers (`YY/U/XXXXX`), year prefix consistency (`YY`), group min/max capacity, and group status derivation.
+- **Description:** Implement validation rules for student numbers (`YY007XXXXX`), registration numbers (`YY/[Letter]/XXXXX` with optional suffix), year prefix consistency (`YY`), group min/max capacity, and group status derivation.
 
 ### 3. Implement Scope-Based Authorization Policy Engine
 - **File:** `packages/auth/src/index.ts`

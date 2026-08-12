@@ -51,7 +51,7 @@ talora/
 4. **Group Leadership:** Exactly one active leader per group; leadership transfers are atomic and audited.
 5. **Identifier Validation:**
    - Student Number: `YY007XXXXX` (e.g., `2400712345`).
-   - Registration Number: `YY/U/XXXXX`, `YY/U/XXXXX/EVE`, or `YY/U/XXXXX/PS`.
+   - Registration Number: `YY/[Letter]/XXXXX` with optional `/EVE`, `/PS`, or `/PSA` suffix (e.g., `24/U/12345`, `24/I/12345/PS`, `24/X/12345/PSA`).
    - Matching leading `YY` verified across student and registration numbers.
 6. **Spreadsheet Protection:** CSV/Excel formula injection escaping and preview validation.
 
