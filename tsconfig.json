@@ -4,10 +4,12 @@
     "module": "CommonJS",
     "esModuleInterop": true,
     "allowJs": true,
+    "noEmit": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["apps/**/*", "packages/**/*"]
+  "include": ["apps/**/*", "packages/**/*"],
+  "exclude": ["**/node_modules", "**/dist", "**/build", "**/coverage", "**/.next"]
 }
