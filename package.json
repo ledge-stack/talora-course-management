@@ -3,45 +3,30 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
-    "install:all": "npm install && npm install -w server && npm install -w client",
-    "lint": "eslint server --ext .ts",
+    "dev": "concurrently \"npm run dev -w apps/web\" \"npm run dev -w apps/worker\"",
+    "build": "npm run build --workspaces",
+    "lint": "eslint packages apps --ext .ts,.tsx",
     "format": "prettier --write .",
-    "prepare": "husky install",
-    "test": "jest --passWithNoTests"
+    "test": "npm run test --workspaces --if-present"
   },
   "workspaces": [
-    "server",
-    "client"
+    "apps/*",
+    "packages/*"
   ],
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/supertest": "^7.2.1",
-    "@typescript-eslint/eslint-plugin": "^8.66.0",
-    "@typescript-eslint/parser": "^8.66.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "concurrently": "^8.2.2",
-    "eslint": "^8.41.0",
-    "eslint-config-prettier": "^10.1.8",
-    "husky": "^8.0.0",
-    "jest": "^30.4.2",
-    "lint-staged": "^17.3.0",
-    "prettier": "^3.9.6",
-    "supertest": "^7.2.2",
-    "ts-jest": "^29.4.12"
-  },
-  "lint-staged": {
-    "src/**/*.{ts,tsx,js,jsx,json,md}": [
-      "prettier --write",
-      "eslint --fix",
-      "git add"
-    ]
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/ledge-stack/talora-course-management.git"
   },
-  "homepage": "https://github.com/ledge-stack/talora-course-management",
-  "dependencies": {
-    "@prisma/client": "^5.22.0"
-  }
+  "homepage": "https://github.com/ledge-stack/talora-course-management"
 }

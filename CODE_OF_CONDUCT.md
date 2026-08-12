@@ -1,3 +1,5 @@
 # Code of Conduct
 
-This project follows a standard Contributor Covenant. Be respectful and professional in interactions.
+We are committed to providing a welcoming, inclusive, and harassment-free community for everyone.
+
+Participants are expected to treat all individuals with respect, constructive communication, and collaboration.

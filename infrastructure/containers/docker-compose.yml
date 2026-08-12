@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: talora-postgres
+    environment:
+      POSTGRES_USER: talora
+      POSTGRES_PASSWORD: talorapassword
+      POSTGRES_DB: taloradb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talora -d taloradb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: talora-redis
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio
+    container_name: talora-object-storage
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  web:
+    build:
+      context: ../../
+      dockerfile: infrastructure/containers/Dockerfile.web
+    container_name: talora-web
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://talora:talorapassword@postgres:5432/taloradb?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../../
+      dockerfile: infrastructure/containers/Dockerfile.worker
+    container_name: talora-worker
+    environment:
+      DATABASE_URL: "postgresql://talora:talorapassword@postgres:5432/taloradb?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
