@@ -9,5 +9,5 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["server/**/*", "client/**/*"]
+  "include": ["apps/**/*", "packages/**/*"]
 }
