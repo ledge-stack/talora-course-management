@@ -30,7 +30,7 @@ Students can discover or create eligible groups, accept invitations, communicate
 - **Group Size:** Configurable min and max membership (default min: 5, max >= min).
 - **Leadership:** Exactly one active leader per group with atomic leadership transfer.
 - **Identifier Validation:**
-  - Student Number: `YY007XXXXXa` (matches registrar rules & leading `YY`).
+  - Student Number: `YY007XXXXX` (matches registrar rules & leading `YY`).
   - Registration Number: `YY/U/XXXXX`, `YY/U/XXXXX/EVE`, or `YY/U/XXXXX/PS`.
   - Leading `YY` must match across student number and registration number within an institution.
 - **Spreadsheet Protection:** CSV/Excel formula injection prevention, row-level validation preview before import commit.

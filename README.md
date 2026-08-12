@@ -18,7 +18,7 @@ talora/
 │   ├── mobile/       # Student-first Flutter mobile application
 │   └── worker/       # Asynchronous background job consumer (imports/exports/notifications)
 ├── packages/
-│   ├── domain/       # Business rules, identifier validators (YY007XXXXXa), group constraints
+│   ├── domain/       # Business rules, identifier validators (YY007XXXXX), group constraints
 │   ├── database/     # Prisma schema, PostgreSQL migrations, DB client
 │   ├── contracts/    # OpenAPI 3.0 specification & TypeScript types
 │   ├── auth/         # Role-based (RBAC) & Scope-based (institution/class/offering) policies
@@ -50,7 +50,7 @@ talora/
 3. **Group Size & Rules:** Minimum 5 members by default; maximum configurable per course offering (`max >= min`).
 4. **Group Leadership:** Exactly one active leader per group; leadership transfers are atomic and audited.
 5. **Identifier Validation:**
-   - Student Number: `YY007XXXXXa` (e.g., `2400712345a`).
+   - Student Number: `YY007XXXXX` (e.g., `2400712345`).
    - Registration Number: `YY/U/XXXXX`, `YY/U/XXXXX/EVE`, or `YY/U/XXXXX/PS`.
    - Matching leading `YY` verified across student and registration numbers.
 6. **Spreadsheet Protection:** CSV/Excel formula injection escaping and preview validation.

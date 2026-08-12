@@ -6,30 +6,31 @@ import {
 
 describe('Identifier Validation', () => {
   describe('Student Number Validation', () => {
-    test('validates valid student number format YY007XXXXXa', () => {
-      expect(validateStudentNumber('2400712345a').valid).toBe(true);
-    });
-
-    test('validates student number with uppercase letter', () => {
-      expect(validateStudentNumber('2400712345A').valid).toBe(true);
+    test('validates valid student number format YY007XXXXX', () => {
+      expect(validateStudentNumber('2400712345').valid).toBe(true);
     });
 
     test('validates student number with whitespace padding', () => {
-      expect(validateStudentNumber('  2400712345b  ').valid).toBe(true);
+      expect(validateStudentNumber('  2400712345  ').valid).toBe(true);
     });
 
     test('rejects student number with invalid prefix', () => {
-      expect(validateStudentNumber('2400812345a').valid).toBe(false);
+      expect(validateStudentNumber('2400812345').valid).toBe(false);
     });
 
     test('rejects student number with incorrect digit count (boundary size)', () => {
-      expect(validateStudentNumber('240071234a').valid).toBe(false); // 4 digits instead of 5
-      expect(validateStudentNumber('24007123456a').valid).toBe(false); // 6 digits instead of 5
+      expect(validateStudentNumber('240071234').valid).toBe(false); // 4 digits instead of 5
+      expect(validateStudentNumber('24007123456').valid).toBe(false); // 6 digits instead of 5
     });
 
     test('rejects student number with special characters', () => {
-      expect(validateStudentNumber('2400712345@').valid).toBe(false);
-      expect(validateStudentNumber('240071234-a').valid).toBe(false);
+      expect(validateStudentNumber('240071234@').valid).toBe(false);
+      expect(validateStudentNumber('240071234-').valid).toBe(false);
+    });
+
+    test('rejects student number with trailing letter', () => {
+      expect(validateStudentNumber('2400712345a').valid).toBe(false);
+      expect(validateStudentNumber('2400712345A').valid).toBe(false);
     });
 
     test('rejects empty or missing student number', () => {
@@ -70,13 +71,13 @@ describe('Identifier Validation', () => {
 
   describe('Identifier Consistency', () => {
     test('validates year consistency between student and reg number', () => {
-      const validMatch = validateIdentifierConsistency('2400712345a', '24/U/12345');
+      const validMatch = validateIdentifierConsistency('2400712345', '24/U/12345');
       expect(validMatch.valid).toBe(true);
       expect(validMatch.yearPrefix).toBe('24');
     });
 
     test('rejects mismatched year prefixes with descriptive error', () => {
-      const yearMismatch = validateIdentifierConsistency('2400712345a', '23/U/12345');
+      const yearMismatch = validateIdentifierConsistency('2400712345', '23/U/12345');
       expect(yearMismatch.valid).toBe(false);
       expect(yearMismatch.error).toContain('Year prefix mismatch');
     });
@@ -87,7 +88,7 @@ describe('Identifier Validation', () => {
     });
 
     test('rejects if registration number is invalid', () => {
-      const invalidReg = validateIdentifierConsistency('2400712345a', 'invalid');
+      const invalidReg = validateIdentifierConsistency('2400712345', 'invalid');
       expect(invalidReg.valid).toBe(false);
     });
   });
