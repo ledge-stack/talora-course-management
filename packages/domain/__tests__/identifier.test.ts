@@ -40,23 +40,29 @@ describe('Identifier Validation', () => {
   });
 
   describe('Registration Number Validation', () => {
-    test('validates base registration number format', () => {
+    test('validates base registration number format with arbitrary letters', () => {
       expect(validateRegistrationNumber('24/U/12345').valid).toBe(true);
+      expect(validateRegistrationNumber('24/I/12345').valid).toBe(true);
+      expect(validateRegistrationNumber('24/X/12345').valid).toBe(true);
     });
 
-    test('validates registration number with EVE/PS suffix', () => {
+    test('validates registration number with EVE/PS/PSA suffix', () => {
       expect(validateRegistrationNumber('24/U/12345/EVE').valid).toBe(true);
       expect(validateRegistrationNumber('24/U/12345/PS').valid).toBe(true);
+      expect(validateRegistrationNumber('24/I/12345/PS').valid).toBe(true);
+      expect(validateRegistrationNumber('24/U/12345/PSA').valid).toBe(true);
     });
 
     test('validates lowercase variants for registration number', () => {
       expect(validateRegistrationNumber('24/u/12345/eve').valid).toBe(true);
-      expect(validateRegistrationNumber('24/u/12345/ps').valid).toBe(true);
+      expect(validateRegistrationNumber('24/i/12345/ps').valid).toBe(true);
+      expect(validateRegistrationNumber('24/x/12345/psa').valid).toBe(true);
     });
 
     test('rejects registration number with invalid format', () => {
       expect(validateRegistrationNumber('invalid').valid).toBe(false);
-      expect(validateRegistrationNumber('24/V/12345').valid).toBe(false);
+      expect(validateRegistrationNumber('24/9/12345').valid).toBe(false); // Using number instead of letter
+      expect(validateRegistrationNumber('24/UU/12345').valid).toBe(false); // Using two letters
     });
 
     test('rejects registration number with boundary digits length', () => {

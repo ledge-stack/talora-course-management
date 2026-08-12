@@ -31,6 +31,6 @@ Students can discover or create eligible groups, accept invitations, communicate
 - **Leadership:** Exactly one active leader per group with atomic leadership transfer.
 - **Identifier Validation:**
   - Student Number: `YY007XXXXX` (matches registrar rules & leading `YY`).
-  - Registration Number: `YY/U/XXXXX`, `YY/U/XXXXX/EVE`, or `YY/U/XXXXX/PS`.
+  - Registration Number: `YY/[Letter]/XXXXX` with optional `/EVE`, `/PS`, or `/PSA` suffix (e.g., `24/U/12345`, `24/I/12345/PS`, `24/X/12345/PSA`).
   - Leading `YY` must match across student number and registration number within an institution.
 - **Spreadsheet Protection:** CSV/Excel formula injection prevention, row-level validation preview before import commit.
