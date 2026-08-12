@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "RoleType" AS ENUM ('PLATFORM_ADMIN', 'CLASS_REPRESENTATIVE', 'GROUP_LEADER', 'STUDENT');
 
 -- CreateEnum
