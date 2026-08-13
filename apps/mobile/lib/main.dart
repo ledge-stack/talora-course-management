@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/screens/login_screen.dart';
-import 'package:mobile/theme/app_theme.dart';
+import 'package:talora_mobile/screens/login_screen.dart';
+import 'package:talora_mobile/theme/app_theme.dart';
 
 void main() {
   runApp(const TaloraMobileApp());

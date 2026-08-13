@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/screens/main_layout.dart';
-import 'package:mobile/theme/app_theme.dart';
+import 'package:talora_mobile/screens/main_layout.dart';
+import 'package:talora_mobile/theme/app_theme.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

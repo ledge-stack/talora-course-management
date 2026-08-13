@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/theme/app_theme.dart';
+import 'package:talora_mobile/theme/app_theme.dart';
 
-// Placeholder Screens
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Center(child: Text('Home Feed'));
-}
+import 'package:talora_mobile/screens/home_screen.dart';
+import 'package:talora_mobile/screens/groups_screen.dart';
+import 'package:talora_mobile/screens/timetable_screen.dart';
 
-class GroupsScreen extends StatelessWidget {
-  const GroupsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Center(child: Text('My Groups'));
-}
-
-class TimetableScreen extends StatelessWidget {
-  const TimetableScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Center(child: Text('Timetable'));
-}
-
+// Placeholder Screens for remaining tabs
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
   @override
