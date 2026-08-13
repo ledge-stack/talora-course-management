@@ -2,13 +2,10 @@ import React from 'react';
 
 export default function RoleSwitcher() {
   return (
-    <div className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-      <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Role:</div>
-      <select style={{ background: 'transparent', border: 'none', color: 'var(--color-text-accent)', outline: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 500 }}>
-        <option value="platform_admin" style={{ color: '#000' }}>Platform Admin</option>
-        <option value="class_representative" style={{ color: '#000' }}>Class Representative</option>
-        <option value="student" style={{ color: '#000' }}>Student</option>
-      </select>
-    </div>
+    <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.375rem 0.75rem', borderRadius: '8px', background: 'var(--color-bg-surface)', border: '1px solid var(--border-subtle)', fontSize: '0.875rem' }}>
+      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-success)' }}></div>
+      <span style={{ color: 'var(--color-text-secondary)' }}>Role:</span>
+      <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>Class Representative <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.25rem' }}>▼</span></span>
+    </button>
   );
 }
