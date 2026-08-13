@@ -6,7 +6,8 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc -b",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test": "jest"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
