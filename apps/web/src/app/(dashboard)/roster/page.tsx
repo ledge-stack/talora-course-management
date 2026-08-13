@@ -1,98 +1,120 @@
 import React from 'react';
+import Link from 'next/link';
+
+export const metadata = {
+  title: 'Course Roster — Talora',
+  description: 'Manage enrolled students, assignments, and group status for your course offering.',
+};
+
+const mockStudents = [
+  { id: 'YY00712345', name: 'Sarah Chen',   email: 'schen@university.edu',  group: 'Group 4',   status: 'Registered' },
+  { id: 'YY00712346', name: 'Mark Liu',     email: 'mliu@university.edu',   group: 'Unassigned', status: 'Registered' },
+  { id: 'YY00712347', name: 'James Doe',    email: 'jdoe@university.edu',   group: 'Group 2',   status: 'Dropped'    },
+  { id: 'YY00712348', name: 'Elena Smith',  email: 'esmith@university.edu', group: 'Group 4',   status: 'Registered' },
+  { id: 'YY00712349', name: 'Kwame Osei',   email: 'kosei@university.edu',  group: 'Unassigned', status: 'Registered' },
+];
 
 export default function RosterPage() {
-  const mockStudents = [
-    { id: 'YY00712345', name: 'Sarah Chen', email: 'schen@university.edu', group: 'Group 4', status: 'Registered' },
-    { id: 'YY00712346', name: 'Mark Liu', email: 'mliu@university.edu', group: 'Unassigned', status: 'Registered' },
-    { id: 'YY00712347', name: 'James Doe', email: 'jdoe@university.edu', group: 'Group 2', status: 'Dropped' },
-    { id: 'YY00712348', name: 'Elena Smith', email: 'esmith@university.edu', group: 'Group 4', status: 'Registered' },
-    { id: 'YY00712349', name: 'Kwame Osei', email: 'kosei@university.edu', group: 'Unassigned', status: 'Registered' },
-  ];
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.875rem', marginBottom: '0.25rem', color: 'var(--color-text-primary)' }}>Course Roster</h1>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
-            Manage enrolled students for this offering. Total: 42 students.
-          </p>
+          <h1>Course Roster</h1>
+          <p>Manage enrolled students for this offering. Total: 42 students.</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="page-header-actions">
           <button className="btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
           </button>
-          <button className="btn-primary">
-            + Import Roster
-          </button>
+          <Link href="/roster/import" className="btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import Roster
+          </Link>
         </div>
       </header>
 
       {/* Toolbar */}
-      <div className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, maxWidth: '500px' }}>
-          <input 
-            type="text" 
-            placeholder="Search by name, ID, or email..." 
-            style={{ flex: 1, padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }} 
-          />
-          <select style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}>
-            <option>All Statuses</option>
-            <option>Registered</option>
-            <option>Dropped</option>
-          </select>
-          <select style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}>
-            <option>All Groups</option>
-            <option>Assigned</option>
-            <option>Unassigned</option>
-          </select>
-        </div>
-        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-          Showing 1-5 of 42
+      <div className="glass-panel" style={{ padding: '1rem' }}>
+        <div className="toolbar">
+          <div className="toolbar-search">
+            <input
+              type="text"
+              className="input"
+              placeholder="Search by name, ID, or email..."
+              style={{ flex: 1 }}
+            />
+            <select className="select">
+              <option>All Statuses</option>
+              <option>Registered</option>
+              <option>Dropped</option>
+            </select>
+            <select className="select">
+              <option>All Groups</option>
+              <option>Assigned</option>
+              <option>Unassigned</option>
+            </select>
+          </div>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', white: 'nowrap', flexShrink: 0 }}>
+            Showing 1–5 of 42
+          </div>
         </div>
       </div>
 
       {/* Data Table */}
       <div className="glass-panel" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+        <table className="data-table">
           <thead>
-            <tr style={{ background: 'var(--color-bg-base)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Student ID</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Name</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Email</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Group</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Status</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>Actions</th>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Group</th>
+              <th>Status</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {mockStudents.map((student, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-bg-base)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>{student.id}</td>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)' }}>{student.name}</td>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-secondary)' }}>{student.email}</td>
-                <td style={{ padding: '1rem 1.5rem' }}>
+            {mockStudents.map((student) => (
+              <tr key={student.id}>
+                <td style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                  {student.id}
+                </td>
+                <td style={{ fontWeight: 500 }}>{student.name}</td>
+                <td style={{ color: 'var(--color-text-secondary)' }}>{student.email}</td>
+                <td>
                   {student.group === 'Unassigned' ? (
                     <span className="badge badge-warning">Unassigned</span>
                   ) : (
-                    <span className="badge" style={{ background: 'var(--color-primary-transparent)', color: 'var(--color-primary)' }}>{student.group}</span>
+                    <span className="badge badge-primary">{student.group}</span>
                   )}
                 </td>
-                <td style={{ padding: '1rem 1.5rem' }}>
+                <td>
                   {student.status === 'Registered' ? (
                     <span className="badge badge-success">Registered</span>
                   ) : (
                     <span className="badge badge-danger">Dropped</span>
                   )}
                 </td>
-                <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                  <button style={{ color: 'var(--color-text-secondary)', padding: '0.25rem', cursor: 'pointer' }}>•••</button>
+                <td style={{ textAlign: 'right' }}>
+                  <button className="btn-ghost" style={{ padding: '0.25rem 0.625rem', fontSize: '0.8125rem' }}>
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        <div style={{ padding: '0.875rem 1.5rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>Page 1 of 9</span>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}>Previous</button>
+            <button className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}>Next</button>
+          </div>
+        </div>
       </div>
     </div>
   );

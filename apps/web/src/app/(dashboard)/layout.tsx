@@ -1,89 +1,150 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import '../globals.css';
 import AcademicScopeSelector from '../../components/AcademicScopeSelector';
 import RoleSwitcher from '../../components/RoleSwitcher';
 
-export const metadata = {
-  title: 'Talora — Class & Group Coordination Platform',
-  description: 'API-first university class coordination, group formation, and submission management platform.',
-};
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
+
+  const navLinkClass = (href: string) =>
+    `nav-link${isActive(href) ? ' active' : ''}`;
+
   return (
     <div className="layout-container">
       {/* Sidebar */}
       <aside className="sidebar">
-        <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid var(--border-subtle)' }}>
-          <div style={{ width: '32px', height: '32px', background: 'var(--color-primary)', borderRadius: '6px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.875rem' }}>CR</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>ClassRep</div>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">T</div>
+          <div className="sidebar-logo-name">Talora</div>
         </div>
-        
-        <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'var(--color-primary-transparent)', color: 'var(--color-primary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>📊</span> Dashboard</div>
-          </Link>
-          <Link href="/roster" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>👥</span> Roster</div>
-            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)' }}>42</span>
-          </Link>
-          <Link href="/offerings" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>📅</span> Offerings & Timetable</div>
-          </Link>
-          <Link href="/groups" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>📚</span> Groups</div>
-            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)' }}>3</span>
-          </Link>
-          <Link href="/announcements" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>📣</span> Announcements</div>
-            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)' }}>2</span>
-          </Link>
-          <Link href="/assignments" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>📝</span> Assignments</div>
-            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)' }}>5</span>
-          </Link>
-          <Link href="/issues" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>⚠️</span> Issues</div>
-            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)' }}>7</span>
-          </Link>
-          <Link href="/imports" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>🔄</span> Imports & Exports</div>
+
+        {/* Primary Navigation */}
+        <nav className="sidebar-nav">
+          <Link href="/" className={navLinkClass('/')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Dashboard
+            </span>
           </Link>
 
-          <div style={{ marginTop: '1rem', marginBottom: '0.5rem', padding: '0 1rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-            Platform Admin
-          </div>
-          <Link href="/admin/institutions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>🏢</span> Institutions</div>
+          <Link href="/roster" className={navLinkClass('/roster')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Roster
+            </span>
+            <span className="badge badge-subtle">42</span>
           </Link>
-          <Link href="/admin/users" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>🛡️</span> Users & Roles</div>
+
+          <Link href="/offerings" className={navLinkClass('/offerings')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Offerings & Timetable
+            </span>
+          </Link>
+
+          <Link href="/groups" className={navLinkClass('/groups')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              Groups
+            </span>
+            <span className="badge badge-subtle">12</span>
+          </Link>
+
+          <Link href="/announcements" className={navLinkClass('/announcements')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              Announcements
+            </span>
+            <span className="badge badge-subtle">2</span>
+          </Link>
+
+          <Link href="/assignments" className={navLinkClass('/assignments')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Assignments
+            </span>
+            <span className="badge badge-subtle">5</span>
+          </Link>
+
+          <Link href="/issues" className={navLinkClass('/issues')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Issues
+            </span>
+            <span className="badge badge-danger">7</span>
+          </Link>
+
+          <Link href="/imports" className={navLinkClass('/imports')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Imports & Exports
+            </span>
+          </Link>
+
+          {/* Admin section */}
+          <div className="nav-section-label">Platform Admin</div>
+
+          <Link href="/admin/institutions" className={navLinkClass('/admin/institutions')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Institutions
+            </span>
+          </Link>
+
+          <Link href="/admin/users" className={navLinkClass('/admin/users')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Users & Roles
+            </span>
           </Link>
         </nav>
 
-        <div style={{ padding: '1.5rem 1rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Link href="/notifications" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>🔔</span> Notifications</div>
+        {/* Sidebar Footer */}
+        <div className="sidebar-footer">
+          <Link href="/notifications" className={navLinkClass('/notifications')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Notifications
+            </span>
             <span className="badge badge-danger">4</span>
           </Link>
-          <Link href="/profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', borderRadius: '8px', fontWeight: 500, fontSize: '0.875rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span>👤</span> Profile</div>
+
+          <Link href="/profile" className={navLinkClass('/profile')}>
+            <span className="nav-link-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile
+            </span>
           </Link>
+
+          {/* User Card */}
+          <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'var(--color-bg-surface)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid var(--border-subtle)' }}>
+            <div className="avatar" style={{ width: '32px', height: '32px', background: 'var(--color-primary)', color: 'white' }}>JD</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Jane Doe</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Class Representative</div>
+            </div>
+          </div>
         </div>
       </aside>
-      
+
       <main className="main-content">
         {/* Topbar */}
         <header className="topbar">
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
             <AcademicScopeSelector />
           </div>
-          
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <RoleSwitcher />
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.875rem' }}>
-              JD
-            </div>
           </div>
         </header>
 
