@@ -9,9 +9,12 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@talora/domain": "*",
     "@talora/database": "*",
-    "@talora/observability": "*"
+    "@talora/domain": "*",
+    "@talora/observability": "*",
+    "bullmq": "^6.1.0",
+    "csv-parse": "^7.0.2",
+    "ioredis": "^6.0.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

@@ -1,11 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:talora_mobile/theme/app_theme.dart';
+import 'package:talora_mobile/services/api_client.dart';
 
-class TimetableScreen extends StatelessWidget {
+class TimetableScreen extends StatefulWidget {
   const TimetableScreen({super.key});
 
   @override
+  State<TimetableScreen> createState() => _TimetableScreenState();
+}
+
+class _TimetableScreenState extends State<TimetableScreen> {
+  bool _isLoading = true;
+  List<dynamic> _events = [];
+  String? _error;
+  int _selectedDay = DateTime.now().weekday; // 1 = Mon, 7 = Sun
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final res = await ApiClient.get('/timetable-events');
+      setState(() {
+        _events = res['data'];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  final List<String> _dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  @override
   Widget build(BuildContext context) {
+    if (_selectedDay > 5) _selectedDay = 1; // Default to Monday if weekend
+    
+    final dayEvents = _events.where((e) => e['dayOfWeek'] == _selectedDay).toList();
+
     return Column(
       children: [
         // Date Selector Header
@@ -20,21 +58,25 @@ class TimetableScreen extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.chevron_left),
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    _selectedDay = _selectedDay > 1 ? _selectedDay - 1 : 5;
+                  });
+                },
               ),
-              const Column(
+              Column(
                 children: [
                   Text(
-                    'Today',
-                    style: TextStyle(
+                    _dayNames[_selectedDay - 1],
+                    style: const TextStyle(
                       color: AppTheme.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Nov 14, 2026',
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Weekly Schedule',
                     style: TextStyle(
                       color: AppTheme.textSecondary,
                       fontSize: 14,
@@ -44,7 +86,11 @@ class TimetableScreen extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    _selectedDay = _selectedDay < 5 ? _selectedDay + 1 : 1;
+                  });
+                },
               ),
             ],
           ),
@@ -52,32 +98,27 @@ class TimetableScreen extends StatelessWidget {
 
         // Timeline
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              _buildTimelineItem(
-                time: '09:00 AM',
-                title: 'Data Structures Lecture',
-                location: 'Room 302, Science Block',
-                type: 'Lecture',
-                color: AppTheme.primaryColor,
-              ),
-              _buildTimelineItem(
-                time: '11:30 AM',
-                title: 'Software Engineering Lab',
-                location: 'Lab 4, Tech Building',
-                type: 'Lab',
-                color: AppTheme.accentColor,
-              ),
-              _buildTimelineItem(
-                time: '02:00 PM',
-                title: 'Group Meeting: Alpha Coders',
-                location: 'Library Study Room B',
-                type: 'Meeting',
-                color: AppTheme.success,
-              ),
-            ],
-          ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
+                  : dayEvents.isEmpty
+                      ? const Center(child: Text('No classes today 🎉', style: TextStyle(color: AppTheme.textSecondary)))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          itemCount: dayEvents.length,
+                          itemBuilder: (context, index) {
+                            final event = dayEvents[index];
+                            final colors = [AppTheme.primaryColor, AppTheme.accentColor, AppTheme.success, Colors.orange];
+                            return _buildTimelineItem(
+                              time: event['startTime'],
+                              title: event['title'],
+                              location: event['location'] ?? 'TBD',
+                              type: 'Class',
+                              color: colors[index % colors.length],
+                            );
+                          },
+                        ),
         ),
       ],
     );
@@ -96,7 +137,7 @@ class TimetableScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 70,
+            width: 50,
             child: Text(
               time,
               style: const TextStyle(

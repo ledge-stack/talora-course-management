@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:talora_mobile/theme/app_theme.dart';
+import 'package:talora_mobile/services/api_client.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
+  List<dynamic> _notifications = [];
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    try {
+      final res = await ApiClient.get('/notifications');
+      setState(() {
+        _notifications = res['data'];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +50,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         
-        // Priority Card
+        // Priority Card (Static for demo)
         Card(
           color: AppTheme.primaryColor.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
@@ -33,12 +64,12 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 20),
+                    Icon(Icons.school, color: AppTheme.primaryColor, size: 20),
                     const SizedBox(width: 8),
                     const Text(
-                      'Action Required',
+                      'Semester Started',
                       style: TextStyle(
-                        color: AppTheme.warning,
+                        color: AppTheme.primaryColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -47,7 +78,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Group Formation Deadline Approaching',
+                  'Welcome back to Talora!',
                   style: TextStyle(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -56,21 +87,12 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'CS-301 Data Structures requires you to join or form a group by Nov 16.',
+                  'Check your timetable for upcoming classes.',
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    minimumSize: const Size(0, 36),
-                  ),
-                  child: const Text('View Groups'),
-                )
               ],
             ),
           ),
@@ -87,35 +109,25 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // Activity Feed Items
-        _buildActivityItem(
-          icon: Icons.assignment_turned_in,
-          iconColor: AppTheme.success,
-          title: 'Assignment Graded',
-          subtitle: 'Software Engineering - MVP Submission',
-          time: '2 hrs ago',
-        ),
-        _buildActivityItem(
-          icon: Icons.group_add,
-          iconColor: AppTheme.primaryColor,
-          title: 'New Member Joined',
-          subtitle: 'Sarah Chen joined "Alpha Coders"',
-          time: '5 hrs ago',
-        ),
-        _buildActivityItem(
-          icon: Icons.campaign,
-          iconColor: AppTheme.accentColor,
-          title: 'Class Announcement',
-          subtitle: 'Room change for Tomorrow\'s Lab',
-          time: 'Yesterday',
-        ),
-        _buildActivityItem(
-          icon: Icons.event,
-          iconColor: AppTheme.warning,
-          title: 'New Assignment Posted',
-          subtitle: 'Data Structures - Dynamic Programming',
-          time: '2 days ago',
-        ),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (_error != null)
+          Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
+        else if (_notifications.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Center(
+              child: Text('You are all caught up!', style: TextStyle(color: AppTheme.textSecondary)),
+            ),
+          )
+        else
+          ..._notifications.take(5).map((notif) => _buildActivityItem(
+            icon: Icons.notifications,
+            iconColor: notif['isRead'] ? AppTheme.textSecondary : AppTheme.primaryColor,
+            title: notif['title'],
+            subtitle: notif['message'],
+            time: 'Recent',
+          )),
       ],
     );
   }

@@ -1,102 +1,124 @@
 import React from 'react';
+import { cookies } from 'next/headers';
+import { db } from '@talora/database';
+import { verifyJwt } from '@talora/auth';
+import CreateGroupButton from './CreateGroupButton';
+import GroupsClient from './GroupsClient';
 
-export default function GroupsPage() {
-  const mockGroups = [
-    { id: '1', name: 'Group 1', leader: 'Sarah Chen', members: 5, status: 'Complete' },
-    { id: '2', name: 'Group 2', leader: 'James Doe', members: 3, status: 'Incomplete' },
-    { id: '3', name: 'Study Buddies', leader: 'Elena Smith', members: 4, status: 'Complete' },
-    { id: '4', name: 'Alpha Coders', leader: 'Kwame Osei', members: 5, status: 'Complete' },
+export default async function GroupsPage() {
+  const token = cookies().get('talora_token')?.value;
+  let groups: any[] = [];
+  let offeringName = 'No Offering Selected';
+  let stats = {
+    totalStudents: 0,
+    studentsInGroups: 0,
+    totalGroups: 0,
+    minGroupSize: 4,
+    maxGroupSize: 6,
+  };
+  let offeringId = '';
+  let canCreateGroup = false;
+
+  if (token) {
+    try {
+      await verifyJwt(token);
+      
+      const offering = await db.courseOffering.findFirst({
+        include: { unit: true, term: true, class: true },
+      });
+
+      if (offering) {
+        offeringId = offering.id;
+        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        stats.minGroupSize = offering.minGroupSize;
+        stats.maxGroupSize = offering.maxGroupSize;
+        
+        const dbGroups = await db.group.findMany({
+          where: { offeringId: offering.id },
+          include: {
+            _count: { select: { memberships: true } },
+          },
+        });
+
+        stats.totalGroups = dbGroups.length;
+
+        const leaderIds = dbGroups.map(g => g.leaderId);
+        const leaders = await db.user.findMany({
+          where: { id: { in: leaderIds } },
+          select: { id: true, fullName: true },
+        });
+        const leaderMap = new Map(leaders.map(l => [l.id, l.fullName]));
+
+        groups = dbGroups.map(g => ({
+          id: g.id,
+          name: g.name,
+          leader: leaderMap.get(g.leaderId) || 'Unknown',
+          membersCount: g._count.memberships,
+          status: g.status,
+          capacity: stats.maxGroupSize
+        }));
+
+        stats.totalStudents = await db.enrollment.count({ where: { offeringId: offering.id } });
+        stats.studentsInGroups = await db.groupMembership.count({ where: { offeringId: offering.id } });
+
+        const payload = await verifyJwt(token);
+        const isStudent = payload.roles.some(r => r.role === 'STUDENT');
+        if (isStudent) {
+          const userMembership = await db.groupMembership.findUnique({
+            where: { studentId_offeringId: { studentId: payload.userId, offeringId: offering.id } }
+          });
+          canCreateGroup = !userMembership;
+        } else {
+          // Reps can create groups
+          canCreateGroup = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const overviewStats = [
+    { label: 'Total Groups', value: stats.totalGroups },
+    { label: 'Students in Groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
+    { label: 'Ungrouped Students', value: stats.totalStudents - stats.studentsInGroups, isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
+    { label: 'Group Rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.875rem', marginBottom: '0.25rem', color: 'var(--color-text-primary)' }}>Groups</h1>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
-            Manage student groups, policies, and formation status.
-          </p>
+          <h1>Group Management</h1>
+          <p>{offeringName}</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="page-header-actions">
           <button className="btn-secondary">
-            ⚙️ Group Policies
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter Rules
           </button>
-          <button className="btn-primary">
-            + Create Group
-          </button>
+          {offeringId && (
+            <CreateGroupButton offeringId={offeringId} disabled={!canCreateGroup} />
+          )}
         </div>
       </header>
 
-      {/* KPI Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Total Groups</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>12</div>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Grouped Students</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-success)' }}>36 / 42</div>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Incomplete Groups</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-warning)' }}>3</div>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Pending Requests</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-primary)' }}>4</div>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, maxWidth: '400px' }}>
-          <input 
-            type="text" 
-            placeholder="Search groups..." 
-            style={{ flex: 1, padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }} 
-          />
-          <select style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}>
-            <option>All Statuses</option>
-            <option>Complete</option>
-            <option>Incomplete</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Grid of Groups */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {mockGroups.map(group => (
-          <div key={group.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.125rem', color: 'var(--color-text-primary)' }}>{group.name}</h3>
-                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Leader: {group.leader}</div>
-              </div>
-              {group.status === 'Complete' ? (
-                <span className="badge badge-success">Complete</span>
-              ) : (
-                <span className="badge badge-warning">Incomplete</span>
-              )}
+      {/* KPI Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+        {overviewStats.map((stat, i) => (
+          <div key={i} className="glass-panel" style={{ padding: '1.5rem' }}>
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem', marginBottom: '0.5rem', fontWeight: 500 }}>
+              {stat.label}
             </div>
-            
-            <div style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Capacity</span>
-                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{group.members} / 5</span>
-              </div>
-              <div style={{ width: '100%', height: '6px', background: 'var(--border-strong)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: `${(group.members / 5) * 100}%`, height: '100%', background: group.status === 'Complete' ? 'var(--color-success)' : 'var(--color-warning)', borderRadius: '3px' }}></div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-              <button className="btn-secondary" style={{ flex: 1 }}>View Details</button>
-              <button className="btn-secondary" style={{ padding: '0.5rem' }}>•••</button>
+            <div style={{ color: stat.isWarning ? 'var(--color-danger)' : 'var(--color-text-primary)', fontSize: '1.5rem', fontWeight: 600, fontFamily: 'var(--font-display)' }}>
+              {stat.value}
             </div>
           </div>
         ))}
       </div>
+
+      <GroupsClient groups={groups} />
     </div>
   );
 }
