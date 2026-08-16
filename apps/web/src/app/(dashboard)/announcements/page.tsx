@@ -19,9 +19,20 @@ export default async function AnnouncementsPage() {
       const payload = await verifyJwt(token);
       canCreate = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
-      const offering = await db.courseOffering.findFirst({
-        include: { unit: true, term: true, class: true },
-      });
+      let offering;
+      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      if (activeOfferingId) {
+        offering = await db.courseOffering.findUnique({
+          where: { id: activeOfferingId },
+          include: { unit: true, term: true, class: true },
+        });
+      }
+      
+      if (!offering) {
+        offering = await db.courseOffering.findFirst({
+          include: { unit: true, term: true, class: true },
+        });
+      }
 
       if (offering) {
         offeringId = offering.id;

@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const offeringId = url.searchParams.get('offeringId');
 
-    let whereClause: any = {};
+    const whereClause: any = {};
     if (offeringId) {
       whereClause.offeringId = offeringId;
     } else {

@@ -9,16 +9,34 @@ export async function GET(request: Request) {
 
     const scope = JSON.parse(scopeHeader) as UserScope;
 
-    // A real implementation would filter offerings based on the user's role.
-    // For instance, returning offerings where they are a student, or where they are a rep.
-    // Since we seeded one offering, let's just return it for now.
-    const offerings = await db.courseOffering.findMany({
-      include: {
-        unit: true,
-        term: true,
-        class: true,
-      },
-    });
+    const url = new URL(request.url);
+    const available = url.searchParams.get('available') === 'true';
+
+    let offerings = [];
+    if (available) {
+      // Find all offerings the user is NOT enrolled in
+      const enrolledIds = (await db.enrollment.findMany({
+        where: { studentId: scope.userId },
+        select: { offeringId: true }
+      })).map(e => e.offeringId);
+
+      offerings = await db.courseOffering.findMany({
+        where: {
+          id: { notIn: enrolledIds }
+        },
+        include: { unit: true, class: true, term: true }
+      });
+    } else {
+      const user = await db.user.findUnique({ where: { id: scope.userId } });
+      
+      if (user) {
+        const enrollments = await db.enrollment.findMany({
+          where: { studentId: user.id },
+          include: { offering: { include: { unit: true, class: true, term: true } } }
+        });
+        offerings = enrollments.map(e => e.offering);
+      }
+    }
 
     return NextResponse.json({ data: offerings });
   } catch (error) {

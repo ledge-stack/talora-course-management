@@ -23,9 +23,21 @@ export default async function GroupsPage() {
     try {
       await verifyJwt(token);
       
-      const offering = await db.courseOffering.findFirst({
-        include: { unit: true, term: true, class: true },
-      });
+      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      
+      let offering = null;
+      if (activeOfferingId) {
+        offering = await db.courseOffering.findUnique({
+          where: { id: activeOfferingId },
+          include: { unit: true, term: true, class: true },
+        });
+      }
+
+      if (!offering) {
+        offering = await db.courseOffering.findFirst({
+          include: { unit: true, term: true, class: true },
+        });
+      }
 
       if (offering) {
         offeringId = offering.id;
@@ -53,9 +65,11 @@ export default async function GroupsPage() {
           id: g.id,
           name: g.name,
           leader: leaderMap.get(g.leaderId) || 'Unknown',
+          leaderId: g.leaderId,
           membersCount: g._count.memberships,
           status: g.status,
-          capacity: stats.maxGroupSize
+          capacity: stats.maxGroupSize,
+          isOpen: g.isOpen
         }));
 
         stats.totalStudents = await db.enrollment.count({ where: { offeringId: offering.id } });
@@ -70,11 +84,39 @@ export default async function GroupsPage() {
           canCreateGroup = !userMembership;
         } else {
           // Reps can create groups
-          canCreateGroup = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+          canCreateGroup = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
         }
       }
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  // Fetch pending requests for the offering
+  let pendingRequests: any[] = [];
+  if (offeringId) {
+    const rawRequests = await db.groupChangeRequest.findMany({
+      where: { group: { offeringId }, status: 'PENDING' },
+      include: { group: { select: { id: true, leaderId: true } } }
+    });
+
+    if (rawRequests.length > 0) {
+      const studentIds = rawRequests.map(r => r.studentId);
+      const students = await db.user.findMany({
+        where: { id: { in: studentIds } },
+        select: { id: true, fullName: true, email: true }
+      });
+      const studentMap = new Map(students.map(s => [s.id, s]));
+
+      pendingRequests = rawRequests.map(r => ({
+        id: r.id,
+        groupId: r.groupId,
+        groupLeaderId: r.group.leaderId,
+        studentId: r.studentId,
+        studentName: studentMap.get(r.studentId)?.fullName || 'Unknown Student',
+        studentEmail: studentMap.get(r.studentId)?.email,
+        reason: r.reason
+      }));
     }
   }
 
@@ -94,10 +136,7 @@ export default async function GroupsPage() {
           <p>{offeringName}</p>
         </div>
         <div className="page-header-actions">
-          <button className="btn-secondary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            Filter Rules
-          </button>
+
           {offeringId && (
             <CreateGroupButton offeringId={offeringId} disabled={!canCreateGroup} />
           )}
@@ -118,7 +157,16 @@ export default async function GroupsPage() {
         ))}
       </div>
 
-      <GroupsClient groups={groups} />
+      <GroupsClient 
+        groups={groups} 
+        isUserInGroup={!canCreateGroup} 
+        currentUserId={token ? JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).userId : ''}
+        isRep={token ? JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).roles?.some((r: any) => r.role === 'CLASS_REPRESENTATIVE') : false}
+        offeringId={offeringId}
+        pendingRequests={pendingRequests}
+        minGroupSize={stats.minGroupSize}
+        maxGroupSize={stats.maxGroupSize}
+      />
     </div>
   );
 }

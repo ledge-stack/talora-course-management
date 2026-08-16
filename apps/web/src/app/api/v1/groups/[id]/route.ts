@@ -32,6 +32,7 @@ export async function PATCH(
     if (body.name && isLeader) data.name = body.name; // Leader can rename
     if (body.status && isRep) data.status = body.status; // Only Rep can force status
     if (body.isLocked !== undefined && isRep) data.isLocked = body.isLocked; // Only Rep can lock
+    if (body.isOpen !== undefined && (isRep || isLeader)) data.isOpen = body.isOpen; // Leader/Rep can toggle Open/Closed
     if (body.leaderId && (isRep || isLeader)) {
       // Transfer leadership
       // Verify new leader is in the group

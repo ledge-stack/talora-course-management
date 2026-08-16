@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTheme } from 'next-themes';
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   // Ensure component is mounted to avoid hydration mismatch

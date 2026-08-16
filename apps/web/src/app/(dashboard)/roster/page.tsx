@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { verifyJwt } from '@talora/auth';
 
-import { GapYearToggle } from './GapYearToggle';
+
 import RosterClient from './RosterClient';
 import type { UserScope } from '@talora/auth';
 
@@ -24,9 +24,20 @@ export default async function RosterPage() {
       const scope = await verifyJwt(token) as UserScope;
       canEdit = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
       
-      const offering = await db.courseOffering.findFirst({
-        include: { unit: true, term: true, class: true },
-      });
+      let offering = null;
+      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      if (activeOfferingId) {
+        offering = await db.courseOffering.findUnique({
+          where: { id: activeOfferingId },
+          include: { unit: true, term: true, class: true },
+        });
+      }
+      
+      if (!offering) {
+        offering = await db.courseOffering.findFirst({
+          include: { unit: true, term: true, class: true },
+        });
+      }
 
       if (offering) {
         offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
@@ -83,14 +94,12 @@ export default async function RosterPage() {
           <p>{offeringName} — {students.length} Students</p>
         </div>
         <div className="page-header-actions">
-          <button className="btn-secondary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export CSV
-          </button>
-          <button className="btn-primary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
-            Import Roster
-          </button>
+          {offering && (
+            <a href={`/api/v1/offerings/${offering.id}/export`} className="btn-secondary" style={{ textDecoration: 'none' }} download>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Class List
+            </a>
+          )}
         </div>
       </header>
 

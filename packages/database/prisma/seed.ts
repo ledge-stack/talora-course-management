@@ -88,7 +88,7 @@ async function main() {
   const defaultPassword = await bcrypt.hash('password123', salt);
 
   // Create Admin User
-  const admin = await prisma.user.create({
+  await prisma.user.create({
     data: {
       institutionId: institution.id,
       email: 'admin@university.edu',
@@ -172,7 +172,7 @@ async function main() {
 
   // Groups for primary offering
   // Group 1: Complete (6 members)
-  const group1 = await prisma.group.create({
+  await prisma.group.create({
     data: {
       offeringId: primaryOffering.id,
       name: 'Group 1',
@@ -190,7 +190,7 @@ async function main() {
 
   // Group 2: Incomplete (3 members)
   const group2Leader = students[5];
-  const group2 = await prisma.group.create({
+  await prisma.group.create({
     data: {
       offeringId: primaryOffering.id,
       name: 'Group 2',
@@ -206,7 +206,7 @@ async function main() {
 
   // Group 3: Forming (2 members)
   const group3Leader = students[8];
-  const group3 = await prisma.group.create({
+  await prisma.group.create({
     data: {
       offeringId: primaryOffering.id,
       name: 'Group 3',
@@ -222,7 +222,7 @@ async function main() {
 
   // Group 4: Forming (1 member)
   const group4Leader = students[10];
-  const group4 = await prisma.group.create({
+  await prisma.group.create({
     data: {
       offeringId: primaryOffering.id,
       name: 'Group 4',
@@ -249,7 +249,7 @@ async function main() {
     },
   });
 
-  const assignment2 = await prisma.assignment.create({
+  await prisma.assignment.create({
     data: {
       offeringId: primaryOffering.id,
       title: 'Final AI Project',

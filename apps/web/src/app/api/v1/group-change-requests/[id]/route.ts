@@ -13,16 +13,6 @@ export async function PATCH(
     const scope = JSON.parse(scopeHeader) as UserScope;
     const body = await request.json();
 
-    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
-    if (!isRep) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only Class Reps can process change requests' }, { status: 403 });
-    }
-
-    const { status } = body;
-    if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
-      return NextResponse.json({ code: 'BAD_REQUEST', message: 'Invalid status' }, { status: 400 });
-    }
-
     const changeRequest = await db.groupChangeRequest.findUnique({
       where: { id: params.id },
       include: {
@@ -35,22 +25,36 @@ export async function PATCH(
       return NextResponse.json({ code: 'CONFLICT', message: 'Request is already processed' }, { status: 409 });
     }
 
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+    const isLeader = changeRequest.group.leaderId === scope.userId;
+
+    if (!isRep && !isLeader) {
+      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only Class Reps or the Group Leader can process change requests' }, { status: 403 });
+    }
+
+    const { status } = body;
+    if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+      return NextResponse.json({ code: 'BAD_REQUEST', message: 'Invalid status' }, { status: 400 });
+    }
+
     // Process transaction if approved
     if (status === 'APPROVED') {
-      if (changeRequest.targetGroupId) {
-        // Move to target group
+      // Check if student has a current membership in this offering
+      const existingMembership = await db.groupMembership.findUnique({
+        where: {
+          studentId_offeringId: {
+            studentId: changeRequest.studentId,
+            offeringId: changeRequest.group.offeringId
+          }
+        }
+      });
+
+      if (!existingMembership) {
+        // This is a Join Request from an ungrouped student
         await db.$transaction([
-          db.groupMembership.delete({
-            where: {
-              studentId_offeringId: {
-                studentId: changeRequest.studentId,
-                offeringId: changeRequest.group.offeringId
-              }
-            }
-          }),
           db.groupMembership.create({
             data: {
-              groupId: changeRequest.targetGroupId,
+              groupId: changeRequest.groupId,
               studentId: changeRequest.studentId,
               offeringId: changeRequest.group.offeringId
             }
@@ -61,21 +65,47 @@ export async function PATCH(
           })
         ]);
       } else {
-        // Just remove from current group (making them unassigned)
-        await db.$transaction([
-          db.groupMembership.delete({
-            where: {
-              studentId_offeringId: {
+        // This student is already in a group
+        if (changeRequest.targetGroupId) {
+          // Transfer request
+          await db.$transaction([
+            db.groupMembership.delete({
+              where: {
+                studentId_offeringId: {
+                  studentId: changeRequest.studentId,
+                  offeringId: changeRequest.group.offeringId
+                }
+              }
+            }),
+            db.groupMembership.create({
+              data: {
+                groupId: changeRequest.targetGroupId,
                 studentId: changeRequest.studentId,
                 offeringId: changeRequest.group.offeringId
               }
-            }
-          }),
-          db.groupChangeRequest.update({
-            where: { id: changeRequest.id },
-            data: { status: 'APPROVED' }
-          })
-        ]);
+            }),
+            db.groupChangeRequest.update({
+              where: { id: changeRequest.id },
+              data: { status: 'APPROVED' }
+            })
+          ]);
+        } else {
+          // Remove request
+          await db.$transaction([
+            db.groupMembership.delete({
+              where: {
+                studentId_offeringId: {
+                  studentId: changeRequest.studentId,
+                  offeringId: changeRequest.group.offeringId
+                }
+              }
+            }),
+            db.groupChangeRequest.update({
+              where: { id: changeRequest.id },
+              data: { status: 'APPROVED' }
+            })
+          ]);
+        }
       }
     } else {
       // Reject

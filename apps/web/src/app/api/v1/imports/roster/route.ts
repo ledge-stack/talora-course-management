@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Queue } from 'bullmq';
-import { verifyJwt } from '@talora/auth';
+
 
 import IORedis from 'ioredis';
 

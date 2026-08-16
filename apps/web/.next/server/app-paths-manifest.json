@@ -1,12 +1,7 @@
 {
-  "/api/v1/offerings/route": "app/api/v1/offerings/route.js",
-  "/(dashboard)/roster/page": "app/(dashboard)/roster/page.js",
-  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js",
-  "/(dashboard)/assignments/page": "app/(dashboard)/assignments/page.js",
-  "/(dashboard)/groups/page": "app/(dashboard)/groups/page.js",
-  "/(dashboard)/announcements/page": "app/(dashboard)/announcements/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/(dashboard)/enroll/page": "app/(dashboard)/enroll/page.js",
   "/(dashboard)/notifications/page": "app/(dashboard)/notifications/page.js",
-  "/(dashboard)/issues/page": "app/(dashboard)/issues/page.js",
-  "/(dashboard)/imports/page": "app/(dashboard)/imports/page.js"
+  "/(dashboard)/assignments/page": "app/(dashboard)/assignments/page.js",
+  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js"
 }

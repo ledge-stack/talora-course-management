@@ -1,5 +1,6 @@
 import { logInfo, logError } from '@talora/observability';
 import { db } from '@talora/database';
+import { hashPassword } from '@talora/auth';
 import { Worker } from 'bullmq';
 import { parse } from 'csv-parse';
 
@@ -55,8 +56,6 @@ const worker = new Worker('import-jobs', async (job) => {
     // Create or find user
     let user = await db.user.findUnique({ where: { email } });
     if (!user) {
-      // Import the hash helper inline to avoid top-level issues if needed, or import at top. Let's just require it.
-      const { hashPassword } = require('@talora/auth');
       const passwordHash = await hashPassword('temporary-password-123');
 
       user = await db.user.create({

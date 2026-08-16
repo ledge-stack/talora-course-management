@@ -44,6 +44,13 @@ export default function SidebarNav({ userRole = 'Student', unreadCount = 0 }: { 
           </span>
         </Link>
 
+        <Link href="/enroll" className={navLinkClass('/enroll')}>
+          <span className="nav-link-inner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Course Enrollment
+          </span>
+        </Link>
+
         <Link href="/groups" className={navLinkClass('/groups')}>
           <span className="nav-link-inner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
@@ -76,14 +83,7 @@ export default function SidebarNav({ userRole = 'Student', unreadCount = 0 }: { 
           </Link>
         )}
 
-        {isRepOrAdmin && (
-          <Link href="/imports" className={navLinkClass('/imports')}>
-            <span className="nav-link-inner">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Imports & Exports
-            </span>
-          </Link>
-        )}
+
 
         {isAdmin && (
           <>
@@ -108,6 +108,8 @@ export default function SidebarNav({ userRole = 'Student', unreadCount = 0 }: { 
 
       <div className="sidebar-footer">
         <ThemeToggle />
+
+
 
         <Link href="/notifications" className={navLinkClass('/notifications')}>
           <span className="nav-link-inner" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

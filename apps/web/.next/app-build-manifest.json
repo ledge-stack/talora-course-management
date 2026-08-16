@@ -16,10 +16,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/(dashboard)/roster/page": [
+    "/(auth)/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/roster/page.js"
+      "static/chunks/app/(auth)/login/page.js"
     ],
     "/(dashboard)/timetable/page": [
       "static/chunks/webpack.js",
@@ -31,35 +31,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/groups/page.js"
     ],
-    "/(dashboard)/announcements/page": [
+    "/(dashboard)/profile/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/announcements/page.js"
-    ],
-    "/(dashboard)/assignments/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/assignments/page.js"
+      "static/chunks/app/(dashboard)/profile/page.js"
     ],
     "/(dashboard)/notifications/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/notifications/page.js"
     ],
-    "/(dashboard)/issues/page": [
+    "/(dashboard)/enroll/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/issues/page.js"
+      "static/chunks/app/(dashboard)/enroll/page.js"
     ],
-    "/(dashboard)/imports/page": [
+    "/(dashboard)/assignments/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/imports/page.js"
-    ],
-    "/(dashboard)/profile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/profile/page.js"
+      "static/chunks/app/(dashboard)/assignments/page.js"
     ]
   }
 }

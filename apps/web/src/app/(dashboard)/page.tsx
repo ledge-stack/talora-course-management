@@ -1,13 +1,8 @@
 import React from 'react';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
 
-const recentActivity = [
-  { id: 1, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, bg: 'var(--color-success-bg)', color: 'var(--color-success)', text: 'Sarah Chen joined Group 4', time: '2 min ago' },
-  { id: 2, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>, bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', text: 'Group change request from Mark Liu', time: '18 min ago' },
-  { id: 3, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', text: 'New issue: Lab room booking conflict', time: '1 hr ago' },
-  { id: 4, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, bg: 'var(--color-success-bg)', color: 'var(--color-success)', text: 'Kwame Osei submitted Assignment 3', time: '2 hr ago' },
-];
+
 
 export default async function Dashboard() {
   const scopeHeader = headers().get('x-user-scope');
@@ -31,10 +26,42 @@ export default async function Dashboard() {
     try {
       const scope = JSON.parse(scopeHeader);
       
-      // Fetch the first offering for the dashboard
-      const offering = await db.courseOffering.findFirst({
-        include: { unit: true, term: true, class: true },
-      });
+      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      
+      // Fetch the selected offering for the dashboard, fallback to first
+      let offering = null;
+      
+      if (activeOfferingId) {
+        offering = await db.courseOffering.findUnique({
+          where: { id: activeOfferingId },
+          include: { unit: true, term: true, class: true },
+        });
+      }
+      
+      if (!offering) {
+        // Find FIRST enrolled offering
+        const firstEnrollment = await db.enrollment.findFirst({
+          where: { studentId: scope.userId },
+          include: { offering: { include: { unit: true, term: true, class: true } } }
+        });
+        if (firstEnrollment) {
+          offering = firstEnrollment.offering;
+        }
+      }
+
+      if (!offering) {
+        // User has 0 enrollments
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary-transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginBottom: '1rem' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Welcome to Talora!</h2>
+            <p style={{ color: 'var(--color-text-secondary)', maxWidth: '400px' }}>You haven't enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
+            <a href="/enroll" className="btn-primary" style={{ textDecoration: 'none' }}>Go to Course Enrollment</a>
+          </div>
+        );
+      }
 
       if (offering) {
         offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
@@ -72,8 +99,8 @@ export default async function Dashboard() {
         });
 
         const studentMembership = await db.groupMembership.findFirst({
-          where: { offeringId: offering.id, userId: scope.userId },
-          include: { group: { include: { memberships: { include: { user: true } } } } }
+          where: { offeringId: offering.id, studentId: scope.userId },
+          include: { group: { include: { memberships: { include: { student: true } } } } }
         });
         if (studentMembership) {
           myGroup = studentMembership.group;
@@ -278,7 +305,7 @@ export default async function Dashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {myGroup.memberships.map((m: any) => (
                     <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', background: 'var(--color-bg-surface-hover)', borderRadius: '6px' }}>
-                      <div style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>{m.user.fullName} {m.isLeader && <span className="badge badge-primary" style={{ marginLeft: '0.5rem', fontSize: '0.65rem' }}>Leader</span>}</div>
+                      <div style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>{m.student?.fullName || 'Unknown Student'} {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '0.5rem', fontSize: '0.65rem' }}>Leader</span>}</div>
                     </div>
                   ))}
                 </div>

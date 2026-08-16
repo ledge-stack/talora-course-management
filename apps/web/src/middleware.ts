@@ -50,9 +50,21 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
     try {
-      await verifyJwt(token);
+      const payload = await verifyJwt(token);
+      
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('x-user-id', payload.userId);
+      requestHeaders.set('x-user-scope', JSON.stringify(payload));
+      
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
     } catch {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('talora_token');
+      return response;
     }
   }
 

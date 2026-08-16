@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://10.0.2.2:3000/api/v1';
+  static const String baseUrl = 'http://127.0.0.1:3000/api/v1';
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -20,6 +20,16 @@ class ApiClient {
     await prefs.remove('talora_token');
   }
 
+  static Future<String?> getActiveOfferingId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('active_offering_id');
+  }
+
+  static Future<void> setActiveOfferingId(String offeringId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('active_offering_id', offeringId);
+  }
+
   static Future<Map<String, String>> _getHeaders() async {
     final token = await getToken();
     return {
@@ -29,7 +39,19 @@ class ApiClient {
   }
 
   static Future<dynamic> get(String endpoint) async {
-    final url = Uri.parse('$baseUrl$endpoint');
+    String urlStr = '$baseUrl$endpoint';
+    
+    // Append offeringId if we have one and it's not already in the URL
+    final activeOfferingId = await getActiveOfferingId();
+    if (activeOfferingId != null && !urlStr.contains('offeringId=')) {
+      if (urlStr.contains('?')) {
+        urlStr += '&offeringId=$activeOfferingId';
+      } else {
+        urlStr += '?offeringId=$activeOfferingId';
+      }
+    }
+
+    final url = Uri.parse(urlStr);
     final response = await http.get(url, headers: await _getHeaders());
     
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -40,7 +62,19 @@ class ApiClient {
   }
 
   static Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
-    final url = Uri.parse('$baseUrl$endpoint');
+    String urlStr = '$baseUrl$endpoint';
+    
+    // Append offeringId if we have one and it's not already in the URL
+    final activeOfferingId = await getActiveOfferingId();
+    if (activeOfferingId != null && !urlStr.contains('offeringId=')) {
+      if (urlStr.contains('?')) {
+        urlStr += '&offeringId=$activeOfferingId';
+      } else {
+        urlStr += '?offeringId=$activeOfferingId';
+      }
+    }
+
+    final url = Uri.parse(urlStr);
     final response = await http.post(
       url, 
       headers: await _getHeaders(),

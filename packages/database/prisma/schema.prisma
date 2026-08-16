@@ -150,6 +150,7 @@ model Group {
   name        String
   leaderId    String
   status      GroupStatus @default(FORMING)
+  isOpen      Boolean     @default(true)
   isLocked    Boolean     @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

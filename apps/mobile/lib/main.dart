@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:talora_mobile/theme/app_theme.dart';
+import 'package:talora_mobile/services/api_client.dart';
+import 'package:talora_mobile/screens/main_layout.dart';
+import 'package:talora_mobile/screens/login_screen.dart';
 
 void main() {
   runApp(const TaloraMobileApp());
@@ -13,56 +17,31 @@ class TaloraMobileApp extends StatelessWidget {
       title: 'Talora Mobile',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0284C7),
+          seedColor: AppTheme.primaryColor,
           brightness: Brightness.dark,
         ),
+        scaffoldBackgroundColor: AppTheme.backgroundBase,
         useMaterial3: true,
       ),
-      home: const StudentDashboardPage(),
-    );
-  }
-}
-
-class StudentDashboardPage extends StatelessWidget {
-  const StudentDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Talora Student Portal'),
-        elevation: 2,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            const Card(
-              child: ListTile(
-                leading: Icon(Icons.group_work, color: Colors.cyanAccent),
-                title: Text('My Course Groups'),
-                subtitle: Text('Enrolled in 3 course offerings. 1 active membership.'),
+      home: FutureBuilder<String?>(
+        future: ApiClient.getToken(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-            const SizedBox(height: 12),
-            const Card(
-              child: ListTile(
-                leading: Icon(Icons.campaign, color: Colors.orangeAccent),
-                title: Text('Announcements'),
-                subtitle: Text('Latest timetable change & submission deadline.'),
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Card(
-              child: ListTile(
-                leading: Icon(Icons.assignment_turned_in, color: Colors.greenAccent),
-                title: Text('Assignments & Submissions'),
-                subtitle: Text('Software Engineering MVP due Aug 25.'),
-              ),
-            ),
-          ],
-        ),
+            );
+          }
+          
+          if (snapshot.hasData && snapshot.data != null) {
+            return const MainLayout();
+          } else {
+            return const LoginScreen();
+          }
+        },
       ),
     );
   }
 }
+

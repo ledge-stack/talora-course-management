@@ -98,7 +98,7 @@ export default function LoginPage() {
         </form>
 
         <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-          <p>Don't have an account? <a href="#" style={{ color: 'var(--color-text-primary)', fontWeight: 500, textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>Contact your administrator</a></p>
+          <p>Don't have an account? <Link href="/register" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Sign up</Link> or <a href="#" style={{ color: 'var(--color-text-primary)', fontWeight: 500, textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>Contact your administrator</a></p>
         </div>
       </div>
     </div>
