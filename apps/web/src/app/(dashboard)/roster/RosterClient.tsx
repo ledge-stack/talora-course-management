@@ -107,9 +107,31 @@ export default function RosterClient({ students, canEdit }: { students: Student[
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
                       <GapYearToggle userId={student.userId} isGapYear={student.tookGapYear} canEdit={canEdit} />
-                      <button className="btn-ghost" style={{ padding: '0.4rem', color: 'var(--color-text-muted)' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                      </button>
+                      {canEdit && (
+                        <button 
+                          className="btn-ghost" 
+                          style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
+                          onClick={async () => {
+                            if (window.confirm(`Are you sure you want to completely remove ${student.name} from the class roster?`)) {
+                              const offeringId = document.cookie.split('; ').find(row => row.startsWith('active_offering_id='))?.split('=')[1];
+                              if (!offeringId) return alert('No offering selected');
+                              
+                              const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, {
+                                method: 'DELETE'
+                              });
+                              if (res.ok) {
+                                window.location.reload();
+                              } else {
+                                const data = await res.json();
+                                alert(data.message || 'Failed to remove student');
+                              }
+                            }
+                          }}
+                          title="Remove from Class"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
