@@ -58,6 +58,21 @@ export async function POST(request: Request) {
       }
     });
 
+    // Notify all enrolled students
+    const enrollments = await db.enrollment.findMany({ where: { offeringId } });
+    if (enrollments.length > 0) {
+      await db.notification.createMany({
+        data: enrollments.map((e) => ({
+          userId: e.studentId,
+          type: 'NEW_ASSIGNMENT',
+          title: `New Assignment: ${title}`,
+          content: `A new ${type.toLowerCase()} has been posted. Due: ${new Date(dueDate).toLocaleDateString()}`,
+          isRead: false,
+          referenceId: assignment.id,
+        })),
+      });
+    }
+
     return NextResponse.json({ data: assignment }, { status: 201 });
   } catch (error) {
     console.error('Error creating assignment:', error);

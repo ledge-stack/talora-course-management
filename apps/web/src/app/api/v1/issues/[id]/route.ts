@@ -29,6 +29,19 @@ export async function PATCH(
       data: { status }
     });
 
+    if (issue.reporterId) {
+      await db.notification.create({
+        data: {
+          userId: issue.reporterId,
+          type: 'ISSUE_RESOLVED', // General type for issue updates
+          title: `Issue Updated`,
+          content: `Your issue "${issue.title}" is now marked as ${status}.`,
+          isRead: false,
+          referenceId: issue.id,
+        }
+      });
+    }
+
     return NextResponse.json({ data: issue });
   } catch (error) {
     console.error('Error updating issue:', error);

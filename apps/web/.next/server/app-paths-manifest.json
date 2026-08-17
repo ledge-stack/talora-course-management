@@ -1,7 +1,7 @@
 {
+  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/enroll/page": "app/(dashboard)/enroll/page.js",
   "/(dashboard)/notifications/page": "app/(dashboard)/notifications/page.js",
   "/(dashboard)/assignments/page": "app/(dashboard)/assignments/page.js",
-  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js"
+  "/(dashboard)/enroll/page": "app/(dashboard)/enroll/page.js"
 }
