@@ -13,7 +13,7 @@ type Student = {
   tookGapYear: boolean;
 };
 
-export default function RosterClient({ students, canEdit }: { students: Student[], canEdit: boolean }) {
+export default function RosterClient({ students, canEdit, offeringId }: { students: Student[], canEdit: boolean, offeringId?: string }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
 
@@ -113,7 +113,6 @@ export default function RosterClient({ students, canEdit }: { students: Student[
                           style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
                           onClick={async () => {
                             if (window.confirm(`Are you sure you want to completely remove ${student.name} from the class roster?`)) {
-                              const offeringId = document.cookie.split('; ').find(row => row.startsWith('active_offering_id='))?.split('=')[1];
                               if (!offeringId) return alert('No offering selected');
                               
                               const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, {

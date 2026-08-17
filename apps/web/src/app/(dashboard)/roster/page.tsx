@@ -105,7 +105,7 @@ export default async function RosterPage() {
 
       {/* Main Content Card */}
       <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <RosterClient students={students} canEdit={canEdit} />
+        <RosterClient students={students} canEdit={canEdit} offeringId={offering?.id} />
       </div>
     </div>
   );
