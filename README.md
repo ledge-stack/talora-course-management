@@ -9,14 +9,13 @@
 
 ## 🏗️ Architecture & Monorepo Structure
 
-Talora is designed as an **API-first modular monolith** with asynchronous background workers. The repository is organized as a monorepo under `apps/` and `packages/` as defined in Section 16 of the System Architecture Document:
+Talora is designed as an **API-first modular monolith**. The repository is organized as a monorepo under `apps/` and `packages/` as defined in Section 16 of the System Architecture Document:
 
 ```
 talora/
 ├── apps/
 │   ├── web/          # Next.js UI & server-side API/BFF adapters (/api/v1)
-│   ├── mobile/       # Student-first Flutter mobile application
-│   └── worker/       # Asynchronous background job consumer (imports/exports/notifications)
+│   └── mobile/       # Student-first Flutter mobile application
 ├── packages/
 │   ├── domain/       # Business rules, identifier validators (YY007XXXXX), group constraints
 │   ├── database/     # Prisma schema, PostgreSQL migrations, DB client
@@ -24,7 +23,6 @@ talora/
 │   ├── auth/         # Role-based (RBAC) & Scope-based (institution/class/offering) policies
 │   └── observability/# Structured logging, audit trail outbox, metrics
 ├── infrastructure/
-│   ├── containers/   # Dockerfiles & Docker Compose configuration
 │   └── deployment/   # Deployment specs & Helm charts
 └── docs/             # Technical Architecture Document & PRD
 ```
@@ -35,10 +33,7 @@ talora/
 
 - **Web UI & API (BFF):** Next.js (App Router), React, TypeScript
 - **Mobile Client:** Flutter (Dart) — Cross-platform Android & iOS app
-- **Background Worker:** Node.js / TypeScript worker engine
 - **System of Record:** PostgreSQL (relational constraints, transactional group memberships)
-- **Caching & Locks:** Redis (rate limiting, ephemeral locks, job queues)
-- **Object Storage:** S3-compatible storage (MinIO for local dev, encrypted signed URLs for uploads)
 - **Contracts:** OpenAPI 3.0
 
 ---
@@ -62,7 +57,6 @@ talora/
 ### 1. Prerequisites
 - Node.js `>=20.0.0`
 - npm `>=10.0.0`
-- Docker & Docker Compose (optional for local Postgres/Redis/MinIO)
 - Flutter SDK (optional for mobile development)
 
 ### 2. Install Monorepo Dependencies
@@ -70,14 +64,13 @@ talora/
 npm install
 ```
 
-### 3. Start Local Infrastructure (PostgreSQL, Redis, MinIO)
-```bash
-docker-compose up -d
-```
+### 3. Configure Environment Variables
+Create a `.env` file from `.env.example` and add your PostgreSQL connection string (e.g. from Neon or Supabase).
 
-### 4. Generate Prisma Client
+### 4. Generate Prisma Client & Push Schema
 ```bash
 npm run prisma:generate -w packages/database
+npx prisma db push --schema=packages/database/prisma/schema.prisma
 ```
 
 ### 5. Start Development Servers

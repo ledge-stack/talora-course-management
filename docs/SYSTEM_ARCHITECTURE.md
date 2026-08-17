@@ -1,8 +1,8 @@
 # Talora — System Architecture Document
 
 **Version:** 1.0  
-**Architecture Style:** API-first Modular Monolith with Asynchronous Workers  
-**Primary Stack:** Next.js, Flutter, PostgreSQL, Redis, Object Storage (S3-compatible)
+**Architecture Style:** API-first Modular Monolith
+**Primary Stack:** Next.js (Vercel), Flutter, Serverless PostgreSQL (Neon)
 
 ---
 
@@ -15,8 +15,8 @@ For the MVP, a **modular monolith** is used over independent microservices. It p
 
 ## 2. Container Architecture
 - **Clients:** Next.js Web UI, Flutter Mobile App
-- **Application:** Next.js API / BFF, Background Worker
-- **Data & Providers:** PostgreSQL (System of Record), Redis (Cache & Job coordination), Object Storage (Files), Email / Push providers
+- **Application:** Next.js API / Serverless Functions
+- **Data & Providers:** Serverless PostgreSQL (System of Record), Email / Push providers
 
 ---
 
@@ -28,7 +28,6 @@ talora/
 ├── apps/
 │   ├── web/          # Next.js Web UI & API adapters (/api/v1)
 │   ├── mobile/       # Flutter student-first mobile application
-│   └── worker/       # Asynchronous background job consumer
 ├── packages/
 │   ├── domain/       # Business logic, entities, validators, group rules
 │   ├── database/     # Prisma schema, migrations, DB service
@@ -50,4 +49,4 @@ talora/
   - Unique active membership on `(student_id, offering_id)`
   - One active leader per group
   - Group capacity constraints enforced via atomic predicates / database locking
-- Idempotent background job processing & transactional outbox pattern for notifications.
+- URL-based submissions eliminate the need for costly Object Storage systems.

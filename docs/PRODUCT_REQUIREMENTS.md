@@ -7,9 +7,9 @@
 ---
 
 ## 1. Product Summary
-Talora is a university class and course-unit coordination platform. It enables authorized class representatives to configure group rules, allocate students, publish structured announcements, manage group-change requests, collect assignment submissions, and resolve student issues.
+Talora is a university class and course-unit coordination platform. It enables authorized class representatives to configure group rules, allocate students, publish structured announcements, manage group-change requests, collect assignment submissions (via URL links like Google Drive or GitHub), and resolve student issues.
 
-Students can discover or create eligible groups, accept invitations, communicate within their groups, submit work, and track requests from one place.
+Students can discover or create eligible groups, accept invitations, communicate within their groups, submit assignment links, and track requests from one place.
 
 ---
 
@@ -35,4 +35,5 @@ Students can discover or create eligible groups, accept invitations, communicate
   - Leading `YY` must match across student number and registration number within an institution.
 - **Strict Email Validation:**
   - Only Makerere student emails ending in `@students.mak.ac.ug` are permitted to register.
-- **Self-Service Enrollment:** Students create their own accounts and manually enroll in the course units they intend to study.
+- **Self-Service Enrollment & Rosters:** Students create their own accounts and manually enroll in the course units they intend to study. Roster imports via CSV have been deprecated in favor of a decentralized self-enrollment approach.
+- **Assignment Submissions:** Submissions are URL-based (e.g., Google Drive, Figma, GitHub links). There are no direct file uploads.
