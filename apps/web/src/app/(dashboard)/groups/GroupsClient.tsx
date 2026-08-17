@@ -31,7 +31,9 @@ export default function GroupsClient({
   currentUserId,
   isRep,
   offeringId,
-  pendingRequests = []
+  pendingRequests = [],
+  minGroupSize,
+  maxGroupSize
 }: { 
   groups: Group[],
   isUserInGroup?: boolean,

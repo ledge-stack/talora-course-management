@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const available = url.searchParams.get('available') === 'true';
 
-    let offerings = [];
+    let offerings: any[] = [];
     if (available) {
       // Find all offerings the user is NOT enrolled in
       const enrolledIds = (await db.enrollment.findMany({

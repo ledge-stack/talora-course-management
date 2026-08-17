@@ -29,15 +29,13 @@ export async function PATCH(
       data: { status }
     });
 
-    if (issue.reporterId) {
+    if (issue.studentId) {
       await db.notification.create({
         data: {
-          userId: issue.reporterId,
-          type: 'ISSUE_RESOLVED', // General type for issue updates
+          userId: issue.studentId,
           title: `Issue Updated`,
-          content: `Your issue "${issue.title}" is now marked as ${status}.`,
+          message: `Your issue "${issue.title}" is now marked as ${status}.`,
           isRead: false,
-          referenceId: issue.id,
         }
       });
     }

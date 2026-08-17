@@ -18,13 +18,13 @@ export default async function RosterPage() {
   let students: any[] = [];
   let offeringName = 'No Offering Selected';
   let canEdit = false;
+  let offering: any = null;
 
   if (token) {
     try {
       const scope = await verifyJwt(token) as UserScope;
       canEdit = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
       
-      let offering = null;
       const activeOfferingId = cookies().get('active_offering_id')?.value;
       if (activeOfferingId) {
         offering = await db.courseOffering.findUnique({

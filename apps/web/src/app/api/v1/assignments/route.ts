@@ -64,11 +64,9 @@ export async function POST(request: Request) {
       await db.notification.createMany({
         data: enrollments.map((e) => ({
           userId: e.studentId,
-          type: 'NEW_ASSIGNMENT',
           title: `New Assignment: ${title}`,
-          content: `A new ${type.toLowerCase()} has been posted. Due: ${new Date(dueDate).toLocaleDateString()}`,
+          message: `A new ${type.toLowerCase()} has been posted. Due: ${new Date(dueDate).toLocaleDateString()}`,
           isRead: false,
-          referenceId: assignment.id,
         })),
       });
     }

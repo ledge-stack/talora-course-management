@@ -49,7 +49,6 @@ export default function ImportsPage() {
       });
       const data = await res.json();
       if (data.data?.jobId) {
-        setJobId(data.data.jobId);
         pollJobStatus(data.data.jobId);
       } else {
         alert('Failed to enqueue job');
