@@ -5,7 +5,7 @@ export default function ImportsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [offeringId, setOfferingId] = useState<string>('');
   const [offerings, setOfferings] = useState<any[]>([]);
-  const [jobId, setJobId] = useState<string | null>(null);
+
   const [jobStatus, setJobStatus] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);

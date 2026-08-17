@@ -93,7 +93,7 @@ export default async function AssignmentDetailsPage({ params }: { params: { id: 
         </div>
       </div>
 
-      <SubmissionClient assignmentId={assignment.id} initialSubmission={submission} isPast={assignment.isPast} />
+      <SubmissionClient assignmentId={assignment.id} initialSubmission={submission} />
     </div>
   );
 }

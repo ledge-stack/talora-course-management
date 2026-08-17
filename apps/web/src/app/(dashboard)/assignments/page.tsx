@@ -47,7 +47,7 @@ export default async function AssignmentsPage() {
           }
         });
 
-        const totalEnrolled = await db.enrollment.count({ where: { offeringId: offering.id } });
+
 
         assignments = dbAssignments.map(a => {
           const isPast = new Date(a.dueDate) < new Date();

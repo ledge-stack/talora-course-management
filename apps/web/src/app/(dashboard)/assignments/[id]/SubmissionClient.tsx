@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 interface SubmissionClientProps {
   assignmentId: string;
   initialSubmission: { id: string; fileUrl: string; submittedAt: string } | null;
-  isPast: boolean;
 }
 
-export default function SubmissionClient({ assignmentId, initialSubmission, isPast }: SubmissionClientProps) {
+export default function SubmissionClient({ assignmentId, initialSubmission }: SubmissionClientProps) {
   const router = useRouter();
   const [fileUrl, setFileUrl] = useState(initialSubmission?.fileUrl || '');
   const [isSubmitting, setIsSubmitting] = useState(false);

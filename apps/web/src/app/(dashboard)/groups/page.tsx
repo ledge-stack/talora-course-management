@@ -9,7 +9,7 @@ export default async function GroupsPage() {
   const token = cookies().get('talora_token')?.value;
   let groups: any[] = [];
   let offeringName = 'No Offering Selected';
-  let stats = {
+  const stats = {
     totalStudents: 0,
     studentsInGroups: 0,
     totalGroups: 0,

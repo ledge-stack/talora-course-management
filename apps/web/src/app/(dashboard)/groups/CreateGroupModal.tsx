@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 export default function CreateGroupModal({ offeringId, onClose }: { offeringId: string, onClose: () => void }) {
   const router = useRouter();
-  const [name, setName] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
