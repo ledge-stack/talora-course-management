@@ -7,7 +7,8 @@
     "build": "npm run build --workspaces",
     "lint": "eslint packages apps --ext .ts,.tsx",
     "format": "prettier --write .",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "postinstall": "npm run prisma:generate -w packages/database"
   },
   "workspaces": [
     "apps/*",
