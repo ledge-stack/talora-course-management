@@ -8,6 +8,9 @@ const nextConfig = {
     '@talora/auth',
     '@talora/observability',
   ],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

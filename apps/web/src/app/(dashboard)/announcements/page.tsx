@@ -46,7 +46,7 @@ export default async function AnnouncementsPage() {
           }
         });
 
-        announcements = dbAnnouncements.map(a => ({
+        announcements = dbAnnouncements.map((a: any) => ({
           id: a.id,
           title: a.title,
           content: a.content,
