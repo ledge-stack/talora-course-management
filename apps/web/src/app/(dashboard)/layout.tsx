@@ -30,7 +30,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
       if (user) {
         userName = user.fullName;
         userInitials = user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        userRole = payload.roles[0]?.role?.replace('_', ' ')?.toLowerCase() || 'Student';
+        
+        // Prioritize showing the highest role
+        const topRole = payload.roles.find(r => r.role === 'PLATFORM_ADMIN') 
+                     || payload.roles.find(r => r.role === 'CLASS_REPRESENTATIVE') 
+                     || payload.roles[0];
+                     
+        userRole = topRole?.role?.replace('_', ' ')?.toLowerCase() || 'Student';
         unreadCount = await db.notification.count({ where: { userId: user.id, isRead: false } });
 
         // Fetch available offerings for this user
