@@ -50,7 +50,7 @@ export default function InstitutionsPage() {
           </thead>
           <tbody>
             {mockInstitutions.map((inst, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-bg-base)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>{inst.id}</td>
                 <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)' }}>{inst.name}</td>
                 <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-secondary)' }}>{inst.domain}</td>

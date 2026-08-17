@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1786561128754" clover="3.2.0">
+  <project timestamp="1786561128754" name="All files">
+    <metrics statements="41" coveredstatements="40" conditionals="29" coveredconditionals="28" methods="6" coveredmethods="6" elements="76" coveredelements="74" complexity="0" loc="41" ncloc="41" packages="2" files="2" classes="2"/>
+    <package name="rules">
+      <metrics statements="17" coveredstatements="17" conditionals="15" coveredconditionals="15" methods="3" coveredmethods="3"/>
+      <file name="groupRules.ts" path="D:\Talora\packages\domain\src\rules\groupRules.ts">
+        <metrics statements="17" coveredstatements="17" conditionals="15" coveredconditionals="15" methods="3" coveredmethods="3"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="24" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="34" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="47" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="48" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="validators">
+      <metrics statements="24" coveredstatements="23" conditionals="14" coveredconditionals="13" methods="3" coveredmethods="3"/>
+      <file name="identifier.ts" path="D:\Talora\packages\domain\src\validators\identifier.ts">
+        <metrics statements="24" coveredstatements="23" conditionals="14" coveredconditionals="13" methods="3" coveredmethods="3"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="13" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="13" type="stmt"/>
+        <line num="18" count="13" type="stmt"/>
+        <line num="19" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="7" type="stmt"/>
+        <line num="25" count="6" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="13" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="33" count="13" type="stmt"/>
+        <line num="34" count="13" type="stmt"/>
+        <line num="35" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="6" type="stmt"/>
+        <line num="41" count="7" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="54" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

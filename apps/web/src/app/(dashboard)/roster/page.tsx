@@ -1,98 +1,111 @@
 import React from 'react';
+import { cookies } from 'next/headers';
+import { db } from '@talora/database';
+import { verifyJwt } from '@talora/auth';
 
-export default function RosterPage() {
-  const mockStudents = [
-    { id: 'YY00712345', name: 'Sarah Chen', email: 'schen@university.edu', group: 'Group 4', status: 'Registered' },
-    { id: 'YY00712346', name: 'Mark Liu', email: 'mliu@university.edu', group: 'Unassigned', status: 'Registered' },
-    { id: 'YY00712347', name: 'James Doe', email: 'jdoe@university.edu', group: 'Group 2', status: 'Dropped' },
-    { id: 'YY00712348', name: 'Elena Smith', email: 'esmith@university.edu', group: 'Group 4', status: 'Registered' },
-    { id: 'YY00712349', name: 'Kwame Osei', email: 'kosei@university.edu', group: 'Unassigned', status: 'Registered' },
-  ];
+
+import RosterClient from './RosterClient';
+import type { UserScope } from '@talora/auth';
+
+const extractYY = (identifier: string | null) => {
+  if (!identifier) return null;
+  const match = identifier.match(/^(\d{2})/);
+  return match ? parseInt(match[1]) : null;
+};
+
+export default async function RosterPage() {
+  const token = cookies().get('talora_token')?.value;
+  let students: any[] = [];
+  let offeringName = 'No Offering Selected';
+  let canEdit = false;
+  let offering: any = null;
+
+  if (token) {
+    try {
+      const scope = await verifyJwt(token) as UserScope;
+      canEdit = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+      
+      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      if (activeOfferingId) {
+        offering = await db.courseOffering.findUnique({
+          where: { id: activeOfferingId },
+          include: { unit: true, term: true, class: true },
+        });
+      }
+      
+      if (!offering) {
+        offering = await db.courseOffering.findFirst({
+          include: { unit: true, term: true, class: true },
+        });
+      }
+
+      if (offering) {
+        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        
+        // Find Class Representative to establish baseline YY
+        const classRepRole = await db.userRole.findFirst({
+          where: { role: 'CLASS_REPRESENTATIVE', classId: offering.class.id },
+          include: { user: true }
+        });
+        
+        const repYY = classRepRole ? extractYY(classRepRole.user.registrationNumber || classRepRole.user.studentNumber) : null;
+
+        const enrollments = await db.enrollment.findMany({
+          where: { offeringId: offering.id },
+          include: {
+            student: {
+              include: {
+                memberships: {
+                  where: { offeringId: offering.id },
+                  include: { group: true }
+                }
+              }
+            }
+          },
+          orderBy: { student: { fullName: 'asc' } }
+        });
+
+        students = enrollments.map(e => {
+          const studentYY = extractYY(e.student.registrationNumber || e.student.studentNumber);
+          const isRetaker = (repYY && studentYY && studentYY < repYY && !e.student.tookGapYear) ? true : false;
+
+          return {
+            id: e.student.studentNumber || e.student.id,
+            userId: e.student.id,
+            name: e.student.fullName,
+            email: e.student.email,
+            group: e.student.memberships[0]?.group?.name || 'Unassigned',
+            isRetaker,
+            tookGapYear: e.student.tookGapYear
+          };
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.875rem', marginBottom: '0.25rem', color: 'var(--color-text-primary)' }}>Course Roster</h1>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
-            Manage enrolled students for this offering. Total: 42 students.
-          </p>
+          <h1>Class Roster</h1>
+          <p>{offeringName} — {students.length} Students</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button className="btn-secondary">
-            Export CSV
-          </button>
-          <button className="btn-primary">
-            + Import Roster
-          </button>
+        <div className="page-header-actions">
+          {offering && (
+            <a href={`/api/v1/offerings/${offering.id}/export`} className="btn-secondary" style={{ textDecoration: 'none' }} download>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Class List
+            </a>
+          )}
         </div>
       </header>
 
-      {/* Toolbar */}
-      <div className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, maxWidth: '500px' }}>
-          <input 
-            type="text" 
-            placeholder="Search by name, ID, or email..." 
-            style={{ flex: 1, padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }} 
-          />
-          <select style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}>
-            <option>All Statuses</option>
-            <option>Registered</option>
-            <option>Dropped</option>
-          </select>
-          <select style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}>
-            <option>All Groups</option>
-            <option>Assigned</option>
-            <option>Unassigned</option>
-          </select>
-        </div>
-        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-          Showing 1-5 of 42
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <div className="glass-panel" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-          <thead>
-            <tr style={{ background: 'var(--color-bg-base)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Student ID</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Name</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Email</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Group</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Status</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockStudents.map((student, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-bg-base)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>{student.id}</td>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)' }}>{student.name}</td>
-                <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-secondary)' }}>{student.email}</td>
-                <td style={{ padding: '1rem 1.5rem' }}>
-                  {student.group === 'Unassigned' ? (
-                    <span className="badge badge-warning">Unassigned</span>
-                  ) : (
-                    <span className="badge" style={{ background: 'var(--color-primary-transparent)', color: 'var(--color-primary)' }}>{student.group}</span>
-                  )}
-                </td>
-                <td style={{ padding: '1rem 1.5rem' }}>
-                  {student.status === 'Registered' ? (
-                    <span className="badge badge-success">Registered</span>
-                  ) : (
-                    <span className="badge badge-danger">Dropped</span>
-                  )}
-                </td>
-                <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                  <button style={{ color: 'var(--color-text-secondary)', padding: '0.25rem', cursor: 'pointer' }}>•••</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Main Content Card */}
+      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <RosterClient students={students} canEdit={canEdit} />
       </div>
     </div>
   );

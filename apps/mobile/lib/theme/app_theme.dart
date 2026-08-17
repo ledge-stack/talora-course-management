@@ -21,7 +21,6 @@ class AppTheme {
         primary: primaryColor,
         secondary: accentColor,
         surface: surfaceColor,
-        background: backgroundBase,
         error: danger,
       ),
       fontFamily: 'Inter', // Assuming Inter is added, fallback to system sans-serif
@@ -47,7 +46,7 @@ class AppTheme {
         elevation: 8,
       ),
       
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
