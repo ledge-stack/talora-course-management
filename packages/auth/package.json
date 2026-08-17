@@ -10,6 +10,11 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.8"
   }
 }

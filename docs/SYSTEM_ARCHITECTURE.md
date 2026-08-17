@@ -7,7 +7,7 @@
 ---
 
 ## 1. Architecture Objectives
-The architecture enforces course-scoped permissions, preserves group membership integrity under concurrent requests, supports bulk spreadsheet workflows, delivers notifications reliably, and serves both web and mobile clients from a consistent API.
+The architecture enforces course-scoped permissions, preserves group membership integrity under concurrent requests, supports self-service student enrollment, delivers notifications reliably, and serves both web and mobile clients from a consistent API.
 
 For the MVP, a **modular monolith** is used over independent microservices. It provides clear domain boundaries and transactional consistency without the deployment and operational cost of a distributed system.
 

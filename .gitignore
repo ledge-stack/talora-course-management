@@ -19,3 +19,8 @@ dist/
 logs/
 *.log
 .husky/_/
+apps/web/.next
+apps/web/tsconfig.tsbuildinfo
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/pubspec.lock

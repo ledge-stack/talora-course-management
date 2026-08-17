@@ -65,10 +65,13 @@ model ClassCohort {
 }
 
 model CourseUnit {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  title     String
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  code          String   @unique
+  title         String
+  lecturerName  String?
+  lecturerEmail String?
+  lecturerPhone String?
+  createdAt     DateTime @default(now())
 
   offerings CourseOffering[]
 }
@@ -91,6 +94,7 @@ model CourseOffering {
   announcements Announcement[]
   assignments  Assignment[]
   events       TimetableEvent[]
+  issues       Issue[]
 }
 
 model User {
@@ -102,6 +106,7 @@ model User {
   studentNumber      String?  @unique
   registrationNumber String?  @unique
   isActive           Boolean  @default(true)
+  tookGapYear        Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -113,6 +118,7 @@ model User {
   issues             Issue[]
   notifications      Notification[]
   auditLogs          AuditLog[]
+  authoredAnnouncements Announcement[]
 }
 
 model UserRole {
@@ -144,6 +150,7 @@ model Group {
   name        String
   leaderId    String
   status      GroupStatus @default(FORMING)
+  isOpen      Boolean     @default(true)
   isLocked    Boolean     @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -181,19 +188,23 @@ model GroupChangeRequest {
 model Announcement {
   id         String   @id @default(uuid())
   offeringId String
+  authorId   String
   title      String
   content    String
   tag        String   @default("GENERAL")
   createdAt  DateTime @default(now())
 
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
+  author     User           @relation(fields: [authorId], references: [id])
 }
 
 model Assignment {
   id         String   @id @default(uuid())
   offeringId String
   title      String
+  description String  @default("No description provided.")
   dueDate    DateTime
+  type       String  @default("HOMEWORK")
   createdAt  DateTime @default(now())
 
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
@@ -214,13 +225,15 @@ model Submission {
 model Issue {
   id          String      @id @default(uuid())
   studentId   String
+  offeringId  String
   category    String
   title       String
   description String
   status      IssueStatus @default(OPEN)
   createdAt   DateTime    @default(now())
 
-  student     User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student     User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offering    CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
 }
 
 model TimetableEvent {

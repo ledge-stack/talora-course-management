@@ -1,5 +1,7 @@
 import { isPlatformAdmin, canManageClass, canManageGroup, canViewOffering, UserScope } from '../src/index';
 
+jest.mock('../src/jwt', () => ({}));
+
 describe('Authorization Policies', () => {
   const platformAdmin: UserScope = {
     userId: 'admin-1',

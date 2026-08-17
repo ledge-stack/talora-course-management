@@ -1,59 +1,102 @@
 import React from 'react';
-import '../globals.css';
-import AcademicScopeSelector from '../../components/AcademicScopeSelector';
-import RoleSwitcher from '../../components/RoleSwitcher';
+import { cookies } from 'next/headers';
+import { verifyJwt } from '@talora/auth';
+import RoleBadge from '../../components/RoleBadge';
+import SidebarNav from './SidebarNav';
+
+import CourseSwitcher from '../../components/CourseSwitcher';
+import DashboardClientShell from './DashboardClientShell';
 
 export const metadata = {
   title: 'Talora — Class & Group Coordination Platform',
   description: 'API-first university class coordination, group formation, and submission management platform.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <div className="layout-container">
-          <aside className="sidebar glass-panel" style={{ borderLeft: 'none', borderTop: 'none', borderBottom: 'none', borderRadius: 0 }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-              Talora
-            </div>
-            {/* Sidebar Navigation goes here */}
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-              <div style={{ color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Menu</div>
-              <a href="#" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Dashboard</a>
-              <a href="#" style={{ color: 'var(--color-text-secondary)', fontWeight: 500, transition: 'color 0.15s' }}>Roster</a>
-              <a href="#" style={{ color: 'var(--color-text-secondary)', fontWeight: 500, transition: 'color 0.15s' }}>Groups</a>
-              <a href="#" style={{ color: 'var(--color-text-secondary)', fontWeight: 500, transition: 'color 0.15s' }}>Assignments</a>
-              <a href="#" style={{ color: 'var(--color-text-secondary)', fontWeight: 500, transition: 'color 0.15s' }}>Issues</a>
-            </nav>
-          </aside>
-          
-          <main className="main-content">
-            <header className="topbar">
-              <div className="scope-selector">
-                <AcademicScopeSelector />
-              </div>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div className="search-bar glass-panel" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                  Search...
-                </div>
-                {/* Notification Bell */}
-                <button style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-bg-surface)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  🔔
-                </button>
-                <RoleSwitcher />
-                {/* Profile Avatar */}
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                  L
-                </div>
-              </div>
-            </header>
-            <div className="content-wrapper">
-              {children}
-            </div>
-          </main>
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const token = cookies().get('talora_token')?.value;
+  let userInitials = 'U';
+  let userName = 'Unknown User';
+  let userRole = 'Student';
+  let unreadCount = 0;
+
+  let availableOfferings: any[] = [];
+  const activeOfferingId: string | null = cookies().get('active_offering_id')?.value || null;
+
+  if (token) {
+    try {
+      const payload = await verifyJwt(token);
+      const { db } = await import('@talora/database');
+      const user = await db.user.findUnique({ where: { id: payload.userId } });
+      if (user) {
+        userName = user.fullName;
+        userInitials = user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        userRole = payload.roles[0]?.role?.replace('_', ' ')?.toLowerCase() || 'Student';
+        unreadCount = await db.notification.count({ where: { userId: user.id, isRead: false } });
+
+        // Fetch available offerings for this user
+        // We look at their enrollments
+        const enrollments = await db.enrollment.findMany({
+          where: { studentId: user.id },
+          include: { offering: { include: { unit: true, class: true, term: true } } }
+        });
+        availableOfferings = enrollments.map(e => ({
+          id: e.offering.id,
+          unit: { code: e.offering.unit.code },
+          class: { name: e.offering.class.name }
+        }));
+
+        // Fallback: if not enrolled in anything but they are a rep/admin, just fetch all active term offerings
+        if (availableOfferings.length === 0) {
+          const rawOfferings = await db.courseOffering.findMany({
+            include: { unit: true, class: true, term: true },
+            take: 10
+          });
+          availableOfferings = rawOfferings.map((o: any) => ({
+            id: o.id,
+            unit: { code: o.unit.code },
+            class: { name: o.class.name }
+          }));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const sidebarContent = (
+    <>
+      <div className="sidebar-logo">
+        <div className="sidebar-logo-icon">T</div>
+        <div className="sidebar-logo-name">Talora</div>
+      </div>
+
+      <SidebarNav userRole={userRole} unreadCount={unreadCount} />
+
+      <div style={{ padding: '0 1rem 1.5rem' }}>
+        <div style={{ padding: '0.75rem', background: 'var(--color-bg-surface)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid var(--border-subtle)' }}>
+          <div className="avatar" style={{ width: '32px', height: '32px', background: 'var(--color-primary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{userInitials}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userName}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{userRole}</div>
+          </div>
         </div>
-      </body>
-    </html>
+      </div>
+    </>
+  );
+
+  const topbarContent = (
+    <>
+      <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
+      <RoleBadge role={userRole} />
+      <form action="/api/v1/auth/logout" method="POST">
+        <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}>Logout</button>
+      </form>
+    </>
+  );
+
+  return (
+    <DashboardClientShell sidebarContent={sidebarContent} topbarContent={topbarContent}>
+      {children}
+    </DashboardClientShell>
   );
 }
