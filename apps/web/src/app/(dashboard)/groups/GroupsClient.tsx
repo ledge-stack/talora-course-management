@@ -140,10 +140,10 @@ export default function GroupsClient({
 
   return (
     <>
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }} onClick={() => setOpenDropdownId(null)}>
-        <div className="toolbar">
-          <div style={{ display: 'flex', gap: '0.75rem', flex: 1, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', maxWidth: '320px', width: '100%', minWidth: '200px' }}>
+      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
+        <div className="toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div style={{ position: 'relative', width: '300px' }}>
               <svg style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input 
                 type="text" 
@@ -159,7 +159,7 @@ export default function GroupsClient({
               className="select" 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ paddingRight: '2.5rem' }}
+              style={{ paddingRight: '2.5rem', width: '160px' }}
             >
               <option value="all">All Statuses</option>
               <option value="FORMING">Forming</option>
@@ -192,7 +192,7 @@ export default function GroupsClient({
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflow: 'visible', marginTop: '1rem', paddingBottom: '4rem' }}>
           <table className="data-table">
             <thead>
               <tr>
