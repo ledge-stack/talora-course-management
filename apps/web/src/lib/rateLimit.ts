@@ -52,9 +52,9 @@ export function rateLimit(
 // Clean up memory periodically to prevent memory leaks in long-running processes
 setInterval(() => {
   const now = Date.now();
-  for (const [ip, record] of limits.entries()) {
+  limits.forEach((record, ip) => {
     if (now - record.lastReset > 15 * 60 * 1000) { // Clean up records older than 15 minutes
       limits.delete(ip);
     }
-  }
+  });
 }, 5 * 60 * 1000); // Run every 5 minutes
