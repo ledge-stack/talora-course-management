@@ -21,11 +21,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
 
-    if (!formData.email.endsWith('@students.mak.ac.ug')) {
-      setError('You must register with a valid @students.mak.ac.ug email address.');
-      setLoading(false);
-      return;
-    }
+    // Frontend email restriction removed
 
     try {
       const res = await fetch('/api/v1/auth/register', {
@@ -39,7 +35,11 @@ export default function RegisterPage() {
         throw new Error(data.error || data.message || 'Registration failed');
       }
 
-      router.push('/login?registered=true');
+      if (data.requiresVerification) {
+        router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
+      } else {
+        router.push('/login?registered=true');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

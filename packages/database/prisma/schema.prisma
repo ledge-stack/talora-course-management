@@ -106,6 +106,8 @@ model User {
   studentNumber      String?  @unique
   registrationNumber String?  @unique
   isActive           Boolean  @default(true)
+  isEmailVerified    Boolean  @default(false)
+  verificationToken  String?
   tookGapYear        Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

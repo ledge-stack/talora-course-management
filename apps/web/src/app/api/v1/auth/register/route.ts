@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
+import { sendEmail } from '../../../../../lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,6 +43,8 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const newUser = await db.user.create({
       data: {
         fullName,
@@ -50,6 +53,8 @@ export async function POST(req: NextRequest) {
         registrationNumber,
         passwordHash: hashedPassword,
         institutionId: institution.id,
+        isEmailVerified: false,
+        verificationToken: otp,
       }
     });
 
@@ -61,7 +66,21 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, userId: newUser.id }, { status: 201 });
+    // Send the OTP via email
+    await sendEmail({
+      to: newUser.email,
+      subject: 'Verify your Talora account',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Welcome to Talora, ${newUser.fullName}!</h2>
+          <p>Please use the following 6-digit code to verify your email address and complete your registration:</p>
+          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `
+    });
+
+    return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
   } catch (err: any) {
     console.error('Registration Error:', err);
     return NextResponse.json({ error: 'Internal server error during registration.' }, { status: 500 });
