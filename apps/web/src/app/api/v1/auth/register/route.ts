@@ -83,6 +83,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
   } catch (err: any) {
     console.error('Registration Error:', err);
+    if (err.code === 'P2002') {
+      return NextResponse.json({ error: 'This Student Number or Registration Number is already registered.' }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Internal server error during registration.' }, { status: 500 });
   }
 }
