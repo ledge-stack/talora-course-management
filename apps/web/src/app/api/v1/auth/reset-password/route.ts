@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
+import { rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    const { success } = rateLimit(ip, 5, 60 * 1000); // 5 requests per minute
+    
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { email, token, newPassword } = body;
 

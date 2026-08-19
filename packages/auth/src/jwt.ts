@@ -8,12 +8,12 @@ const getSecretKey = () => {
   return new TextEncoder().encode(secret);
 };
 
-export async function signJwt(payload: UserScope): Promise<string> {
+export async function signJwt(payload: UserScope, expiresIn: string | number = '24h'): Promise<string> {
   const alg = 'HS256';
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setExpirationTime('24h') // Token expires in 24 hours
+    .setExpirationTime(expiresIn)
     .sign(getSecretKey());
 }
 

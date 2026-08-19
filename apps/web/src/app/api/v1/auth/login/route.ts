@@ -2,9 +2,20 @@ import { NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { verifyPassword, signJwt } from '@talora/auth';
 import type { UserScope, Role } from '@talora/auth';
+import { rateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    const { success } = rateLimit(ip, 5, 60 * 1000); // 5 requests per minute
+    
+    if (!success) {
+      return NextResponse.json(
+        { code: 'TOO_MANY_REQUESTS', message: 'Too many login attempts. Try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email, password, rememberMe } = body;
 
@@ -49,7 +60,7 @@ export async function POST(request: Request) {
       })),
     };
 
-    const token = await signJwt(payload);
+    const token = await signJwt(payload, rememberMe ? '30d' : '24h');
 
     const response = NextResponse.json({
       message: 'Logged in successfully',
