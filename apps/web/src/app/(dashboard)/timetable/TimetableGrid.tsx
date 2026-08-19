@@ -10,9 +10,7 @@ export default function TimetableGrid({ events, canEdit, courseUnits }: { events
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    offeringId: courseUnits[0]?.id || '', // Actually courseUnits[0].offerings[0].id? We need the offeringId. 
-    // Wait, the API requires offeringId. CourseUnits won't easily map to offeringId unless we pass it.
-    // Let's just use the first courseUnit's ID as offeringId if we mapped it, wait.
+    offeringId: courseUnits[0]?.offeringId || '', 
     title: '',
     location: '',
     dayOfWeek: 1,
