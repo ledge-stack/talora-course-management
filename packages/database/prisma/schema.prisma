@@ -146,6 +146,8 @@ model Enrollment {
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, offeringId])
+  @@index([studentId])
+  @@index([offeringId])
 }
 
 model Group {
@@ -162,6 +164,9 @@ model Group {
   offering    CourseOffering    @relation(fields: [offeringId], references: [id], onDelete: Cascade)
   memberships GroupMembership[]
   changeRequests GroupChangeRequest[]
+
+  @@index([offeringId])
+  @@index([status])
 }
 
 model GroupMembership {
@@ -175,6 +180,9 @@ model GroupMembership {
   student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, offeringId])
+  @@index([groupId])
+  @@index([offeringId])
+  @@index([studentId])
 }
 
 model GroupChangeRequest {
@@ -187,6 +195,10 @@ model GroupChangeRequest {
   createdAt      DateTime @default(now())
 
   group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([studentId])
+  @@index([status])
 }
 
 model Announcement {
@@ -200,6 +212,9 @@ model Announcement {
 
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
   author     User           @relation(fields: [authorId], references: [id])
+
+  @@index([offeringId])
+  @@index([createdAt])
 }
 
 model Assignment {
@@ -213,6 +228,9 @@ model Assignment {
 
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
   submissions Submission[]
+
+  @@index([offeringId])
+  @@index([dueDate])
 }
 
 model Submission {
@@ -224,6 +242,9 @@ model Submission {
 
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([studentId])
 }
 
 model Issue {
@@ -238,6 +259,10 @@ model Issue {
 
   student     User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
   offering    CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
+
+  @@index([offeringId])
+  @@index([status])
+  @@index([studentId])
 }
 
 model TimetableEvent {
@@ -250,6 +275,9 @@ model TimetableEvent {
   location   String?
 
   offering   CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
+
+  @@index([offeringId])
+  @@index([dayOfWeek])
 }
 
 model ImportJob {
@@ -276,6 +304,9 @@ model Notification {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
 }
 
 model AuditLog {

@@ -1,8 +1,10 @@
 import React from 'react';
 import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
+import { getCachedOfferingKPIs } from '@/lib/cached-queries';
+import type { UserScope } from '@talora/auth';
 
-
+export const dynamic = 'force-dynamic';
 
 export default async function Dashboard() {
   const scopeHeader = headers().get('x-user-scope');
@@ -24,25 +26,24 @@ export default async function Dashboard() {
 
   if (scopeHeader) {
     try {
-      const scope = JSON.parse(scopeHeader);
-      
+      const scope = JSON.parse(scopeHeader) as UserScope;
+
       const activeOfferingId = cookies().get('active_offering_id')?.value;
-      
-      // Fetch the selected offering for the dashboard, fallback to first
+
+      // Resolve which offering to show — first try the cookie, then first enrollment
       let offering = null;
-      
+
       if (activeOfferingId) {
         offering = await db.courseOffering.findUnique({
           where: { id: activeOfferingId },
           include: { unit: true, term: true, class: true },
         });
       }
-      
+
       if (!offering) {
-        // Find FIRST enrolled offering
         const firstEnrollment = await db.enrollment.findFirst({
           where: { studentId: scope.userId },
-          include: { offering: { include: { unit: true, term: true, class: true } } }
+          include: { offering: { include: { unit: true, term: true, class: true } } },
         });
         if (firstEnrollment) {
           offering = firstEnrollment.offering;
@@ -50,7 +51,6 @@ export default async function Dashboard() {
       }
 
       if (!offering) {
-        // User has 0 enrollments
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary-transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginBottom: '1rem' }}>
@@ -63,54 +63,38 @@ export default async function Dashboard() {
         );
       }
 
-      if (offering) {
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
-        
-        // Calculate real KPIs based on DB
-        const totalEnrolled = await db.enrollment.count({ where: { offeringId: offering.id } });
-        const studentsInGroups = await db.groupMembership.count({ where: { offeringId: offering.id } });
-        const ungrouped = totalEnrolled - studentsInGroups;
+      offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
 
-        const groups = await db.group.findMany({
-          where: { offeringId: offering.id },
-          include: { _count: { select: { memberships: true } } },
-        });
-        const incomplete = groups.filter(g => g._count.memberships < offering.minGroupSize).length;
-
-        const requests = await db.groupChangeRequest.count({ where: { status: 'PENDING' } });
-        const issues = await db.issue.count({ where: { offeringId: offering.id, status: 'OPEN' } });
-        const deadlines = await db.assignment.count({ where: { offeringId: offering.id, dueDate: { gte: new Date() } } });
-        const totalSubmissions = await db.submission.count({ where: { assignment: { offeringId: offering.id } } });
-
-        stats = {
-          ungrouped, incomplete, requests, issues, deadlines, totalEnrolled, totalSubmissions,
-        };
-
-        recentActivity = await db.notification.findMany({
+      // ✅ Fire all queries in PARALLEL — cached KPIs + user-specific queries simultaneously
+      const [kpiData, activityData, myGroupData] = await Promise.all([
+        // Cached: shared class-wide stats (served from cache if < 60s old)
+        getCachedOfferingKPIs(offering.id, offering.classId, offering.termId),
+        // User-specific: must be fresh, not cached
+        db.notification.findMany({
           where: { userId: scope.userId },
           orderBy: { createdAt: 'desc' },
-          take: 4
-        });
-
-        dbDeadlines = await db.assignment.findMany({
-          where: { offeringId: offering.id, dueDate: { gte: new Date() } },
-          orderBy: { dueDate: 'asc' },
-          take: 3
-        });
-
-        const studentMembership = await db.groupMembership.findFirst({
+          take: 4,
+        }),
+        // User-specific: my group membership
+        db.groupMembership.findFirst({
           where: { offeringId: offering.id, studentId: scope.userId },
-          include: { group: { include: { memberships: { include: { student: true } } } } }
-        });
-        if (studentMembership) {
-          myGroup = studentMembership.group;
-        }
+          include: { group: { include: { memberships: { include: { student: true } } } } },
+        }),
+      ]);
 
-        latestAssignment = await db.assignment.findFirst({
-          where: { offeringId: offering.id, dueDate: { gte: new Date() } },
-          orderBy: { dueDate: 'asc' }
-        });
-      }
+      stats = {
+        ungrouped: kpiData.ungrouped,
+        incomplete: kpiData.incomplete,
+        requests: kpiData.requests,
+        issues: kpiData.issues,
+        deadlines: kpiData.deadlines,
+        totalEnrolled: kpiData.totalEnrolled,
+        totalSubmissions: kpiData.totalSubmissions,
+      };
+      recentActivity = activityData;
+      dbDeadlines = kpiData.dbDeadlines;
+      latestAssignment = kpiData.latestAssignment;
+      myGroup = myGroupData?.group ?? null;
 
     } catch (e) {
       console.error('Failed to load dashboard data:', e);
