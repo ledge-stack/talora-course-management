@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 
 function VerifyForm() {
   const router = useRouter();
