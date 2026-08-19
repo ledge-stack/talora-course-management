@@ -67,7 +67,7 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className="table-responsive-wrapper">
         <table className="data-table">
           <thead>
             <tr>

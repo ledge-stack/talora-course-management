@@ -705,14 +705,11 @@ tr {
     padding: 0 1rem;
   }
 
-  .glass-panel {
-    padding: 1rem !important; /* Override inline styles if needed */
-  }
-
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+    padding: 1.5rem 1rem; /* Better padding on mobile */
   }
   
   .page-header h1 {
@@ -721,6 +718,33 @@ tr {
 
   .data-table th, .data-table td {
     padding: 0.75rem 1rem;
+  }
+
+  /* Responsive Utilities added for Talora */
+  .grid-4-cols {
+    grid-template-columns: 1fr !important;
+  }
+  .grid-2-cols {
+    grid-template-columns: 1fr !important;
+  }
+  .flex-row-mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem 1rem !important;
+  }
+  .table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    width: calc(100% + 2rem);
   }
 }
 

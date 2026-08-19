@@ -93,7 +93,7 @@ export default async function IssuesPage() {
 
       {/* Main Content Card */}
       <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive-wrapper">
           <table className="data-table">
             <thead>
               <tr>

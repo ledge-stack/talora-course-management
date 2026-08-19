@@ -44,7 +44,7 @@ export default function DashboardClientShell({
               </svg>
             </button>
             
-            <div style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="hide-on-mobile" style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               Dashboard
               {pathname !== '/' && (
                 <>

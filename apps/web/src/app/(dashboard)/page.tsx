@@ -211,7 +211,7 @@ export default async function Dashboard() {
       {/* --- MY PERSONAL VIEW (All Users) --- */}
       <section>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '1.5rem' }}>My Student Overview</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.25rem' }}>
+        <div className="grid-2-cols" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.25rem' }}>
           
           {/* Recent Activity */}
           <div className="glass-panel" style={{ padding: '1.5rem' }}>

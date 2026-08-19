@@ -92,7 +92,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div className="flex-row-mobile-stack" style={{ display: 'flex', gap: '1rem' }}>
             <div style={{ flex: 1 }}>
               <label className="label">Student Number</label>
               <input 

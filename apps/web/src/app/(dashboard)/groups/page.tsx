@@ -144,7 +144,7 @@ export default async function GroupsPage() {
       </header>
 
       {/* KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+      <div className="grid-4-cols" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
         {overviewStats.map((stat, i) => (
           <div key={i} className="glass-panel" style={{ padding: '1.5rem' }}>
             <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem', marginBottom: '0.5rem', fontWeight: 500 }}>

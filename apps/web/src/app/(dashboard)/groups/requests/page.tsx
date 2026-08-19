@@ -71,7 +71,7 @@ export default async function GroupRequestsPage() {
       {/* Main Content Card */}
       <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive-wrapper">
           <table className="data-table">
             <thead>
               <tr>
