@@ -10,20 +10,31 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const offeringId = url.searchParams.get('offeringId');
+    const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') ?? '25', 10)));
+    const skip = (page - 1) * limit;
 
     if (!offeringId) {
       return NextResponse.json({ code: 'BAD_REQUEST', message: 'offeringId is required' }, { status: 400 });
     }
 
-    const assignments = await db.assignment.findMany({
-      where: { offeringId },
-      orderBy: { dueDate: 'asc' },
-      include: {
-        _count: { select: { submissions: true } }
-      }
-    });
+    const [assignments, total] = await Promise.all([
+      db.assignment.findMany({
+        where: { offeringId },
+        orderBy: { dueDate: 'asc' },
+        include: {
+          _count: { select: { submissions: true } }
+        },
+        skip,
+        take: limit,
+      }),
+      db.assignment.count({ where: { offeringId } }),
+    ]);
 
-    return NextResponse.json({ data: assignments });
+    return NextResponse.json({
+      data: assignments,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasMore: skip + limit < total },
+    });
   } catch (error) {
     console.error('Error fetching assignments:', error);
     return NextResponse.json({ code: 'INTERNAL_ERROR' }, { status: 500 });

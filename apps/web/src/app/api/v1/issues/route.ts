@@ -11,28 +11,43 @@ export async function GET(request: Request) {
     
     const url = new URL(request.url);
     const offeringId = url.searchParams.get('offeringId');
+    const status = url.searchParams.get('status'); // optional filter
+    const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') ?? '25', 10)));
+    const skip = (page - 1) * limit;
 
     if (!offeringId) {
       return NextResponse.json({ code: 'BAD_REQUEST', message: 'offeringId is required' }, { status: 400 });
     }
 
-    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
     // Reps see all issues for the offering. Students see only their own issues.
     const whereClause: any = { offeringId };
     if (!isRep) {
       whereClause.studentId = scope.userId;
     }
+    if (status) {
+      whereClause.status = status;
+    }
 
-    const issues = await db.issue.findMany({
-      where: whereClause,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        student: { select: { id: true, fullName: true, email: true } },
-      }
+    const [issues, total] = await Promise.all([
+      db.issue.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          student: { select: { id: true, fullName: true, email: true } },
+        },
+        skip,
+        take: limit,
+      }),
+      db.issue.count({ where: whereClause }),
+    ]);
+
+    return NextResponse.json({
+      data: issues,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasMore: skip + limit < total },
     });
-
-    return NextResponse.json({ data: issues });
   } catch (error) {
     console.error('Error fetching issues:', error);
     return NextResponse.json({ code: 'INTERNAL_ERROR' }, { status: 500 });
