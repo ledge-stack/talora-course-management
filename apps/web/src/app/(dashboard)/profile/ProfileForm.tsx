@@ -34,6 +34,12 @@ export default function ProfileForm({ user }: { user: any }) {
         throw new Error(data.message || data.error || 'Failed to update profile');
       }
 
+      if (data.emailChanged) {
+        // If email changed, they've been logged out. Redirect to login.
+        router.push('/login');
+        return;
+      }
+
       setIsEditing(false);
       router.refresh();
     } catch (err: any) {
