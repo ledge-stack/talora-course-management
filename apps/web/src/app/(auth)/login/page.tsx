@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,7 +21,7 @@ export default function LoginPage() {
       const res = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await res.json();
@@ -88,7 +89,12 @@ export default function LoginPage() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
-              <input type="checkbox" style={{ accentColor: 'var(--color-primary)' }} /> Remember me
+              <input 
+                type="checkbox" 
+                style={{ accentColor: 'var(--color-primary)' }} 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              /> Remember me
             </label>
             <a href="#" style={{ color: 'var(--color-primary)', fontWeight: 500, transition: 'color 0.2s' }}>Forgot password?</a>
           </div>

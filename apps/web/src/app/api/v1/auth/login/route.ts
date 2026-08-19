@@ -6,7 +6,7 @@ import type { UserScope, Role } from '@talora/auth';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, rememberMe } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
+      ...(rememberMe ? { maxAge: 60 * 60 * 24 * 30 } : {}), // 30 days if rememberMe, otherwise session cookie
     });
 
     return response;
