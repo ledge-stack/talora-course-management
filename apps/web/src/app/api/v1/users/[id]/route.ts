@@ -3,6 +3,9 @@ import { db } from '@talora/database';
 import { sendEmail } from '@/lib/email';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const scopeHeader = req.headers.get('x-user-scope');

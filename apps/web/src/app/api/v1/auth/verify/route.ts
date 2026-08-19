@@ -5,6 +5,9 @@ import type { UserScope, Role } from '@talora/auth';
 import { rateLimit } from '@/lib/rateLimit';
 import { sendEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';

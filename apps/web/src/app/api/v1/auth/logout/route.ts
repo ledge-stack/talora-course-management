@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: Request) {
   // We can just clear the cookie and redirect to login
   const response = NextResponse.redirect(new URL('/login', request.url), { status: 302 });

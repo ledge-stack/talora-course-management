@@ -3,6 +3,9 @@ import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
 import { rateLimit } from '@/lib/rateLimit';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';

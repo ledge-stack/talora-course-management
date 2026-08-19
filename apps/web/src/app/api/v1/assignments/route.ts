@@ -3,6 +3,9 @@ import { db } from '@talora/database';
 import type { UserScope } from '@talora/auth';
 import { sendEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: Request) {
   try {
     const scopeHeader = request.headers.get('x-user-scope');
