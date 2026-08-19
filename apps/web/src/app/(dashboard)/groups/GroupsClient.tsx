@@ -192,7 +192,7 @@ export default function GroupsClient({
           </div>
         </div>
 
-        <div style={{ overflow: 'visible', marginTop: '1rem', paddingBottom: '4rem' }}>
+        <div className="table-responsive-wrapper" style={{ marginTop: '1rem', paddingBottom: '4rem' }}>
           <table className="data-table">
             <thead>
               <tr>

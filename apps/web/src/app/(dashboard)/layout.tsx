@@ -93,7 +93,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const topbarContent = (
     <>
       <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
-      <RoleBadge role={userRole} />
+      <div className="hide-on-mobile"><RoleBadge role={userRole} /></div>
       <form action="/api/v1/auth/logout" method="POST">
         <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}>Logout</button>
       </form>

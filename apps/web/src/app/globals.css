@@ -742,9 +742,7 @@ tr {
   .table-responsive-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin: 0 -1rem;
-    padding: 0 1rem;
-    width: calc(100% + 2rem);
+    width: 100%;
   }
 }
 

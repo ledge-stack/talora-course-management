@@ -107,7 +107,7 @@ export default function TimetableGrid({ events, canEdit, courseUnits }: { events
         </div>
       )}
 
-      <div style={{ width: '100%', overflowX: 'auto', paddingBottom: '1rem' }}>
+      <div className="table-responsive-wrapper">
         <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(5, 1fr)', gap: '1px', background: 'var(--border-subtle)', border: '1px solid var(--border-subtle)', borderRadius: '8px', overflow: 'hidden', minWidth: '700px' }}>
           <div style={{ background: 'var(--color-bg-surface)', padding: '1rem', textAlign: 'center', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>Time</div>
           {days.map((day, i) => (
