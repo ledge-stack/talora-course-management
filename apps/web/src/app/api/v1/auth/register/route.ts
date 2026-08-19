@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
-import { sendEmail } from '../../../../../lib/email';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {

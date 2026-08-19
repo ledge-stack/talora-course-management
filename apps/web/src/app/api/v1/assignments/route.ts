@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import type { UserScope } from '@talora/auth';
-import { sendEmail } from '../../../../../lib/email';
+import { sendEmail } from '@/lib/email';
 
 export async function GET(request: Request) {
   try {

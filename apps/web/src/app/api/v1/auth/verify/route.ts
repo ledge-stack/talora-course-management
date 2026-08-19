@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { signJwt } from '@talora/auth';
 import type { UserScope, Role } from '@talora/auth';
-import { sendEmail } from '../../../../../lib/email';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
