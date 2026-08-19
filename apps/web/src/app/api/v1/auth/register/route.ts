@@ -11,9 +11,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
 
-    if (!email.endsWith('@students.mak.ac.ug')) {
-      return NextResponse.json({ error: 'Only Makerere University student emails (@students.mak.ac.ug) are allowed.' }, { status: 400 });
-    }
+    // Email domain restriction removed to allow any email
 
     const studentNumberRegex = /^2[0-9]007\d{5}$/;
     if (!studentNumberRegex.test(studentNumber)) {
