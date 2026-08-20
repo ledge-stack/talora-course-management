@@ -1,5 +1,5 @@
 import React from 'react';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { db } from '@talora/database';
 import { verifyJwt } from '@talora/auth';
 import CreateGroupButton from './CreateGroupButton';
