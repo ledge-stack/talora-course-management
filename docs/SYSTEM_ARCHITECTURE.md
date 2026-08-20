@@ -16,7 +16,8 @@ For the MVP, a **modular monolith** is used over independent microservices. It p
 ## 2. Container Architecture
 - **Clients:** Next.js Web UI, Flutter Mobile App
 - **Application:** Next.js API / Serverless Functions
-- **Data & Providers:** Serverless PostgreSQL (System of Record), Email / Push providers
+- **Data & Providers:** Serverless PostgreSQL (System of Record), Email / Push providers (Note: SMTP is currently bypassed for authentication).
+- **Security & Routing:** Next.js Middleware protects internal `/api/v1` routes and the dashboard, while explicitly whitelisting public auth routes.
 
 ---
 
@@ -49,4 +50,5 @@ talora/
   - Unique active membership on `(student_id, offering_id)`
   - One active leader per group
   - Group capacity constraints enforced via atomic predicates / database locking
+- **Roster Composition**: Class rosters dynamically query and combine `Enrollment` and `GroupMembership` entities to guarantee consistent grouping data upon export.
 - URL-based submissions eliminate the need for costly Object Storage systems.
