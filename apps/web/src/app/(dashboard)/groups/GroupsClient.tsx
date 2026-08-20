@@ -198,6 +198,27 @@ export default function GroupsClient({
     }
   };
 
+  const handleAddByStudentNumber = async (groupId: string) => {
+    const studentNumber = prompt('Enter the student number to add to this group:');
+    if (!studentNumber) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentNumber })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to add student');
+      alert('Student added successfully!');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleProcessRequest = async (requestId: string, status: 'APPROVED' | 'REJECTED') => {
     setLoading(true);
     try {
@@ -523,6 +544,11 @@ export default function GroupsClient({
                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
                                   Transfer Leadership
                                 </button>
+                                {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
+                                    Add Member by ID
+                                  </button>
+                                )}
                                 {group.status !== 'LOCKED' && (
                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
                                     Lock Group

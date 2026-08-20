@@ -15,11 +15,15 @@ export async function POST(
 
     const scope = JSON.parse(scopeHeader) as UserScope;
     
-    // Determine studentId to add (could be self-join or rep adding someone)
     let studentId = scope.userId;
     const body = await request.json().catch(() => ({}));
+    
     if (body.studentId) {
       studentId = body.studentId;
+    } else if (body.studentNumber) {
+      const student = await db.user.findFirst({ where: { studentNumber: body.studentNumber } });
+      if (!student) return NextResponse.json({ code: 'NOT_FOUND', message: 'No student found with that student number' }, { status: 404 });
+      studentId = student.id;
     }
 
     const group = await db.group.findUnique({
@@ -41,8 +45,18 @@ export async function POST(
     }
 
     const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
-    if (!group.isOpen && !isRep) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'Group is invite-only' }, { status: 403 });
+    const isLeader = group.leaderId === scope.userId;
+
+    if (studentId !== scope.userId) {
+      // Trying to add someone else
+      if (!isRep && !isLeader) {
+        return NextResponse.json({ code: 'FORBIDDEN', message: 'Only the Group Leader or a Class Rep can add members directly' }, { status: 403 });
+      }
+    } else {
+      // Trying to join themselves
+      if (!group.isOpen && !isRep) {
+        return NextResponse.json({ code: 'FORBIDDEN', message: 'Group is invite-only' }, { status: 403 });
+      }
     }
 
     const membership = await db.groupMembership.create({
