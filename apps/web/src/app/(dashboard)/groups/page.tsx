@@ -18,6 +18,15 @@ export default async function GroupsPage() {
   };
   let offeringId = '';
   let canCreateGroup = false;
+  let isRep = false;
+  let currentUserId = '';
+
+  const scopeHeader = headers().get('x-user-scope');
+  if (scopeHeader) {
+    const scope = JSON.parse(scopeHeader);
+    currentUserId = scope.userId;
+    isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+  }
 
   if (token) {
     try {
@@ -75,16 +84,18 @@ export default async function GroupsPage() {
         stats.totalStudents = await db.enrollment.count({ where: { offeringId: offering.id } });
         stats.studentsInGroups = await db.groupMembership.count({ where: { offeringId: offering.id } });
 
-        const payload = await verifyJwt(token);
-        const isStudent = payload.roles.some(r => r.role === 'STUDENT');
-        if (isStudent) {
-          const userMembership = await db.groupMembership.findUnique({
-            where: { studentId_offeringId: { studentId: payload.userId, offeringId: offering.id } }
-          });
-          canCreateGroup = !userMembership;
-        } else {
-          // Reps can create groups
-          canCreateGroup = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
+        if (scopeHeader) {
+          const scope = JSON.parse(scopeHeader);
+          const isStudent = scope.roles.some((r: any) => r.role === 'STUDENT');
+          if (isStudent) {
+            const userMembership = await db.groupMembership.findUnique({
+              where: { studentId_offeringId: { studentId: scope.userId, offeringId: offering.id } }
+            });
+            canCreateGroup = !userMembership;
+          } else {
+            // Reps can create groups
+            canCreateGroup = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
+          }
         }
       }
     } catch (e) {
@@ -160,8 +171,8 @@ export default async function GroupsPage() {
       <GroupsClient 
         groups={groups} 
         isUserInGroup={!canCreateGroup} 
-        currentUserId={token ? JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).userId : ''}
-        isRep={token ? JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).roles?.some((r: any) => r.role === 'CLASS_REPRESENTATIVE') : false}
+        currentUserId={currentUserId}
+        isRep={isRep}
         offeringId={offeringId}
         pendingRequests={pendingRequests}
         minGroupSize={stats.minGroupSize}
