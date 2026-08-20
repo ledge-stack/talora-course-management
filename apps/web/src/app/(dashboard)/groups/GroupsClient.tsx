@@ -535,9 +535,7 @@ export default function GroupsClient({
                                     View Join Requests
                                   </button>
                                 )}
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowRenameGroup({ id: group.id, name: group.name }); setNewGroupName(group.name); setOpenDropdownId(null); }}>
-                                  Rename Group
-                                </button>
+
                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
                                   View Members
                                 </button>

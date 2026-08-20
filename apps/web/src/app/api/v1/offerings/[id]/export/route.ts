@@ -3,8 +3,6 @@ import { db } from '@talora/database';
 
 export const dynamic = 'force-dynamic';
 
-
-
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const scopeHeader = req.headers.get('x-user-scope');
@@ -14,21 +12,46 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
     if (!isRep) return new NextResponse('Forbidden', { status: 403 });
 
-    const enrollments = await db.enrollment.findMany({
-      where: { offeringId: params.id },
-      include: {
-        student: true
+    const rosterUsers = await db.user.findMany({
+      where: {
+        OR: [
+          { enrollments: { some: { offeringId: params.id } } },
+          { memberships: { some: { offeringId: params.id } } }
+        ]
       },
-      orderBy: { student: { fullName: 'asc' } }
+      include: {
+        memberships: {
+          where: { offeringId: params.id },
+          include: { group: true }
+        }
+      }
+    });
+
+    const students = rosterUsers.map(user => ({
+      fullName: user.fullName,
+      email: user.email,
+      studentNumber: user.studentNumber || '',
+      registrationNumber: user.registrationNumber || '',
+      group: user.memberships[0]?.group?.name || 'Unassigned'
+    }));
+
+    // Sort by group name, then by full name
+    students.sort((a, b) => {
+      if (a.group < b.group) return -1;
+      if (a.group > b.group) return 1;
+      if (a.fullName < b.fullName) return -1;
+      if (a.fullName > b.fullName) return 1;
+      return 0;
     });
 
     // Generate CSV string
-    const headers = ['Full Name', 'Email', 'Student Number', 'Registration Number'];
-    const rows = enrollments.map(e => [
-      e.student.fullName,
-      e.student.email,
-      e.student.studentNumber || '',
-      e.student.registrationNumber || ''
+    const headers = ['Group', 'Full Name', 'Email', 'Student Number', 'Registration Number'];
+    const rows = students.map(s => [
+      s.group,
+      s.fullName,
+      s.email,
+      s.studentNumber,
+      s.registrationNumber
     ]);
 
     const csvContent = [

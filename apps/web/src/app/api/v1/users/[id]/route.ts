@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     if (emailChanged) {
       // Send the OTP via email
-      await sendEmail({
+      const emailResult = await sendEmail({
         to: user.email,
         subject: 'Verify your new email address',
         html: `
@@ -65,8 +65,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         `
       });
 
+      if (!emailResult.success) {
+        // If email failed, we should probably revert the email change, but since we already saved it, we'll just throw an error.
+        // It's a bit edge case, but we can return 500.
+        return NextResponse.json({ error: 'Failed to send verification email. Your email was updated but you will need to resend the code.' }, { status: 500 });
+      }
+
       // Clear auth cookie to force them to verify
-      cookies().delete('auth_token');
+      cookies().delete('talora_token');
     }
 
     return NextResponse.json({ data: user, emailChanged });

@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Send the OTP via email
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: newUser.email,
       subject: 'Verify your Talora account',
       html: `
@@ -99,6 +99,12 @@ export async function POST(req: NextRequest) {
         </div>
       `
     });
+
+    if (!emailResult.success) {
+      console.error('Email failed to send. Deleting user to allow retry.');
+      await db.user.delete({ where: { id: newUser.id } });
+      return NextResponse.json({ error: 'Failed to send verification email. Please check your email configuration or try again.' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
   } catch (err: any) {

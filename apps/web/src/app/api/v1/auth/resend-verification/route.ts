@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Send the OTP via email
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: user.email,
       subject: 'Verify your Talora account',
       html: `
@@ -60,6 +60,10 @@ export async function POST(req: NextRequest) {
         </div>
       `
     });
+
+    if (!emailResult.success) {
+      return NextResponse.json({ error: 'Failed to resend verification email. Please check your email configuration or try again.' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, message: 'A new verification code has been sent.' }, { status: 200 });
   } catch (err: any) {
