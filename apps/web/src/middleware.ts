@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Also protect dashboard routes if not logged in
-  const isPublicRoute = pathname === '/login' || pathname === '/register';
+  const isPublicRoute = pathname === '/login' || pathname === '/register' || pathname === '/verify' || pathname === '/forgot-password' || pathname === '/reset-password';
   const isDashboardRoute = !isPublicRoute && !pathname.startsWith('/api/');
 
   if (isDashboardRoute) {
