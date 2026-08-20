@@ -63,6 +63,10 @@ export default function GroupsClient({
 
   const [showTransferLeadership, setShowTransferLeadership] = useState<string | null>(null);
 
+  const [showUngrouped, setShowUngrouped] = useState(false);
+  const [ungroupedStudents, setUngroupedStudents] = useState<any[]>([]);
+  const [selectedGroupForStudent, setSelectedGroupForStudent] = useState<Record<string, string>>({});
+
   const filteredGroups = groups.filter(g => {
     const matchesSearch = 
       g.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -72,6 +76,45 @@ export default function GroupsClient({
     
     return matchesSearch && matchesStatus;
   });
+
+  const handleFetchUngrouped = async () => {
+    if (!offeringId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/offerings/${offeringId}/students/ungrouped`);
+      const data = await res.json();
+      if (!res.ok) throw new Error('Failed to fetch ungrouped students');
+      setUngroupedStudents(data.data);
+      setShowUngrouped(true);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForceAssign = async (studentId: string, groupId: string) => {
+    if (!groupId) return alert('Select a group first');
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId })
+      });
+      if (!res.ok) {
+         const data = await res.json();
+         throw new Error(data.message || 'Failed to assign');
+      }
+      // Refresh list locally
+      setUngroupedStudents(prev => prev.filter(s => s.id !== studentId));
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAutoAssign = async () => {
     if (!offeringId) return;
@@ -300,14 +343,25 @@ export default function GroupsClient({
             </select>
 
             {isRep && (
-              <button 
-                className="btn-ghost" 
-                onClick={() => setShowSettingsModal(true)}
-                style={{ padding: '0 0.75rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center' }}
-                title="Class Group Restrictions"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className="btn-secondary" 
+                  onClick={handleFetchUngrouped}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  disabled={loading}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  Assign Ungrouped
+                </button>
+                <button 
+                  className="btn-ghost" 
+                  onClick={() => setShowSettingsModal(true)}
+                  style={{ padding: '0 0.75rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center' }}
+                  title="Class Group Restrictions"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+              </div>
             )}
 
             {!isUserInGroup && currentUserId && (
@@ -642,6 +696,69 @@ export default function GroupsClient({
           currentMax={maxGroupSize || 5}
           onClose={() => setShowSettingsModal(false)}
         />
+      )}
+
+      {showUngrouped && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowUngrouped(false)}
+        >
+          <div 
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '600px', borderRadius: '12px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ color: 'var(--color-text-primary)' }}>Manage Ungrouped Students</h3>
+              <span className="badge badge-primary">{ungroupedStudents.length} Students</span>
+            </div>
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {ungroupedStudents.length === 0 ? (
+                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>All students have been assigned to a group!</div>
+              ) : (
+                ungroupedStudents.map(student => (
+                  <div key={student.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ flex: '1 1 200px' }}>
+                      <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{student.fullName}</div>
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{student.email}</div>
+                      {student.pendingRequest && (
+                        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span className="badge badge-warning" style={{ fontSize: '0.7rem' }}>Pending Application: {student.pendingRequest.targetGroupName}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+                      <select 
+                        className="select" 
+                        style={{ padding: '0.4rem', fontSize: '0.8125rem', minWidth: '150px' }}
+                        value={selectedGroupForStudent[student.id] || ''}
+                        onChange={(e) => setSelectedGroupForStudent(prev => ({ ...prev, [student.id]: e.target.value }))}
+                      >
+                        <option value="">Select Group...</option>
+                        {groups.filter(g => g.membersCount < g.capacity && g.status !== 'LOCKED').map(g => (
+                          <option key={g.id} value={g.id}>{g.name} ({g.membersCount}/{g.capacity})</option>
+                        ))}
+                      </select>
+                      <button 
+                        className="btn-primary" 
+                        style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
+                        onClick={() => handleForceAssign(student.id, selectedGroupForStudent[student.id])}
+                        disabled={loading || !selectedGroupForStudent[student.id]}
+                      >
+                        Assign
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setShowUngrouped(false)}>Close</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
