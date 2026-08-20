@@ -108,6 +108,7 @@ model User {
   isActive           Boolean  @default(true)
   isEmailVerified    Boolean  @default(false)
   verificationToken  String?
+  verificationTokenExpires DateTime?
   resetToken         String?
   resetTokenExpires  DateTime?
   tookGapYear        Boolean  @default(false)

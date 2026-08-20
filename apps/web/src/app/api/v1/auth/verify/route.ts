@@ -40,8 +40,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email is already verified. Please log in.' }, { status: 400 });
     }
 
-    if (user.verificationToken !== otp) {
+    if (user.verificationToken !== otp.trim()) {
       return NextResponse.json({ error: 'Invalid verification code.' }, { status: 400 });
+    }
+
+    if (user.verificationTokenExpires && user.verificationTokenExpires < new Date()) {
+      return NextResponse.json({ error: 'Verification code has expired. Please request a new one.' }, { status: 400 });
     }
 
     // Mark as verified and clear token
@@ -49,7 +53,8 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: {
         isEmailVerified: true,
-        verificationToken: null
+        verificationToken: null,
+        verificationTokenExpires: null,
       }
     });
 

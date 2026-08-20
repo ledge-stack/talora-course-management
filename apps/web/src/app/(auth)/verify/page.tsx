@@ -10,7 +10,9 @@ function VerifyForm() {
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -45,6 +47,31 @@ function VerifyForm() {
     }
   };
 
+  const handleResend = async () => {
+    if (!email) return;
+    setResending(true);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const res = await fetch('/api/v1/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to resend code');
+      }
+      setSuccessMsg(data.message || 'A new verification code has been sent.');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <>
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
@@ -61,6 +88,12 @@ function VerifyForm() {
       {error && (
         <div style={{ marginBottom: '1.5rem', padding: '0.875rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
           {error}
+        </div>
+      )}
+
+      {successMsg && (
+        <div style={{ marginBottom: '1.5rem', padding: '0.875rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+          {successMsg}
         </div>
       )}
 
@@ -87,6 +120,20 @@ function VerifyForm() {
         >
           {loading ? 'Verifying...' : 'Verify and Continue'}
         </button>
+
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            Didn't receive the code?{' '}
+            <button 
+              type="button" 
+              onClick={handleResend}
+              disabled={resending}
+              style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 500, cursor: resending ? 'not-allowed' : 'pointer', padding: 0 }}
+            >
+              {resending ? 'Sending...' : 'Resend Code'}
+            </button>
+          </p>
+        </div>
       </form>
     </>
   );

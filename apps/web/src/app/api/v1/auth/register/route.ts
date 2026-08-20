@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     const newUser = await db.user.create({
       data: {
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
         institutionId: institution.id,
         isEmailVerified: false,
         verificationToken: otp,
+        verificationTokenExpires: expiresAt,
       }
     });
 
