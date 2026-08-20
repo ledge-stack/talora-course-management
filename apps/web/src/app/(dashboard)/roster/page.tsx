@@ -53,7 +53,7 @@ export default async function RosterPage() {
       }
 
       if (offering) {
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         
         // Find Class Representative to establish baseline YY
         const classRepRole = await db.userRole.findFirst({

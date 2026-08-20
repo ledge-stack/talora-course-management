@@ -27,7 +27,7 @@ export default async function AssignmentDetailsPage({ params }: { params: { id: 
           type: dbAssignment.type,
           dueDate: new Date(dbAssignment.dueDate).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }),
           isPast: new Date(dbAssignment.dueDate) < new Date(),
-          offeringName: `${dbAssignment.offering.unit.code} · ${dbAssignment.offering.class.name}`
+          offeringName: `${dbAssignment.offering.unit.title} · ${dbAssignment.offering.class.name}`
         };
 
         const dbSubmission = await db.submission.findFirst({

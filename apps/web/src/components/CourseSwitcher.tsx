@@ -73,7 +73,7 @@ export default function CourseSwitcher({
         >
           {availableOfferings.map(o => (
             <option key={o.id} value={o.id} style={{ color: '#000' }}>
-              {o.unit?.code} · {o.class?.name}
+              {o.unit?.title} · {o.class?.name}
             </option>
           ))}
         </select>

@@ -36,7 +36,7 @@ export default async function AnnouncementsPage() {
 
       if (offering) {
         offeringId = offering.id;
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         
         const dbAnnouncements = await db.announcement.findMany({
           where: { offeringId: offering.id },

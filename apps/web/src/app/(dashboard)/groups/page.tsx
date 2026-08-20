@@ -51,7 +51,7 @@ export default async function GroupsPage() {
 
       if (offering) {
         offeringId = offering.id;
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         stats.minGroupSize = offering.minGroupSize;
         stats.maxGroupSize = offering.maxGroupSize;
         

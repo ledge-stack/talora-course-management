@@ -37,7 +37,7 @@ export default async function AssignmentsPage() {
 
       if (offering) {
         offeringId = offering.id;
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         
         const dbAssignments = await db.assignment.findMany({
           where: { offeringId: offering.id },

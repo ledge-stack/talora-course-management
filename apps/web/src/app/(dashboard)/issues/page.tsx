@@ -37,7 +37,7 @@ export default async function IssuesPage() {
 
       if (offering) {
         offeringId = offering.id;
-        offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+        offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         
         const whereClause: any = { offeringId: offering.id };
         if (!isRep) {

@@ -25,7 +25,7 @@ export default async function GroupRequestsPage() {
     });
 
     if (offering) {
-      offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+      offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
       
       const dbReqs = await db.groupChangeRequest.findMany({
         where: { group: { offeringId: offering.id } },

@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         });
         availableOfferings = enrollments.map(e => ({
           id: e.offering.id,
-          unit: { code: e.offering.unit.code },
+          unit: { title: e.offering.unit.title },
           class: { name: e.offering.class.name }
         }));
 
@@ -59,7 +59,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           });
           availableOfferings = rawOfferings.map((o: any) => ({
             id: o.id,
-            unit: { code: o.unit.code },
+            unit: { title: o.unit.title },
             class: { name: o.class.name }
           }));
         }

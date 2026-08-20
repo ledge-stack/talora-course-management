@@ -63,7 +63,7 @@ export default async function Dashboard() {
         );
       }
 
-      offeringName = `${offering.term.name} · ${offering.unit.code} · ${offering.class.name}`;
+      offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
 
       // ✅ Fire all queries in PARALLEL — cached KPIs + user-specific queries simultaneously
       const [kpiData, activityData, myGroupData] = await Promise.all([
