@@ -87,7 +87,7 @@ export async function GET(
         select: { id: true, name: true }
       });
       const targetGroupMap = new Map(targetGroups.map(g => [g.id, g.name]));
-      for (const val of requestMap.values()) {
+      for (const val of Array.from(requestMap.values())) {
         if (!val.targetGroupName && val.targetGroupId) {
           val.targetGroupName = targetGroupMap.get(val.targetGroupId) || 'Unknown Group';
         }
