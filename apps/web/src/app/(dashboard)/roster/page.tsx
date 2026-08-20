@@ -63,33 +63,34 @@ export default async function RosterPage() {
         
         const repYY = classRepRole ? extractYY(classRepRole.user.registrationNumber || classRepRole.user.studentNumber) : null;
 
-        const enrollments = await db.enrollment.findMany({
-          where: { offeringId: offering.id },
+        const rosterUsers = await db.user.findMany({
+          where: {
+            OR: [
+              { enrollments: { some: { offeringId: offering.id } } },
+              { memberships: { some: { offeringId: offering.id } } }
+            ]
+          },
           include: {
-            student: {
-              include: {
-                memberships: {
-                  where: { offeringId: offering.id },
-                  include: { group: true }
-                }
-              }
+            memberships: {
+              where: { offeringId: offering.id },
+              include: { group: true }
             }
           },
-          orderBy: { student: { fullName: 'asc' } }
+          orderBy: { fullName: 'asc' }
         });
 
-        students = enrollments.map(e => {
-          const studentYY = extractYY(e.student.registrationNumber || e.student.studentNumber);
-          const isRetaker = (repYY && studentYY && studentYY < repYY && !e.student.tookGapYear) ? true : false;
+        students = rosterUsers.map(user => {
+          const studentYY = extractYY(user.registrationNumber || user.studentNumber);
+          const isRetaker = (repYY && studentYY && studentYY < repYY && !user.tookGapYear) ? true : false;
 
           return {
-            id: e.student.studentNumber || e.student.id,
-            userId: e.student.id,
-            name: e.student.fullName,
-            email: e.student.email,
-            group: e.student.memberships[0]?.group?.name || 'Unassigned',
+            id: user.studentNumber || user.id,
+            userId: user.id,
+            name: user.fullName,
+            email: user.email,
+            group: user.memberships[0]?.group?.name || 'Unassigned',
             isRetaker,
-            tookGapYear: e.student.tookGapYear
+            tookGapYear: user.tookGapYear
           };
         });
       }
