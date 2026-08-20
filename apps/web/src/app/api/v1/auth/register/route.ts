@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid Student Number format. It should look like 2400712345.' }, { status: 400 });
     }
 
-    const regNumberRegex = /^2[0-9]\/[U|X|I]\/\d{5}(?:\/(?:EVE|PS|PSA))?$/;
+    const regNumberRegex = /^2[0-9]\/[UXIE]\/\d{5}(?:\/(?:EVE|PS|PSA))?$/;
     if (!regNumberRegex.test(registrationNumber)) {
-      return NextResponse.json({ error: 'Invalid Registration Number format. It should look like 24/U/12345 or 24/X/12345/PS.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid Registration Number format. It should look like 24/U/12345 or 24/E/12345/PS.' }, { status: 400 });
     }
 
     const snYear = studentNumber.substring(0, 2);
