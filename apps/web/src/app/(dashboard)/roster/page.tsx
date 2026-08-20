@@ -34,9 +34,22 @@ export default async function RosterPage() {
       }
       
       if (!offering) {
-        offering = await db.courseOffering.findFirst({
-          include: { unit: true, term: true, class: true },
+        const firstEnrollment = await db.enrollment.findFirst({
+          where: { studentId: scope.userId },
+          include: { offering: { include: { unit: true, term: true, class: true } } },
         });
+        if (firstEnrollment) {
+          offering = firstEnrollment.offering;
+        } else {
+          // If not enrolled but they are a Class Rep, find an offering for their class
+          const repRole = scope.roles.find(r => r.role === 'CLASS_REPRESENTATIVE');
+          if (repRole?.classId) {
+            offering = await db.courseOffering.findFirst({
+              where: { classId: repRole.classId },
+              include: { unit: true, term: true, class: true },
+            });
+          }
+        }
       }
 
       if (offering) {
