@@ -81,7 +81,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="label">University Email</label>
+            <label className="label">Email</label>
             <input 
               type="email" 
               className="input" 
