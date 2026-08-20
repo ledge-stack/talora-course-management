@@ -59,6 +59,7 @@ export const getCachedOfferingKPIs = (offeringId: string, classId: string, termI
         totalSubmissions,
         latestAssignment,
         dbDeadlines,
+        offeringSettings,
       ] = await Promise.all([
         db.enrollment.count({ where: { offeringId } }),
         db.groupMembership.count({ where: { offeringId } }),
@@ -66,7 +67,7 @@ export const getCachedOfferingKPIs = (offeringId: string, classId: string, termI
           where: { offeringId },
           include: { _count: { select: { memberships: true } } },
         }),
-        db.groupChangeRequest.count({ where: { status: 'PENDING' } }),
+        db.groupChangeRequest.count({ where: { status: 'PENDING', group: { offeringId } } }),
         db.issue.count({ where: { offeringId, status: 'OPEN' } }),
         db.assignment.count({ where: { offeringId, dueDate: { gte: new Date() } } }),
         db.submission.count({ where: { assignment: { offeringId } } }),
@@ -79,12 +80,15 @@ export const getCachedOfferingKPIs = (offeringId: string, classId: string, termI
           orderBy: { dueDate: 'asc' },
           take: 3,
         }),
+        db.courseOffering.findUnique({ where: { id: offeringId }, select: { minGroupSize: true } })
       ]);
+
+      const minSize = offeringSettings?.minGroupSize || 4;
 
       return {
         totalEnrolled,
         ungrouped: totalEnrolled - studentsInGroups,
-        incomplete: groups.filter((g) => g._count.memberships < 4).length,
+        incomplete: groups.filter((g) => g._count.memberships < minSize).length,
         requests,
         issues,
         deadlines,
