@@ -67,8 +67,19 @@ export async function POST(request: Request) {
     const studentName = student?.fullName || 'Student';
     
     // Auto-generate a name
-    const count = await db.group.count({ where: { offeringId } });
-    const groupName = `Group ${count + 1} (${studentName.split(' ')[0]})`;
+    const existingGroups = await db.group.findMany({
+      where: { offeringId },
+      select: { name: true }
+    });
+    let maxNumber = 0;
+    for (const g of existingGroups) {
+      const match = g.name.match(/Group (\d+)/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNumber) maxNumber = num;
+      }
+    }
+    const groupName = `Group ${maxNumber + 1} (${studentName.split(' ')[0]})`;
 
     const newGroup = await db.group.create({
       data: {

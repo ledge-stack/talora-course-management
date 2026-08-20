@@ -81,10 +81,19 @@ export async function POST(
       }
     }
 
-    const groupCount = await db.group.count({
-      where: { offeringId: offering.id }
+    const existingGroups = await db.group.findMany({
+      where: { offeringId: offering.id },
+      select: { name: true }
     });
-    const autoName = `Group ${groupCount + 1}`;
+    let maxNumber = 0;
+    for (const g of existingGroups) {
+      const match = g.name.match(/Group (\d+)/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNumber) maxNumber = num;
+      }
+    }
+    const autoName = `Group ${maxNumber + 1}`;
 
     // Prisma casts string to enum automatically
     const newGroup = await db.group.create({
