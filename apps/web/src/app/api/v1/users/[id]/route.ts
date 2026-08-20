@@ -32,8 +32,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     let emailChanged = false;
 
     if (email && email !== currentUser.email) {
-      isEmailVerified = false;
-      verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
       emailChanged = true;
     }
 
@@ -44,36 +42,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         email, 
         studentNumber, 
         registrationNumber,
-        isEmailVerified,
-        verificationToken
       }
     });
-
-    if (emailChanged) {
-      // Send the OTP via email
-      const emailResult = await sendEmail({
-        to: user.email,
-        subject: 'Verify your new email address',
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>Email Update</h2>
-            <p>Hi ${user.fullName},</p>
-            <p>You recently updated your email address on Talora. Please use the following 6-digit code to verify this new email address:</p>
-            <h1 style="color: #4F46E5; letter-spacing: 2px;">${verificationToken}</h1>
-            <p>If you didn't request this change, please contact support immediately.</p>
-          </div>
-        `
-      });
-
-      if (!emailResult.success) {
-        // If email failed, we should probably revert the email change, but since we already saved it, we'll just throw an error.
-        // It's a bit edge case, but we can return 500.
-        return NextResponse.json({ error: 'Failed to send verification email. Your email was updated but you will need to resend the code.' }, { status: 500 });
-      }
-
-      // Clear auth cookie to force them to verify
-      cookies().delete('talora_token');
-    }
 
     return NextResponse.json({ data: user, emailChanged });
   } catch (err: any) {

@@ -72,9 +72,7 @@ export async function POST(req: NextRequest) {
         registrationNumber,
         passwordHash: hashedPassword,
         institutionId: institution.id,
-        isEmailVerified: false,
-        verificationToken: otp,
-        verificationTokenExpires: expiresAt,
+        isEmailVerified: true,
       }
     });
 
@@ -86,27 +84,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Send the OTP via email
-    const emailResult = await sendEmail({
-      to: newUser.email,
-      subject: 'Verify your Talora account',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Welcome to Talora, ${newUser.fullName}!</h2>
-          <p>Please use the following 6-digit code to verify your email address and complete your registration:</p>
-          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
-          <p>If you didn't request this, please ignore this email.</p>
-        </div>
-      `
-    });
-
-    if (!emailResult.success) {
-      console.error('Email failed to send. Deleting user to allow retry.');
-      await db.user.delete({ where: { id: newUser.id } });
-      return NextResponse.json({ error: 'Failed to send verification email. Please check your email configuration or try again.' }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
+    return NextResponse.json({ success: true, userId: newUser.id }, { status: 201 });
   } catch (err: any) {
     console.error('Registration Error:', err);
     if (err.code === 'P2002') {
