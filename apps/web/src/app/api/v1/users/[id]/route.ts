@@ -14,12 +14,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // We don't check for specific roles here, because any user should be able to edit their own profile
     // But we should verify the user is editing their own ID
     const scope = JSON.parse(scopeHeader);
-    if (scope.userId !== params.id) {
+    
+    // Check if caller is platform admin
+    const caller = await db.user.findUnique({
+      where: { id: scope.userId },
+      include: { roles: true }
+    });
+    const isPlatformAdmin = caller?.roles.some(r => r.role === 'PLATFORM_ADMIN');
+
+    if (scope.userId !== params.id && !isPlatformAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await req.json();
-    const { fullName, email, studentNumber, registrationNumber } = body;
+    const { fullName, email, studentNumber, registrationNumber, isActive } = body;
 
     const currentUser = await db.user.findUnique({ where: { id: params.id } });
     
@@ -27,8 +35,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    let isEmailVerified = currentUser.isEmailVerified;
-    let verificationToken = currentUser.verificationToken;
+    // Check permissions for isActive
+    let finalIsActive = undefined;
+    if (isActive !== undefined) {
+      if (!isPlatformAdmin) {
+        return NextResponse.json({ error: 'Forbidden. Only admins can toggle account status.' }, { status: 403 });
+      }
+      finalIsActive = isActive;
+    }
+
     let emailChanged = false;
 
     if (email && email !== currentUser.email) {
@@ -42,6 +57,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         email, 
         studentNumber, 
         registrationNumber,
+        ...(finalIsActive !== undefined ? { isActive: finalIsActive } : {})
       }
     });
 
