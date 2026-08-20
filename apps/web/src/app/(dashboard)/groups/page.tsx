@@ -20,6 +20,7 @@ export default async function GroupsPage() {
   let canCreateGroup = false;
   let isRep = false;
   let currentUserId = '';
+  let userGroupId: string | null = null;
 
   const scopeHeader = headers().get('x-user-scope');
   if (scopeHeader) {
@@ -91,6 +92,7 @@ export default async function GroupsPage() {
             const userMembership = await db.groupMembership.findUnique({
               where: { studentId_offeringId: { studentId: scope.userId, offeringId: offering.id } }
             });
+            userGroupId = userMembership?.groupId || null;
             canCreateGroup = !userMembership;
           } else {
             // Reps can create groups
@@ -170,7 +172,8 @@ export default async function GroupsPage() {
 
       <GroupsClient 
         groups={groups} 
-        isUserInGroup={!canCreateGroup} 
+        isUserInGroup={!canCreateGroup}
+        userGroupId={userGroupId}
         currentUserId={currentUserId}
         isRep={isRep}
         offeringId={offeringId}

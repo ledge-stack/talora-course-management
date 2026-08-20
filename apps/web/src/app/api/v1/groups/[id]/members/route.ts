@@ -40,6 +40,11 @@ export async function POST(
       return NextResponse.json({ code: 'CONFLICT', message: 'Group is full' }, { status: 409 });
     }
 
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+    if (!group.isOpen && !isRep) {
+      return NextResponse.json({ code: 'FORBIDDEN', message: 'Group is invite-only' }, { status: 403 });
+    }
+
     const membership = await db.groupMembership.create({
       data: {
         groupId: group.id,

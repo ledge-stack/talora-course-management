@@ -28,6 +28,7 @@ type PendingRequest = {
 export default function GroupsClient({ 
   groups,
   isUserInGroup,
+  userGroupId,
   currentUserId,
   isRep,
   offeringId,
@@ -37,6 +38,7 @@ export default function GroupsClient({
 }: { 
   groups: Group[],
   isUserInGroup?: boolean,
+  userGroupId?: string | null,
   currentUserId?: string,
   isRep?: boolean,
   offeringId?: string,
@@ -51,6 +53,14 @@ export default function GroupsClient({
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [showRenameGroup, setShowRenameGroup] = useState<{ id: string, name: string } | null>(null);
+  const [newGroupName, setNewGroupName] = useState('');
+
+  const [showMembersGroup, setShowMembersGroup] = useState<string | null>(null);
+  const [groupMembers, setGroupMembers] = useState<{ id: string, fullName: string, studentNumber: string, isLeader: boolean }[]>([]);
+
+  const [showTransferLeadership, setShowTransferLeadership] = useState<string | null>(null);
 
   const filteredGroups = groups.filter(g => {
     const matchesSearch = 
@@ -82,14 +92,45 @@ export default function GroupsClient({
     }
   };
 
-  const handleJoinGroup = async (groupId: string, e: React.MouseEvent) => {
+  const handleJoinGroup = async (groupId: string, e: React.MouseEvent, isOpen: boolean) => {
     e.stopPropagation();
+    
+    if (!isOpen) {
+      const reason = prompt("This group is Invite Only. Please provide a reason for requesting to join (or transfer):");
+      if (!reason) return;
+      
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/v1/group-change-requests`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            groupId: userGroupId ? userGroupId : groupId, 
+            targetGroupId: userGroupId ? groupId : null, 
+            reason 
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to send request');
+        alert("Request sent successfully.");
+        router.refresh();
+      } catch (err: any) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/groups/${groupId}/join`, { method: 'POST' });
+      const res = await fetch(`/api/v1/groups/${groupId}/members`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to join group');
-      alert(data.message);
+      alert('Joined group successfully.');
       router.refresh();
     } catch (err: any) {
       alert(err.message);
@@ -124,12 +165,101 @@ export default function GroupsClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to process request');
       
-      // Keep modal open if there are more requests, else close it
       const remainingForGroup = pendingRequests.filter(r => r.id !== requestId && r.groupId === showRequestsFor);
       if (remainingForGroup.length === 0) {
         setShowRequestsFor(null);
       }
       
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeaveGroup = async (groupId: string) => {
+    if (!confirm('Are you sure you want to leave this group?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members/${currentUserId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to leave group');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRenameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showRenameGroup || !newGroupName.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${showRenameGroup.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newGroupName })
+      });
+      if (!res.ok) throw new Error('Failed to rename group');
+      setShowRenameGroup(null);
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLockGroup = async (groupId: string) => {
+    if (!confirm('Lock this group? Students will no longer be able to join.')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLocked: true })
+      });
+      if (!res.ok) throw new Error('Failed to lock group');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFetchMembers = async (groupId: string, mode: 'view' | 'transfer') => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members/list`);
+      const data = await res.json();
+      if (!res.ok) throw new Error('Failed to fetch members');
+      setGroupMembers(data.data);
+      if (mode === 'view') setShowMembersGroup(groupId);
+      if (mode === 'transfer') setShowTransferLeadership(groupId);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTransferLeadership = async (newLeaderId: string) => {
+    if (!showTransferLeadership) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${showTransferLeadership}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leaderId: newLeaderId })
+      });
+      if (!res.ok) throw new Error('Failed to transfer leadership');
+      setShowTransferLeadership(null);
       router.refresh();
     } catch (err: any) {
       alert(err.message);
@@ -214,13 +344,15 @@ export default function GroupsClient({
                 filteredGroups.map((group) => {
                   const groupRequests = pendingRequests.filter(r => r.groupId === group.id);
                   const canManage = isRep || currentUserId === group.leaderId;
+                  const isOwnGroup = userGroupId === group.id;
 
                   return (
-                    <tr key={group.id}>
+                    <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
                       <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           {group.name}
-                          {/* Leader/Rep Open/Closed Toggle */}
+                          {isOwnGroup && <span className="badge badge-success">Your Group</span>}
+                          
                           {canManage ? (
                             <button 
                               onClick={(e) => handleToggleOpen(group.id, group.isOpen, e)}
@@ -236,7 +368,6 @@ export default function GroupsClient({
                             </span>
                           )}
 
-                          {/* Show pending requests indicator for managers */}
                           {canManage && groupRequests.length > 0 && (
                             <button 
                               onClick={(e) => {
@@ -269,15 +400,25 @@ export default function GroupsClient({
                         {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
                       </td>
                       <td style={{ textAlign: 'right', position: 'relative' }}>
-                        {/* If user is not in a group and group is not full, show Join/Request button */}
-                        {!isUserInGroup && currentUserId && group.membersCount < group.capacity && (
+                        {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
                           <button 
                             className="btn-secondary"
                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', marginRight: '0.5rem' }}
-                            onClick={(e) => handleJoinGroup(group.id, e)}
-                            disabled={loading || group.status === 'LOCKED'}
+                            onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
+                            disabled={loading}
                           >
-                            {group.isOpen ? 'Join' : 'Request to Join'}
+                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to Join') : 'Transfer Here'}
+                          </button>
+                        )}
+                        
+                        {isOwnGroup && currentUserId && (
+                          <button 
+                            className="btn-ghost"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', marginRight: '0.5rem', color: 'var(--color-error)' }}
+                            onClick={() => handleLeaveGroup(group.id)}
+                            disabled={loading}
+                          >
+                            Leave Group
                           </button>
                         )}
 
@@ -318,15 +459,20 @@ export default function GroupsClient({
                                     View Join Requests
                                   </button>
                                 )}
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { alert('View Members not yet implemented'); setOpenDropdownId(null); }}>
+                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowRenameGroup({ id: group.id, name: group.name }); setNewGroupName(group.name); setOpenDropdownId(null); }}>
+                                  Rename Group
+                                </button>
+                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
                                   View Members
                                 </button>
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { alert('Transfer Leadership not yet implemented'); setOpenDropdownId(null); }}>
+                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
                                   Transfer Leadership
                                 </button>
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { alert('Lock Group not yet implemented'); setOpenDropdownId(null); }}>
-                                  Lock Group
-                                </button>
+                                {group.status !== 'LOCKED' && (
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
+                                    Lock Group
+                                  </button>
+                                )}
                               </div>
                             )}
                           </>
@@ -341,7 +487,6 @@ export default function GroupsClient({
         </div>
       </div>
 
-      {/* Review Requests Modal */}
       {showRequestsFor && (
         <div 
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
@@ -360,6 +505,7 @@ export default function GroupsClient({
                   <div>
                     <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{req.studentEmail}</div>
+                    {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button 
@@ -385,6 +531,104 @@ export default function GroupsClient({
 
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
               <button className="btn-secondary" onClick={() => setShowRequestsFor(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRenameGroup && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowRenameGroup(null)}
+        >
+          <div 
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
+            <form onSubmit={handleRenameSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="label">New Group Name</label>
+                <input 
+                  type="text" 
+                  className="input" 
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button type="button" className="btn-secondary" onClick={() => setShowRenameGroup(null)}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={loading}>Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showMembersGroup && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowMembersGroup(null)}
+        >
+          <div 
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {groupMembers.map(m => (
+                <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
+                  {m.isLeader ? (
+                    <span className="badge badge-primary">Leader</span>
+                  ) : (
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTransferLeadership && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowTransferLeadership(null)}
+        >
+          <div 
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
+            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Select a member to transfer leadership to:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {groupMembers.filter(m => !m.isLeader).length === 0 ? (
+                <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No other members to transfer to.</div>
+              ) : (
+                groupMembers.filter(m => !m.isLeader).map(m => (
+                  <button 
+                    key={m.id} 
+                    className="btn-ghost"
+                    style={{ justifyContent: 'flex-start', padding: '0.75rem', border: '1px solid var(--border-subtle)' }}
+                    onClick={() => handleTransferLeadership(m.id)}
+                    disabled={loading}
+                  >
+                    {m.fullName} ({m.studentNumber})
+                  </button>
+                ))
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
             </div>
           </div>
         </div>

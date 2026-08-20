@@ -23,7 +23,7 @@ export async function PATCH(
     if (!group) return NextResponse.json({ code: 'NOT_FOUND', message: 'Group not found' }, { status: 404 });
 
     // Only reps or the group leader can update the group
-    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
     const isLeader = group.leaderId === scope.userId;
 
     if (!isRep && !isLeader) {

@@ -81,16 +81,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ code: 'BAD_REQUEST', message: 'groupId and reason are required' }, { status: 400 });
     }
 
-    // Must be the student making the request
+    // Determine if it's a join or a transfer
+    // If targetGroupId is provided, it's a transfer. The student MUST be in `groupId`.
+    // If targetGroupId is not provided, it's a join request to `groupId`. The student MUST NOT be in `groupId` already.
+    const group = await db.group.findUnique({ where: { id: groupId } });
+    if (!group) return NextResponse.json({ code: 'NOT_FOUND', message: 'Group not found' }, { status: 404 });
+    
     const existingMembership = await db.groupMembership.findFirst({
       where: {
-        groupId,
-        studentId: scope.userId
+        studentId: scope.userId,
+        offeringId: group.offeringId
       }
     });
 
-    if (!existingMembership) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'You are not in this group' }, { status: 403 });
+    if (targetGroupId) {
+      if (!existingMembership || existingMembership.groupId !== groupId) {
+        return NextResponse.json({ code: 'FORBIDDEN', message: 'You must be in the origin group to request a transfer' }, { status: 403 });
+      }
+    } else {
+      if (existingMembership) {
+        return NextResponse.json({ code: 'FORBIDDEN', message: 'You are already in a group. Use transfer instead.' }, { status: 403 });
+      }
     }
 
     // Prevent duplicate pending requests
