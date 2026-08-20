@@ -77,3 +77,28 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const scopeHeader = req.headers.get('x-user-scope');
+    if (!scopeHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    
+    const scope = JSON.parse(scopeHeader);
+    if (scope.userId !== params.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Delete user (Prisma cascade will handle the rest)
+    await db.user.delete({
+      where: { id: params.id }
+    });
+
+    // Clear auth cookie
+    cookies().delete('talora_token');
+
+    return NextResponse.json({ message: 'Account deleted successfully' });
+  } catch (err: any) {
+    console.error('Delete user error:', err);
+    return NextResponse.json({ error: 'Failed to delete account' }, { status: 500 });
+  }
+}

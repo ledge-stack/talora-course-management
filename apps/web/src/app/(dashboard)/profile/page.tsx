@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { db } from '@talora/database';
 import ProfileForm from './ProfileForm';
 import ChangePasswordForm from './ChangePasswordForm';
+import DeleteAccountButton from './DeleteAccountButton';
 
 export default async function ProfilePage() {
   const scopeHeader = headers().get('x-user-scope');
@@ -47,12 +48,13 @@ export default async function ProfilePage() {
             <p>Manage your account settings and view your active roles</p>
           </div>
         </div>
-        <div className="page-header-actions">
+        <div className="page-header-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <form action="/api/v1/auth/logout" method="POST">
-            <button type="submit" className="btn-secondary" style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-bg)' }}>
+            <button type="submit" className="btn-secondary" style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--border-subtle)' }}>
               Logout
             </button>
           </form>
+          <DeleteAccountButton userId={user.id} />
         </div>
       </header>
 
