@@ -18,6 +18,7 @@ type Group = {
 type PendingRequest = {
   id: string;
   groupId: string;
+  targetGroupId?: string | null;
   groupLeaderId: string;
   studentId: string;
   studentName: string;
@@ -165,7 +166,7 @@ export default function GroupsClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to process request');
       
-      const remainingForGroup = pendingRequests.filter(r => r.id !== requestId && r.groupId === showRequestsFor);
+      const remainingForGroup = pendingRequests.filter(r => r.id !== requestId && (r.targetGroupId || r.groupId) === showRequestsFor);
       if (remainingForGroup.length === 0) {
         setShowRequestsFor(null);
       }
@@ -342,7 +343,7 @@ export default function GroupsClient({
                 </tr>
               ) : (
                 filteredGroups.map((group) => {
-                  const groupRequests = pendingRequests.filter(r => r.groupId === group.id);
+                  const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
                   const canManage = isRep || currentUserId === group.leaderId;
                   const isOwnGroup = userGroupId === group.id;
 
@@ -500,7 +501,7 @@ export default function GroupsClient({
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Pending Join Requests</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {pendingRequests.filter(r => r.groupId === showRequestsFor).map(req => (
+              {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
                 <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                   <div>
                     <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>

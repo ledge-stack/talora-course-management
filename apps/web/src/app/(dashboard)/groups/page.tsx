@@ -124,6 +124,7 @@ export default async function GroupsPage() {
       pendingRequests = rawRequests.map(r => ({
         id: r.id,
         groupId: r.groupId,
+        targetGroupId: r.targetGroupId,
         groupLeaderId: r.group.leaderId,
         studentId: r.studentId,
         studentName: studentMap.get(r.studentId)?.fullName || 'Unknown Student',

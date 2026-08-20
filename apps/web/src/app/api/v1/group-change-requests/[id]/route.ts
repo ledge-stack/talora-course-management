@@ -28,11 +28,22 @@ export async function PATCH(
       return NextResponse.json({ code: 'CONFLICT', message: 'Request is already processed' }, { status: 409 });
     }
 
-    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
-    const isLeader = changeRequest.group.leaderId === scope.userId;
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+    let isLeader = changeRequest.group.leaderId === scope.userId;
+    
+    // For transfers, the target group leader must approve
+    if (changeRequest.targetGroupId) {
+      const targetGroup = await db.group.findUnique({ where: { id: changeRequest.targetGroupId } });
+      if (targetGroup?.leaderId === scope.userId) {
+        isLeader = true;
+      } else {
+        // Origin group leader cannot approve transfers, only the target can (and reps)
+        isLeader = false;
+      }
+    }
 
     if (!isRep && !isLeader) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only Class Reps or the Group Leader can process change requests' }, { status: 403 });
+      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only Class Reps or the Target Group Leader can process transfer requests' }, { status: 403 });
     }
 
     const { status } = body;
