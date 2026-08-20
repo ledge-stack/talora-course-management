@@ -43,6 +43,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!user.isEmailVerified) {
+      return NextResponse.json(
+        { code: 'FORBIDDEN', message: 'Please verify your email address before logging in.', requiresVerification: true },
+        { status: 403 }
+      );
+    }
+
     const isPasswordValid = await verifyPassword(password, user.passwordHash);
 
     if (!isPasswordValid) {

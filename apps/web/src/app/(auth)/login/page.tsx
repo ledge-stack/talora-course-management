@@ -28,6 +28,10 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.requiresVerification) {
+          window.location.href = `/verify?email=${encodeURIComponent(email)}`;
+          return;
+        }
         throw new Error(data.message || 'Login failed');
       }
 
