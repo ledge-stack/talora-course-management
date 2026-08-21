@@ -573,12 +573,12 @@ export default function GroupsClient({
         >
           <div 
             className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px' }}
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Pending Join Requests</h3>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', flexShrink: 0 }}>Pending Join Requests</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
               {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
                 <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                   <div>
@@ -622,7 +622,7 @@ export default function GroupsClient({
         >
           <div 
             className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
@@ -654,7 +654,7 @@ export default function GroupsClient({
         >
           <div 
             className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
@@ -684,7 +684,7 @@ export default function GroupsClient({
         >
           <div 
             className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px' }}
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
