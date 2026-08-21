@@ -3,11 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ClassSettingsModal from './ClassSettingsModal';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { toast } from 'sonner';
-import { ConfirmModal, PromptModal } from '@/components/ui/Modals';
 
 type Group = {
   id: string;
@@ -53,11 +48,9 @@ export default function GroupsClient({
   maxGroupSize?: number
 }) {
   const router = useRouter();
-  const [promptState, setPromptState] = useState<{ isOpen: boolean; title: string; description?: string; onSubmit: (val: string) => void; }>({ isOpen: false, title: '', onSubmit: () => {} });
-  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; title: string; description?: string; onConfirm: () => void; destructive?: boolean; }>({ isOpen: false, title: '', onConfirm: () => {} });
-
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -94,14 +87,14 @@ export default function GroupsClient({
       setUngroupedStudents(data.data);
       setShowUngrouped(true);
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleForceAssign = async (studentId: string, groupId: string) => {
-    if (!groupId) return toast.error('Select a group first');
+    if (!groupId) return alert('Select a group first');
     setLoading(true);
     try {
       const res = await fetch(`/api/v1/groups/${groupId}/members`, {
@@ -117,7 +110,7 @@ export default function GroupsClient({
       setUngroupedStudents(prev => prev.filter(s => s.id !== studentId));
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -134,10 +127,10 @@ export default function GroupsClient({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to auto-assign');
-      toast.error(data.message);
+      alert(data.message);
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -147,33 +140,29 @@ export default function GroupsClient({
     e.stopPropagation();
     
     if (!isOpen) {
-      setPromptState({
-        isOpen: true,
-        title: 'Request to Join',
-        description: 'This group is Invite Only. Please provide a reason for requesting to join (or transfer):',
-        onSubmit: async (reason) => {
-          setLoading(true);
-          try {
-            const res = await fetch(`/api/v1/group-change-requests`, { 
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                groupId: userGroupId ? userGroupId : groupId, 
-                targetGroupId: userGroupId ? groupId : null, 
-                reason 
-              })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Failed to send request');
-            toast.success("Request sent successfully.");
-            router.refresh();
-          } catch (err: any) {
-            toast.error(err.message);
-          } finally {
-            setLoading(false);
-          }
-        }
-      });
+      const reason = prompt("This group is Invite Only. Please provide a reason for requesting to join (or transfer):");
+      if (!reason) return;
+      
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/v1/group-change-requests`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            groupId: userGroupId ? userGroupId : groupId, 
+            targetGroupId: userGroupId ? groupId : null, 
+            reason 
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to send request');
+        alert("Request sent successfully.");
+        router.refresh();
+      } catch (err: any) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -185,10 +174,10 @@ export default function GroupsClient({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to join group');
-      toast.success('Joined group successfully.');
+      alert('Joined group successfully.');
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -205,34 +194,29 @@ export default function GroupsClient({
       if (!res.ok) throw new Error('Failed to toggle open status');
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     }
   };
 
   const handleAddByStudentNumber = async (groupId: string) => {
-    setPromptState({
-      isOpen: true,
-      title: 'Add Student',
-      description: 'Enter the student number to add to this group:',
-      onSubmit: async (studentNumber) => {
-        setLoading(true);
-        try {
-          const res = await fetch(`/api/v1/groups/${groupId}/members`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentNumber })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || 'Failed to add student');
-          toast.success('Student added successfully!');
-          router.refresh();
-        } catch (err: any) {
-          toast.error(err.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
+    const studentNumber = prompt('Enter the student number to add to this group:');
+    if (!studentNumber) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentNumber })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to add student');
+      alert('Student added successfully!');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProcessRequest = async (requestId: string, status: 'APPROVED' | 'REJECTED') => {
@@ -253,59 +237,27 @@ export default function GroupsClient({
       
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLeaveGroup = async (groupId: string) => {
-    setConfirmState({
-      isOpen: true,
-      title: 'Leave Group',
-      description: 'Are you sure you want to leave this group?',
-      destructive: true,
-      onConfirm: async () => {
-        setLoading(true);
-        try {
-          const res = await fetch(`/api/v1/groups/${groupId}/members/${currentUserId}`, {
-            method: 'DELETE'
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || 'Failed to leave group');
-          router.refresh();
-        } catch (err: any) {
-          toast.error(err.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
-  };
-
-  const handleRemoveMember = async (groupId: string, memberId: string) => {
-    setConfirmState({
-      isOpen: true,
-      title: 'Remove Member',
-      description: 'Are you sure you want to remove this member from the group?',
-      destructive: true,
-      onConfirm: async () => {
-        setLoading(true);
-        try {
-          const res = await fetch(`/api/v1/groups/${groupId}/members/${memberId}`, {
-            method: 'DELETE'
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || 'Failed to remove member');
-          setGroupMembers(prev => prev.filter(m => m.id !== memberId));
-          router.refresh();
-        } catch (err: any) {
-          toast.error(err.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
+    if (!confirm('Are you sure you want to leave this group?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members/${currentUserId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to leave group');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRenameSubmit = async (e: React.FormEvent) => {
@@ -322,35 +274,28 @@ export default function GroupsClient({
       setShowRenameGroup(null);
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLockGroup = async (groupId: string) => {
-    setConfirmState({
-      isOpen: true,
-      title: 'Lock Group',
-      description: 'Lock this group? Students will no longer be able to join.',
-      destructive: true,
-      onConfirm: async () => {
-        setLoading(true);
-        try {
-          const res = await fetch(`/api/v1/groups/${groupId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isLocked: true })
-          });
-          if (!res.ok) throw new Error('Failed to lock group');
-          router.refresh();
-        } catch (err: any) {
-          toast.error(err.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
+    if (!confirm('Lock this group? Students will no longer be able to join.')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLocked: true })
+      });
+      if (!res.ok) throw new Error('Failed to lock group');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFetchMembers = async (groupId: string, mode: 'view' | 'transfer') => {
@@ -363,7 +308,7 @@ export default function GroupsClient({
       if (mode === 'view') setShowMembersGroup(groupId);
       if (mode === 'transfer') setShowTransferLeadership(groupId);
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -382,7 +327,7 @@ export default function GroupsClient({
       setShowTransferLeadership(null);
       router.refresh();
     } catch (err: any) {
-      toast.error(err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -390,7 +335,7 @@ export default function GroupsClient({
 
   return (
     <>
-      <div className="flex-1 flex flex-col overflow-visible">
+      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
         <div className="toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
             <div style={{ position: 'relative', flex: '1 1 200px', minWidth: '150px' }}>
@@ -453,21 +398,21 @@ export default function GroupsClient({
           </div>
         </div>
 
-        <div className="hidden lg:block bg-bg-surface border border-border-subtle rounded-xl overflow-x-auto shadow-sm mt-4 mb-16">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+        <div className="table-responsive-wrapper" style={{ marginTop: '1rem', paddingBottom: '4rem' }}>
+          <table className="data-table">
             <thead>
-              <tr className="border-b border-border-subtle bg-bg-surface-hover/30">
-                <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-1/4">Group Name</th>
-                <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-1/4">Leader</th>
-                <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-1/5">Members</th>
-                <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-[15%]">Status</th>
-                <th className="py-4 px-6 font-semibold text-sm text-text-secondary text-right w-[15%]">Actions</th>
+              <tr>
+                <th style={{ width: '25%' }}>Group Name</th>
+                <th style={{ width: '25%' }}>Leader</th>
+                <th style={{ width: '20%' }}>Members</th>
+                <th style={{ width: '15%' }}>Status</th>
+                <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredGroups.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12 text-text-muted">
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                     No groups match your current filters.
                   </td>
                 </tr>
@@ -478,22 +423,23 @@ export default function GroupsClient({
                   const isOwnGroup = userGroupId === group.id;
 
                   return (
-                    <tr key={group.id} className={`border-b border-border-subtle hover:bg-bg-surface-hover/50 transition-colors ${isOwnGroup ? 'bg-primary/5' : ''}`}>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2 font-medium text-text-primary">
+                    <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
+                      <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           {group.name}
-                          {isOwnGroup && <Badge variant="success">Your Group</Badge>}
+                          {isOwnGroup && <span className="badge badge-success">Your Group</span>}
                           
                           {canManage ? (
                             <button 
                               onClick={(e) => handleToggleOpen(group.id, group.isOpen, e)}
-                              className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${group.isOpen ? 'text-primary border-primary/30 bg-primary/10' : 'text-text-muted border-border-subtle hover:bg-bg-surface-hover'}`}
+                              className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}
+                              style={{ cursor: 'pointer', border: 'none', background: group.isOpen ? 'var(--color-primary-transparent)' : 'rgba(255,255,255,0.05)' }}
                               title="Click to toggle group open/closed"
                             >
                               {group.isOpen ? 'Open' : 'Invite Only'}
                             </button>
                           ) : (
-                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${group.isOpen ? 'text-primary border-primary/30 bg-primary/10' : 'text-text-muted border-border-subtle'}`}>
+                            <span className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}>
                               {group.isOpen ? 'Open' : 'Invite Only'}
                             </span>
                           )}
@@ -504,34 +450,36 @@ export default function GroupsClient({
                                 e.stopPropagation();
                                 setShowRequestsFor(group.id);
                               }}
-                              className="text-xs font-semibold bg-warning/20 text-warning px-2 py-0.5 rounded-md hover:bg-warning/30 transition-colors ml-2"
+                              className="badge badge-warning"
+                              style={{ cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                             >
-                              {groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}
+                              <span>{groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}</span>
                             </button>
                           )}
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-text-primary">{group.leader}</td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1 h-1.5 bg-border-subtle rounded-full overflow-hidden">
-                            <div className="h-full bg-primary" style={{ width: `${(group.membersCount / group.capacity) * 100}%` }} />
+                      <td style={{ color: 'var(--color-text-primary)' }}>{group.leader}</td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ flex: 1, height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', background: 'var(--color-primary)', width: `${(group.membersCount / group.capacity) * 100}%` }} />
                           </div>
-                          <span className="text-xs text-text-secondary min-w-[32px]">
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', minWidth: '32px' }}>
                             {group.membersCount} / {group.capacity}
                           </span>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        {group.status === 'COMPLETE' && <Badge variant="success">Complete</Badge>}
-                        {group.status === 'FORMING' && <Badge variant="info">Forming</Badge>}
-                        {group.status === 'INCOMPLETE' && <Badge variant="warning">Incomplete</Badge>}
-                        {group.status === 'LOCKED' && <Badge variant="default">Locked</Badge>}
+                      <td>
+                        {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
+                        {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
+                        {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
+                        {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
                       </td>
-                      <td className="py-4 px-6 text-right flex items-center justify-end gap-2">
+                      <td style={{ textAlign: 'right', position: 'relative' }}>
                         {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
                           <button 
-                            className="btn-secondary py-1 px-3 text-xs"
+                            className="btn-secondary"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', marginRight: '0.5rem' }}
                             onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
                             disabled={loading}
                           >
@@ -541,7 +489,8 @@ export default function GroupsClient({
                         
                         {isOwnGroup && currentUserId && (
                           <button 
-                            className="btn-ghost py-1 px-3 text-xs text-danger"
+                            className="btn-ghost"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', marginRight: '0.5rem', color: 'var(--color-error)' }}
                             onClick={() => handleLeaveGroup(group.id)}
                             disabled={loading}
                           >
@@ -550,52 +499,62 @@ export default function GroupsClient({
                         )}
 
                         {canManage && (
-                          <DropdownMenu.Root>
-                            <DropdownMenu.Trigger asChild>
-                              <button className="btn-ghost p-1.5 text-text-muted">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                              </button>
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Portal>
-                              <DropdownMenu.Content 
-                                className="bg-bg-surface border border-border-subtle p-1 flex flex-col shadow-lg z-50 min-w-[150px] rounded-lg"
-                                sideOffset={4}
-                                align="end"
+                          <>
+                            <button 
+                              className="btn-ghost" 
+                              style={{ padding: '0.4rem', color: 'var(--color-text-muted)' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdownId(openDropdownId === group.id ? null : group.id);
+                              }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                            </button>
+                            {openDropdownId === group.id && (
+                              <div 
+                                style={{ 
+                                  position: 'absolute', 
+                                  right: '1.5rem', 
+                                  ...(filteredGroups.findIndex(g => g.id === group.id) >= Math.max(0, filteredGroups.length - 2) && filteredGroups.length > 1 ? { bottom: '2.5rem' } : { top: '2.5rem' }),
+                                  background: 'var(--color-bg-surface)', 
+                                  border: '1px solid var(--border-subtle)', 
+                                  borderRadius: '8px', 
+                                  padding: '0.5rem', 
+                                  display: 'flex', 
+                                  flexDirection: 'column', 
+                                  gap: '0.25rem',
+                                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)',
+                                  zIndex: 50,
+                                  minWidth: '150px',
+                                  textAlign: 'left'
+                                }}
+                                onClick={e => e.stopPropagation()}
                               >
                                 {groupRequests.length > 0 && (
-                                  <DropdownMenu.Item asChild>
-                                    <button className="text-sm px-3 py-2 text-primary hover:bg-primary/10 rounded-md w-full text-left" onClick={() => setShowRequestsFor(group.id)}>
-                                      View Join Requests
-                                    </button>
-                                  </DropdownMenu.Item>
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }} onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); }}>
+                                    View Join Requests
+                                  </button>
                                 )}
-                                <DropdownMenu.Item asChild>
-                                  <button className="text-sm px-3 py-2 text-text-primary hover:bg-bg-surface-hover rounded-md w-full text-left" onClick={() => handleFetchMembers(group.id, 'view')}>
-                                    View Members
-                                  </button>
-                                </DropdownMenu.Item>
-                                <DropdownMenu.Item asChild>
-                                  <button className="text-sm px-3 py-2 text-text-primary hover:bg-bg-surface-hover rounded-md w-full text-left" onClick={() => handleFetchMembers(group.id, 'transfer')}>
-                                    Transfer Leadership
-                                  </button>
-                                </DropdownMenu.Item>
+
+                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
+                                  View Members
+                                </button>
+                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
+                                  Transfer Leadership
+                                </button>
                                 {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
-                                  <DropdownMenu.Item asChild>
-                                    <button className="text-sm px-3 py-2 text-text-primary hover:bg-bg-surface-hover rounded-md w-full text-left" onClick={() => handleAddByStudentNumber(group.id)}>
-                                      Add Member by ID
-                                    </button>
-                                  </DropdownMenu.Item>
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
+                                    Add Member by ID
+                                  </button>
                                 )}
                                 {group.status !== 'LOCKED' && (
-                                  <DropdownMenu.Item asChild>
-                                    <button className="text-sm px-3 py-2 text-warning hover:bg-warning/10 rounded-md w-full text-left" onClick={() => handleLockGroup(group.id)}>
-                                      Lock Group
-                                    </button>
-                                  </DropdownMenu.Item>
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
+                                    Lock Group
+                                  </button>
                                 )}
-                              </DropdownMenu.Content>
-                            </DropdownMenu.Portal>
-                          </DropdownMenu.Root>
+                              </div>
+                            )}
+                          </>
                         )}
                       </td>
                     </tr>
@@ -604,134 +563,6 @@ export default function GroupsClient({
               )}
             </tbody>
           </table>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="lg:hidden flex flex-col gap-4 mt-4 mb-16">
-          {filteredGroups.length === 0 ? (
-            <div className="text-center p-8 text-text-muted bg-bg-surface rounded-xl border border-border-subtle">
-              No groups match your current filters.
-            </div>
-          ) : (
-            filteredGroups.map(group => {
-              const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
-              const canManage = isRep || currentUserId === group.leaderId;
-              const isOwnGroup = userGroupId === group.id;
-
-              return (
-                <Card key={group.id} className={`p-4 flex flex-col gap-3 ${isOwnGroup ? 'border-primary' : ''}`}>
-                  <div className="flex justify-between items-start gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-text-primary">{group.name}</span>
-                        {isOwnGroup && <Badge variant="success">Your Group</Badge>}
-                        {canManage && groupRequests.length > 0 && (
-                          <button 
-                            onClick={() => setShowRequestsFor(group.id)}
-                            className="text-xs font-semibold bg-warning/20 text-warning px-2 py-0.5 rounded-md hover:bg-warning/30 transition-colors"
-                          >
-                            {groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}
-                          </button>
-                        )}
-                      </div>
-                      <div className="text-sm text-text-secondary mt-1">{group.leader}</div>
-                    </div>
-                    
-                    {/* actions: DropdownMenu */}
-                    {canManage && (
-                      <DropdownMenu.Root>
-                        <DropdownMenu.Trigger asChild>
-                          <button className="btn-ghost p-1.5 text-text-muted">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                          </button>
-                        </DropdownMenu.Trigger>
-                        <DropdownMenu.Portal>
-                          <DropdownMenu.Content 
-                            className="bg-bg-surface border border-border-subtle p-3 flex flex-col gap-1 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.5)] z-50 fixed inset-x-0 bottom-0 rounded-t-2xl w-full !transform-none pb-8 will-change-transform"
-                          >
-                            <div className="w-12 h-1 bg-border-subtle rounded-full mx-auto mb-3" />
-                            {groupRequests.length > 0 && (
-                              <DropdownMenu.Item asChild>
-                                <button className="text-base px-4 py-3 text-primary hover:bg-bg-surface-hover rounded-xl w-full text-left" onClick={() => setShowRequestsFor(group.id)}>
-                                  View Join Requests
-                                </button>
-                              </DropdownMenu.Item>
-                            )}
-                            <DropdownMenu.Item asChild>
-                              <button className="text-base px-4 py-3 text-text-primary hover:bg-bg-surface-hover rounded-xl w-full text-left" onClick={() => handleFetchMembers(group.id, 'view')}>
-                                View Members
-                              </button>
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item asChild>
-                              <button className="text-base px-4 py-3 text-text-primary hover:bg-bg-surface-hover rounded-xl w-full text-left" onClick={() => handleFetchMembers(group.id, 'transfer')}>
-                                Transfer Leadership
-                              </button>
-                            </DropdownMenu.Item>
-                            {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
-                              <DropdownMenu.Item asChild>
-                                <button className="text-base px-4 py-3 text-text-primary hover:bg-bg-surface-hover rounded-xl w-full text-left" onClick={() => handleAddByStudentNumber(group.id)}>
-                                  Add Member by ID
-                                </button>
-                              </DropdownMenu.Item>
-                            )}
-                            {group.status !== 'LOCKED' && (
-                              <DropdownMenu.Item asChild>
-                                <button className="text-base px-4 py-3 text-warning hover:bg-warning/10 rounded-xl w-full text-left" onClick={() => handleLockGroup(group.id)}>
-                                  Lock Group
-                                </button>
-                              </DropdownMenu.Item>
-                            )}
-                          </DropdownMenu.Content>
-                        </DropdownMenu.Portal>
-                      </DropdownMenu.Root>
-                    )}
-                  </div>
-
-                  {/* Group Progress & Status */}
-                  <div className="flex items-center justify-between gap-4 text-sm mt-2">
-                    <div className="flex-1 max-w-[200px]">
-                      <div className="h-1.5 bg-border-subtle rounded-full overflow-hidden mb-1">
-                        <div className="h-full bg-primary" style={{ width: `${(group.membersCount / group.capacity) * 100}%` }} />
-                      </div>
-                      <span className="text-xs text-text-secondary">{group.membersCount} / {group.capacity} Members</span>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      {group.status === 'COMPLETE' && <Badge variant="success">Complete</Badge>}
-                      {group.status === 'FORMING' && <Badge variant="info">Forming</Badge>}
-                      {group.status === 'INCOMPLETE' && <Badge variant="warning">Incomplete</Badge>}
-                      {group.status === 'LOCKED' && <Badge variant="default">Locked</Badge>}
-
-                      {canManage ? (
-                        <button onClick={(e) => handleToggleOpen(group.id, group.isOpen, e)} className={`text-[10px] uppercase font-bold tracking-wider mt-1 ${group.isOpen ? 'text-primary' : 'text-text-muted'}`}>
-                          {group.isOpen ? 'Open' : 'Invite Only'}
-                        </button>
-                      ) : (
-                        <span className={`text-[10px] uppercase font-bold tracking-wider mt-1 ${group.isOpen ? 'text-primary' : 'text-text-muted'}`}>
-                          {group.isOpen ? 'Open' : 'Invite Only'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Primary Actions */}
-                  {(currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup) || (isOwnGroup && currentUserId) ? (
-                    <div className="mt-2 flex flex-col gap-2">
-                      {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
-                        <button className="btn-secondary w-full justify-center" onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)} disabled={loading}>
-                          {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to Join') : 'Transfer Here'}
-                        </button>
-                      )}
-                      {isOwnGroup && currentUserId && (
-                        <button className="btn-ghost text-danger w-full justify-center border border-danger/20" onClick={() => handleLeaveGroup(group.id)} disabled={loading}>
-                          Leave Group
-                        </button>
-                      )}
-                    </div>
-                  ) : null}
-                </Card>
-              );
-            })
-          )}
         </div>
       </div>
 
@@ -816,54 +647,35 @@ export default function GroupsClient({
         </div>
       )}
 
-      {showMembersGroup && (() => {
-        const activeGroup = groups.find(g => g.id === showMembersGroup);
-        const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
-        
-        return (
+      {showMembersGroup && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowMembersGroup(null)}
+        >
           <div 
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-            onClick={() => setShowMembersGroup(null)}
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div 
-              className="modal-content"
-              style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                {groupMembers.map(m => (
-                  <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {m.isLeader ? (
-                        <span className="badge badge-primary">Leader</span>
-                      ) : (
-                        canManageActiveGroup && (
-                          <button 
-                            className="btn-ghost text-danger p-1 border border-transparent hover:border-danger/30 hover:bg-danger/10 rounded" 
-                            onClick={() => handleRemoveMember(showMembersGroup, m.id)}
-                            disabled={loading}
-                            title="Remove Member"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
-              </div>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {groupMembers.map(m => (
+                <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
+                  {m.isLeader ? (
+                    <span className="badge badge-primary">Leader</span>
+                  ) : (
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
             </div>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {showTransferLeadership && (
         <div 
@@ -972,23 +784,6 @@ export default function GroupsClient({
           </div>
         </div>
       )}
-      
-      <PromptModal
-        isOpen={promptState.isOpen}
-        onClose={() => setPromptState(prev => ({ ...prev, isOpen: false }))}
-        onSubmit={promptState.onSubmit}
-        title={promptState.title}
-        description={promptState.description}
-      />
-
-      <ConfirmModal
-        isOpen={confirmState.isOpen}
-        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmState.onConfirm}
-        title={confirmState.title}
-        description={confirmState.description}
-        destructive={confirmState.destructive}
-      />
     </>
   );
 }
