@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
-import { cookies } from 'next/headers';
-import * as jose from 'jose';
+import type { UserScope } from '@talora/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = cookies().get('talora_token')?.value;
-    if (!token) {
+    const scopeHeader = req.headers.get('x-user-scope');
+    if (!scopeHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
-    const { payload } = await jose.jwtVerify(token, secret);
+    const scope = JSON.parse(scopeHeader) as UserScope;
     
     // Fetch the caller
     const caller = await db.user.findUnique({
-      where: { id: payload.sub },
+      where: { id: scope.userId },
       include: { roles: true }
     });
 

@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
-import { cookies } from 'next/headers';
-import * as jose from 'jose';
+import type { UserScope } from '@talora/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    const token = cookies().get('talora_token')?.value;
-    if (!token) {
+    const scopeHeader = req.headers.get('x-user-scope');
+    if (!scopeHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
-    const { payload } = await jose.jwtVerify(token, secret);
+    const scope = JSON.parse(scopeHeader) as UserScope;
     
-    // Fetch the caller to check roles
+    // Fetch the caller to check roles and institution
     const caller = await db.user.findUnique({
-      where: { id: payload.sub },
+      where: { id: scope.userId },
       include: { roles: true }
     });
 
@@ -25,7 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const isPlatformAdmin = caller.roles.some(r => r.role === 'PLATFORM_ADMIN');
+    const isPlatformAdmin = scope.roles.some(r => r.role === 'PLATFORM_ADMIN');
     if (!isPlatformAdmin) {
       return NextResponse.json({ error: 'Forbidden. Requires PLATFORM_ADMIN role.' }, { status: 403 });
     }
@@ -75,8 +73,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: safeUsers }, { status: 200 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fetch Users API Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: String(error) + ' ' + (error.stack || '') }, { status: 500 });
   }
 }
