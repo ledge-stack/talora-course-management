@@ -20,11 +20,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { fullName, email, studentNumber, registrationNumber, password } = body;
+    let { fullName, email, studentNumber, registrationNumber, password } = body;
 
     if (!fullName || !email || !studentNumber || !registrationNumber || !password) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
+
+    studentNumber = studentNumber.replace(/\s+/g, '');
+    registrationNumber = registrationNumber.replace(/\s+/g, '').toUpperCase();
+    email = email.trim();
 
     if (password.length < 8) {
       return NextResponse.json({ error: 'Password must be at least 8 characters long.' }, { status: 400 });
@@ -32,12 +36,12 @@ export async function POST(req: NextRequest) {
 
     // Email domain restriction removed to allow any email
 
-    const studentNumberRegex = /^2[0-9]\d{7,8}$/;
+    const studentNumberRegex = /^2[0-9]007\d{5}$/;
     if (!studentNumberRegex.test(studentNumber)) {
       return NextResponse.json({ error: 'Invalid Student Number format. It should look like 2400712345.' }, { status: 400 });
     }
 
-    const regNumberRegex = /^2[0-9]\/[a-zA-Z]\/\d+(?:\/[a-zA-Z]+)?$/;
+    const regNumberRegex = /^2[0-9]\/[UXIE]\/\d{4,5}(?:\/(?:EVE|PS|PSA))?$/;
     if (!regNumberRegex.test(registrationNumber)) {
       return NextResponse.json({ error: 'Invalid Registration Number format. It should look like 24/U/12345 or 25/U/0349.' }, { status: 400 });
     }
