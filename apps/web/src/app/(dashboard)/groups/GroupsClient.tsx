@@ -260,6 +260,24 @@ export default function GroupsClient({
     }
   };
 
+  const handleRemoveMember = async (groupId: string, memberId: string) => {
+    if (!confirm('Are you sure you want to remove this member from the group?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}/members/${memberId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to remove member');
+      setGroupMembers(prev => prev.filter(m => m.id !== memberId));
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRenameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!showRenameGroup || !newGroupName.trim()) return;
@@ -647,35 +665,55 @@ export default function GroupsClient({
         </div>
       )}
 
-      {showMembersGroup && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowMembersGroup(null)}
-        >
+      {showMembersGroup && (() => {
+        const activeGroup = groups.find(g => g.id === showMembersGroup);
+        const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
+
+        return (
           <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+            onClick={() => setShowMembersGroup(null)}
           >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {groupMembers.map(m => (
-                <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
-                  {m.isLeader ? (
-                    <span className="badge badge-primary">Leader</span>
-                  ) : (
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
+            <div 
+              className="modal-content"
+              style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                {groupMembers.map(m => (
+                  <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {m.isLeader ? (
+                        <span className="badge badge-primary">Leader</span>
+                      ) : (
+                        canManageActiveGroup && (
+                          <button 
+                            className="btn-ghost" 
+                            style={{ padding: '0.25rem', color: 'var(--color-error)' }}
+                            onClick={() => handleRemoveMember(showMembersGroup, m.id)}
+                            disabled={loading}
+                            title="Remove Member"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {showTransferLeadership && (
         <div 
