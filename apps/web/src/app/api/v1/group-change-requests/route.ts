@@ -104,17 +104,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Prevent duplicate pending requests
-    const existingRequest = await db.groupChangeRequest.findFirst({
-      where: {
-        studentId: scope.userId,
-        status: 'PENDING'
-      }
-    });
-
-    if (existingRequest) {
-      return NextResponse.json({ code: 'CONFLICT', message: 'You already have a pending change request' }, { status: 409 });
-    }
+    // We no longer prevent duplicate pending requests so a student can apply to multiple groups.
 
     const newRequest = await db.groupChangeRequest.create({
       data: {

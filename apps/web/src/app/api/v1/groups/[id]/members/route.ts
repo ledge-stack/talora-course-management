@@ -67,6 +67,20 @@ export async function POST(
       }
     });
 
+    const pendingReqs = await db.groupChangeRequest.findMany({
+      where: {
+        studentId: studentId,
+        status: 'PENDING',
+        group: { offeringId: group.offeringId }
+      }
+    });
+    if (pendingReqs.length > 0) {
+      await db.groupChangeRequest.updateMany({
+        where: { id: { in: pendingReqs.map(r => r.id) } },
+        data: { status: 'REJECTED' }
+      });
+    }
+
     // Update status if it reached min size
     if (group._count.memberships + 1 >= group.offering.minGroupSize && group.status === 'FORMING') {
       const { GroupStatus } = await import('@talora/database');

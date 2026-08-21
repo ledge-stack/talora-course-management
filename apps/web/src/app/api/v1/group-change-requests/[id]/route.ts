@@ -65,7 +65,16 @@ export async function PATCH(
 
       if (!existingMembership) {
         // This is a Join Request from an ungrouped student
-        await db.$transaction([
+        const otherRequests = await db.groupChangeRequest.findMany({
+          where: {
+            studentId: changeRequest.studentId,
+            status: 'PENDING',
+            id: { not: changeRequest.id },
+            group: { offeringId: changeRequest.group.offeringId }
+          }
+        });
+
+        const ops: any[] = [
           db.groupMembership.create({
             data: {
               groupId: changeRequest.groupId,
@@ -77,7 +86,18 @@ export async function PATCH(
             where: { id: changeRequest.id },
             data: { status: 'APPROVED' }
           })
-        ]);
+        ];
+
+        if (otherRequests.length > 0) {
+          ops.push(
+            db.groupChangeRequest.updateMany({
+              where: { id: { in: otherRequests.map(r => r.id) } },
+              data: { status: 'REJECTED' }
+            })
+          );
+        }
+
+        await db.$transaction(ops);
       } else {
         // This student is already in a group
         if (changeRequest.targetGroupId) {
