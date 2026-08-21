@@ -76,7 +76,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     if (!scopeHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const scope = JSON.parse(scopeHeader);
-    if (scope.userId !== params.id) {
+    
+    const caller = await db.user.findUnique({
+      where: { id: scope.userId },
+      include: { roles: true }
+    });
+    const isPlatformAdmin = caller?.roles.some(r => r.role === 'PLATFORM_ADMIN');
+
+    if (scope.userId !== params.id && !isPlatformAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -85,8 +92,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       where: { id: params.id }
     });
 
-    // Clear auth cookie
-    cookies().delete('talora_token');
+    // Clear auth cookie if deleting self
+    if (scope.userId === params.id) {
+      cookies().delete('talora_token');
+    }
 
     return NextResponse.json({ message: 'Account deleted successfully' });
   } catch (err: any) {

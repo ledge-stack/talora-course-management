@@ -100,6 +100,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleDeleteAccount = async (user: User) => {
+    if (!confirm(`Are you absolutely sure you want to permanently DELETE ${user.fullName}'s account? This action cannot be undone.`)) return;
+    
+    try {
+      const res = await fetch(`/api/v1/users/${user.id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete account');
+      
+      setUsers(users.filter(u => u.id !== user.id));
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   const roleOptions: RoleType[] = ['PLATFORM_ADMIN', 'CLASS_REPRESENTATIVE', 'GROUP_LEADER', 'STUDENT'];
 
   return (
@@ -207,6 +223,13 @@ export default function AdminUsersPage() {
                         style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
                       >
                         Edit Roles
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteAccount(user)}
+                        className="btn-ghost" 
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', color: 'var(--color-danger)' }}
+                      >
+                        Delete
                       </button>
                     </div>
                   </td>
