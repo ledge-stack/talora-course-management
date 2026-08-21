@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@talora/database';
-import { sendEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
     const { success } = rateLimit(ip, 3, 60 * 1000); // 3 requests per minute
@@ -18,55 +16,52 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { email } = body;
+    const body = await req.json().catch(() => ({}));
+    const { identifier } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
+    if (!identifier) {
+      return NextResponse.json({ code: 'BAD_REQUEST', message: 'Student Number or Email is required' }, { status: 400 });
     }
 
-    const user = await db.user.findUnique({ where: { email } });
-    
-    // For security reasons, we do not want to reveal if an email is registered or not.
-    // If the user doesn't exist, we still return success to the client, but do nothing.
-    if (!user) {
-      return NextResponse.json({ success: true, message: 'If the email exists, a reset code was sent.' }, { status: 200 });
-    }
-
-    // Generate a 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Set expiration to 15 minutes from now
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
-
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        resetToken: otp,
-        resetTokenExpires: expiresAt
+    // Find the user by email or student number or registration number
+    const user = await db.user.findFirst({
+      where: {
+        OR: [
+          { studentNumber: identifier },
+          { email: identifier },
+          { registrationNumber: identifier }
+        ]
       }
     });
 
-    // Send the OTP via email
-    await sendEmail({
-      to: user.email,
-      subject: 'Password Reset Request',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Password Reset</h2>
-          <p>Hi ${user.fullName},</p>
-          <p>We received a request to reset your password. Use the following 6-digit code to proceed:</p>
-          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
-          <p>This code will expire in 15 minutes.</p>
-          <p>If you did not request a password reset, please ignore this email.</p>
-        </div>
-      `
+    if (!user) {
+      // Return success anyway to prevent user enumeration
+      return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
+    }
+
+    // Check if there is already a pending request
+    const existingReq = await db.passwordResetRequest.findFirst({
+      where: {
+        studentId: user.id,
+        status: 'PENDING'
+      }
     });
 
-    return NextResponse.json({ success: true, message: 'If the email exists, a reset code was sent.' }, { status: 200 });
-  } catch (err: any) {
-    console.error('Forgot Password Error:', err);
-    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+    if (existingReq) {
+      return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
+    }
+
+    // Create a new request
+    await db.passwordResetRequest.create({
+      data: {
+        studentId: user.id,
+        status: 'PENDING'
+      }
+    });
+
+    return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
+  } catch (error) {
+    console.error('Error in forgot-password:', error);
+    return NextResponse.json({ code: 'INTERNAL_ERROR', message: 'An error occurred while submitting the request' }, { status: 500 });
   }
 }

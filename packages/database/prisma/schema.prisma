@@ -124,6 +124,8 @@ model User {
   notifications      Notification[]
   auditLogs          AuditLog[]
   authoredAnnouncements Announcement[]
+  passwordResetRequests PasswordResetRequest[] @relation("PasswordResetStudent")
+  processedPasswordResets PasswordResetRequest[] @relation("PasswordResetProcessor")
 }
 
 model UserRole {
@@ -318,4 +320,19 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model PasswordResetRequest {
+  id            String   @id @default(uuid())
+  studentId     String
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt     DateTime @default(now())
+  processedAt   DateTime?
+  processedById String?
+
+  student       User     @relation("PasswordResetStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  processedBy   User?    @relation("PasswordResetProcessor", fields: [processedById], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([status])
 }
