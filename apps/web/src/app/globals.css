@@ -96,7 +96,7 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   line-height: 1.5;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -268,7 +268,7 @@ input, select {
 /* Layout */
 .layout-container {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -656,7 +656,7 @@ tr {
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .mobile-toggle {
     display: flex;
     align-items: center;
@@ -669,7 +669,7 @@ tr {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     z-index: 30;
@@ -687,7 +687,7 @@ tr {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100dvh;
     z-index: 40;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
