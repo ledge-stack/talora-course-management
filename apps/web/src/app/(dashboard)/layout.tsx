@@ -71,19 +71,24 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const sidebarContent = (
     <>
-      <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">T</div>
-        <div className="sidebar-logo-name">Talora</div>
+      <div className="p-6 flex items-center gap-3 border-b border-border-subtle">
+        <div className="w-8 h-8 bg-primary rounded-md text-white flex items-center justify-center font-bold text-sm shadow-md shadow-primary/30">T</div>
+        <div className="font-display text-xl font-bold text-text-primary">Talora</div>
+      </div>
+
+      <div className="lg:hidden px-4 py-4 border-b border-border-subtle bg-bg-surface/30">
+        <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Context</div>
+        <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
       </div>
 
       <SidebarNav userRole={userRole} unreadCount={unreadCount} />
 
-      <div style={{ padding: '0 1rem 1.5rem' }}>
-        <div style={{ padding: '0.75rem', background: 'var(--color-bg-surface)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid var(--border-subtle)' }}>
-          <div className="avatar" style={{ width: '32px', height: '32px', background: 'var(--color-primary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{userInitials}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userName}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{userRole}</div>
+      <div className="px-4 pb-6 mt-auto">
+        <div className="p-3 bg-bg-surface rounded-lg flex items-center gap-3 border border-border-subtle">
+          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold shrink-0">{userInitials}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[0.8125rem] font-semibold text-text-primary truncate">{userName}</div>
+            <div className="text-[0.7rem] text-text-muted truncate capitalize">{userRole}</div>
           </div>
         </div>
       </div>
@@ -92,10 +97,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const topbarContent = (
     <>
-      <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
-      <div className="hide-on-mobile"><RoleBadge role={userRole} /></div>
+      <div className="hidden lg:block">
+        <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
+      </div>
+      <div className="hidden sm:block"><RoleBadge role={userRole} /></div>
       <form action="/api/v1/auth/logout" method="POST">
-        <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}>Logout</button>
+        <button type="submit" className="px-3 py-1.5 text-xs bg-bg-surface-hover hover:bg-bg-surface-active text-text-primary rounded-md transition-colors border border-border-strong font-medium">Logout</button>
       </form>
     </>
   );

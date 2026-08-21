@@ -8,12 +8,15 @@ export const metadata = {
   description: 'API-first university class coordination, group formation, and submission management platform.',
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
           {children}
+          <Toaster position="bottom-right" theme="system" />
         </ThemeProvider>
       </body>
     </html>

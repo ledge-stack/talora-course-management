@@ -44,9 +44,18 @@ export default async function GroupsPage() {
       }
 
       if (!offering) {
-        offering = await db.courseOffering.findFirst({
-          include: { unit: true, term: true, class: true },
+        const firstEnrollment = await db.enrollment.findFirst({
+          where: { studentId: currentUserId },
+          include: { offering: { include: { unit: true, term: true, class: true } } },
         });
+        if (firstEnrollment) {
+          offering = firstEnrollment.offering;
+        } else {
+          // Fallback if not enrolled
+          offering = await db.courseOffering.findFirst({
+            include: { unit: true, term: true, class: true },
+          });
+        }
       }
 
       if (offering) {
