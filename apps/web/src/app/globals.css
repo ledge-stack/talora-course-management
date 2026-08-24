@@ -45,8 +45,8 @@
   /* Core Backgrounds */
   --color-bg-base: #0b0f19; /* Very dark background for main area */
   --color-bg-sidebar: #111827;
-  --color-bg-surface: #1f2937; /* Card background */
-  --color-bg-surface-hover: #374151;
+  --color-bg-surface: #1a2744; /* Card background — clearly distinct from base */
+  --color-bg-surface-hover: #213057;
   
   /* Text */
   --color-text-primary: #f9fafb;
@@ -69,14 +69,14 @@
   --color-info-bg: rgba(99, 102, 241, 0.1);
   
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
   
   /* Hardcoded overlays extracted to variables */
-  --color-glass-panel: rgba(31, 41, 55, 0.7);
-  --color-input-bg: rgba(0, 0, 0, 0.2);
+  --color-glass-panel: rgba(26, 39, 68, 0.88);
+  --color-input-bg: rgba(0, 0, 0, 0.25);
   --color-table-th: rgba(0, 0, 0, 0.2);
-  --color-topbar-bg: rgba(11, 15, 25, 0.8);
+  --color-topbar-bg: rgba(11, 15, 25, 0.85);
   --color-bg-surface-active: rgba(255, 255, 255, 0.04);
   
   /* Fonts */
