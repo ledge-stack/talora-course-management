@@ -1,4 +1,5 @@
 import React from 'react';
+import { cookies } from 'next/headers';
 import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
 import { verifyJwt } from '@talora/auth';

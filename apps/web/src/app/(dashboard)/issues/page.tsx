@@ -1,4 +1,5 @@
 import React from 'react';
+import { cookies } from 'next/headers';
 import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
