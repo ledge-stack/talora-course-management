@@ -43,10 +43,10 @@
 
 :root {
   /* Core Backgrounds */
-  --color-bg-base: #0b0f19; /* Very dark background for main area */
-  --color-bg-sidebar: #111827;
-  --color-bg-surface: #1a2744; /* Card background — clearly distinct from base */
-  --color-bg-surface-hover: #213057;
+  --color-bg-base: #0b0f19;
+  --color-bg-sidebar: #0f1623;
+  --color-bg-surface: #1a2d4e; /* Card background — clearly distinct blue-navy */
+  --color-bg-surface-hover: #203558;
   
   /* Text */
   --color-text-primary: #f9fafb;
@@ -69,14 +69,14 @@
   --color-info-bg: rgba(99, 102, 241, 0.1);
   
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
   
-  /* Hardcoded overlays extracted to variables */
-  --color-glass-panel: rgba(26, 39, 68, 0.88);
+  /* Overlays */
+  --color-glass-panel: #1a2d4e; /* Solid navy-blue card surface */
   --color-input-bg: rgba(0, 0, 0, 0.25);
   --color-table-th: rgba(0, 0, 0, 0.2);
-  --color-topbar-bg: rgba(11, 15, 25, 0.85);
+  --color-topbar-bg: rgba(11, 15, 25, 0.92);
   --color-bg-surface-active: rgba(255, 255, 255, 0.04);
   
   /* Fonts */
@@ -168,11 +168,9 @@ input, select {
 /* Utilities */
 .glass-panel {
   background: var(--color-glass-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .modal-content {
