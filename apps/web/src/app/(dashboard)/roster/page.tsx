@@ -41,7 +41,7 @@ export default async function RosterPage() {
           offering = firstEnrollment.offering;
         } else {
           // If not enrolled but they are a Class Rep, find an offering for their class
-          const repRole = scope.roles.find(r => r.role === 'CLASS_REPRESENTATIVE');
+          const repRole = scope.roles.find((r: any) => r.role === 'CLASS_REPRESENTATIVE');
           if (repRole?.classId) {
             offering = await db.courseOffering.findFirst({
               where: { classId: repRole.classId },

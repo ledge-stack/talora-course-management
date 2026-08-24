@@ -18,7 +18,7 @@ export default async function TimetablePage() {
   if (scopeHeader) {
     try {
       const scope = JSON.parse(scopeHeader) as UserScope;
-      canEdit = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+      canEdit = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
       
       let offering;
