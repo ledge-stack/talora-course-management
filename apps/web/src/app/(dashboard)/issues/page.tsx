@@ -4,23 +4,21 @@ import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
+import { headers } from 'next/headers';
 import CreateIssueButton from './CreateIssueButton';
 import IssueActionButtons from './IssueActionButtons';
 
 export default async function IssuesPage() {
-  const token = cookies().get('talora_token')?.value;
+  const scopeHeader = headers().get('x-user-scope');
   let issues: any[] = [];
   let offeringName = 'No Offering Selected';
   let offeringId = '';
   let isRep = false;
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      await verifyJwt(token);
-      
-      const payload = await verifyJwt(token);
-      isRep = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+      const payload = JSON.parse(scopeHeader);
+      isRep = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
 
       const activeOfferingId = getActiveOfferingId();
       

@@ -2,12 +2,10 @@ import React from 'react';
 import { headers } from 'next/headers';
 import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
 import CreateGroupButton from './CreateGroupButton';
 import GroupsClient from './GroupsClient';
 
 export default async function GroupsPage() {
-  const token = undefined; // Token verification is handled by middleware/layout
   let groups: any[] = [];
   let offeringName = 'No Offering Selected';
   const stats = {
@@ -30,10 +28,8 @@ export default async function GroupsPage() {
     isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
   }
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      await verifyJwt(token);
-      
       const activeOfferingId = getActiveOfferingId();
       
       let offering = null;

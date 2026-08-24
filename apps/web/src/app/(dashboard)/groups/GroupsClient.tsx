@@ -48,6 +48,11 @@ export default function GroupsClient({
   maxGroupSize?: number
 }) {
   const router = useRouter();
+  const [localGroups, setLocalGroups] = useState<Group[]>(groups);
+  React.useEffect(() => {
+    setLocalGroups(groups);
+  }, [groups]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
@@ -58,6 +63,10 @@ export default function GroupsClient({
   const [showRenameGroup, setShowRenameGroup] = useState<{ id: string, name: string } | null>(null);
   const [newGroupName, setNewGroupName] = useState('');
 
+  const [showReserveSpot, setShowReserveSpot] = useState<string | null>(null);
+  const [reserveName, setReserveName] = useState('');
+  const [reserveEmail, setReserveEmail] = useState('');
+
   const [showMembersGroup, setShowMembersGroup] = useState<string | null>(null);
   const [groupMembers, setGroupMembers] = useState<{ id: string, fullName: string, studentNumber: string, isLeader: boolean }[]>([]);
 
@@ -67,7 +76,7 @@ export default function GroupsClient({
   const [ungroupedStudents, setUngroupedStudents] = useState<any[]>([]);
   const [selectedGroupForStudent, setSelectedGroupForStudent] = useState<Record<string, string>>({});
 
-  const filteredGroups = groups.filter(g => {
+  const filteredGroups = localGroups.filter(g => {
     const matchesSearch = 
       g.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       g.leader.toLowerCase().includes(searchTerm.toLowerCase());
@@ -167,6 +176,7 @@ export default function GroupsClient({
     }
 
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: g.membersCount + 1 } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}/members`, { 
         method: 'POST',
@@ -185,6 +195,7 @@ export default function GroupsClient({
 
   const handleToggleOpen = async (groupId: string, currentIsOpen: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, isOpen: !currentIsOpen } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}`, {
         method: 'PATCH',
@@ -202,6 +213,7 @@ export default function GroupsClient({
     const studentNumber = prompt('Enter the student number to add to this group:');
     if (!studentNumber) return;
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: g.membersCount + 1 } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}/members`, {
         method: 'POST',
@@ -246,6 +258,7 @@ export default function GroupsClient({
   const handleLeaveGroup = async (groupId: string) => {
     if (!confirm('Are you sure you want to leave this group?')) return;
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: Math.max(0, g.membersCount - 1) } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}/members/${currentUserId}`, {
         method: 'DELETE'
@@ -263,6 +276,7 @@ export default function GroupsClient({
   const handleRemoveMember = async (groupId: string, memberId: string) => {
     if (!confirm('Are you sure you want to remove this member from the group?')) return;
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: Math.max(0, g.membersCount - 1) } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}/members/${memberId}`, {
         method: 'DELETE'
@@ -282,6 +296,7 @@ export default function GroupsClient({
     e.preventDefault();
     if (!showRenameGroup || !newGroupName.trim()) return;
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === showRenameGroup.id ? { ...g, name: newGroupName } : g));
     try {
       const res = await fetch(`/api/v1/groups/${showRenameGroup.id}`, {
         method: 'PATCH',
@@ -298,9 +313,34 @@ export default function GroupsClient({
     }
   };
 
+  const handleReserveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showReserveSpot || !reserveName.trim()) return;
+    setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === showReserveSpot ? { ...g, membersCount: g.membersCount + 1 } : g));
+    try {
+      const res = await fetch(`/api/v1/groups/${showReserveSpot}/placeholders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: reserveName, email: reserveEmail })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to reserve spot');
+      setShowReserveSpot(null);
+      setReserveName('');
+      setReserveEmail('');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLockGroup = async (groupId: string) => {
     if (!confirm('Lock this group? Students will no longer be able to join.')) return;
     setLoading(true);
+    setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, status: 'LOCKED' } : g));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}`, {
         method: 'PATCH',
@@ -561,9 +601,14 @@ export default function GroupsClient({
                                   Transfer Leadership
                                 </button>
                                 {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
-                                    Add Member by ID
-                                  </button>
+                                  <>
+                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
+                                      Add Member by ID
+                                    </button>
+                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); }}>
+                                      Reserve Spot
+                                    </button>
+                                  </>
                                 )}
                                 {group.status !== 'LOCKED' && (
                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
@@ -747,6 +792,48 @@ export default function GroupsClient({
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showReserveSpot && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => setShowReserveSpot(null)}
+        >
+          <div 
+            className="modal-content"
+            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Reserve Spot</h3>
+            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
+            <form onSubmit={handleReserveSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="label">Student Name</label>
+                <input 
+                  type="text" 
+                  className="input" 
+                  value={reserveName}
+                  onChange={(e) => setReserveName(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="label">Email (Optional)</label>
+                <input 
+                  type="email" 
+                  className="input" 
+                  value={reserveEmail}
+                  onChange={(e) => setReserveEmail(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button type="button" className="btn-secondary" onClick={() => setShowReserveSpot(null)}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={loading}>Reserve</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

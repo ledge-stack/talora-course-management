@@ -1,6 +1,5 @@
 import React from 'react';
-import { cookies } from 'next/headers';
-import { verifyJwt } from '@talora/auth';
+import { cookies, headers } from 'next/headers';
 import RoleBadge from '../../components/RoleBadge';
 import SidebarNav from './SidebarNav';
 
@@ -21,10 +20,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let availableOfferings: any[] = [];
   const activeOfferingId: string | null = cookies().get('active_offering_id')?.value || null;
+  const scopeHeader = headers().get('x-user-scope');
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      const payload = await verifyJwt(token);
+      const payload = JSON.parse(scopeHeader);
       const { db } = await import('@talora/database');
       const user = await db.user.findUnique({ where: { id: payload.userId } });
       if (user) {

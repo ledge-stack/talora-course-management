@@ -1,16 +1,16 @@
 import React from 'react';
 import { cookies } from 'next/headers';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
+import { headers } from 'next/headers';
 import NotificationActionButtons from './NotificationActionButtons';
 
 export default async function NotificationsPage() {
-  const token = cookies().get('talora_token')?.value;
+  const scopeHeader = headers().get('x-user-scope');
   let notifications: any[] = [];
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      const payload = await verifyJwt(token);
+      const payload = JSON.parse(scopeHeader);
 
       const dbNotifications = await db.notification.findMany({
         where: { userId: payload.userId },

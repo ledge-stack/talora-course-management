@@ -1,18 +1,18 @@
 import React from 'react';
 import { cookies } from 'next/headers';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
+import { headers } from 'next/headers';
 import SubmissionClient from './SubmissionClient';
 import Link from 'next/link';
 
 export default async function AssignmentDetailsPage({ params }: { params: { id: string } }) {
-  const token = cookies().get('talora_token')?.value;
+  const scopeHeader = headers().get('x-user-scope');
   let assignment: any = null;
   let submission: any = null;
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      const payload = await verifyJwt(token);
+      const payload = JSON.parse(scopeHeader);
       
       const dbAssignment = await db.assignment.findUnique({
         where: { id: params.id },

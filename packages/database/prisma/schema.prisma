@@ -167,6 +167,7 @@ model Group {
   offering    CourseOffering    @relation(fields: [offeringId], references: [id], onDelete: Cascade)
   memberships GroupMembership[]
   changeRequests GroupChangeRequest[]
+  placeholders   GroupPlaceholder[]
 
   @@index([offeringId])
   @@index([status])
@@ -186,6 +187,18 @@ model GroupMembership {
   @@index([groupId])
   @@index([offeringId])
   @@index([studentId])
+}
+
+model GroupPlaceholder {
+  id         String   @id @default(uuid())
+  groupId    String
+  name       String
+  email      String?  // Optional email for potential future notifications
+  createdAt  DateTime @default(now())
+
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
 }
 
 model GroupChangeRequest {

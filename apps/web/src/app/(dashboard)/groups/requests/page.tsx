@@ -1,20 +1,20 @@
 import React from 'react';
 import { cookies } from 'next/headers';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import RequestActionButtons from './RequestActionButtons';
 
 export default async function GroupRequestsPage() {
-  const token = cookies().get('talora_token')?.value;
-  if (!token) redirect('/login');
+  const scopeHeader = headers().get('x-user-scope');
+  if (!scopeHeader) redirect('/login');
 
   let requests: any[] = [];
   let offeringName = 'No Offering Selected';
 
   try {
-    const payload = await verifyJwt(token);
-    const isRep = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE');
+    const payload = JSON.parse(scopeHeader);
+    const isRep = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
     if (!isRep) {
       // Only class reps can view all requests and process them
       redirect('/');

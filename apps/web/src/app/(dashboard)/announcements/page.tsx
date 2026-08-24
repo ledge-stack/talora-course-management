@@ -1,23 +1,21 @@
 import React from 'react';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { db } from '@talora/database';
-import { verifyJwt } from '@talora/auth';
 import CreateAnnouncementButton from './CreateAnnouncementButton';
 import AnnouncementListClient from './AnnouncementListClient';
+import { getCachedAnnouncements } from '@/lib/cached-queries';
 
 export default async function AnnouncementsPage() {
-  const token = cookies().get('talora_token')?.value;
+  const scopeHeader = headers().get('x-user-scope');
   let announcements: any[] = [];
   let offeringName = 'No Offering Selected';
   let offeringId = '';
   let canCreate = false;
 
-  if (token) {
+  if (scopeHeader) {
     try {
-      await verifyJwt(token);
-      
-      const payload = await verifyJwt(token);
-      canCreate = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+      const payload = JSON.parse(scopeHeader);
+      canCreate = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
       let offering;
       const activeOfferingId = cookies().get('active_offering_id')?.value;
@@ -38,13 +36,7 @@ export default async function AnnouncementsPage() {
         offeringId = offering.id;
         offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
         
-        const dbAnnouncements = await db.announcement.findMany({
-          where: { offeringId: offering.id },
-          orderBy: { createdAt: 'desc' },
-          include: {
-            author: { select: { fullName: true } }
-          }
-        });
+        const dbAnnouncements = await getCachedAnnouncements(offering.id);
 
         announcements = dbAnnouncements.map((a: any) => ({
           id: a.id,

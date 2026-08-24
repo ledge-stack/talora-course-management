@@ -8,7 +8,7 @@ export const metadata = {
   description: 'API-first university class coordination, group formation, and submission management platform.',
 };
 
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/Toast';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
