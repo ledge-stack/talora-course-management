@@ -1,5 +1,6 @@
 import React from 'react';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
 
 import { ThemeProvider } from '@/components/ThemeProvider';
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster position="bottom-right" theme="system" />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
