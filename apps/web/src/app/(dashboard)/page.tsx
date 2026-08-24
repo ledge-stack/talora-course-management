@@ -31,7 +31,6 @@ export default async function Dashboard() {
 
       const activeOfferingId = getActiveOfferingId();
 
-      // Resolve which offering to show — first try the cookie, then first enrollment
       let offering = null;
 
       if (activeOfferingId) {
@@ -58,7 +57,7 @@ export default async function Dashboard() {
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <h2 className="text-2xl font-semibold text-text-primary">Welcome to Talora!</h2>
-            <p className="text-text-secondary max-w-md">You haven't enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
+            <p className="text-text-secondary max-w-md">You haven&apos;t enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
             <a href="/enroll" className="btn-primary no-underline">Go to Course Enrollment</a>
           </div>
         );
@@ -66,17 +65,13 @@ export default async function Dashboard() {
 
       offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
 
-      // ✅ Fire all queries in PARALLEL — cached KPIs + user-specific queries simultaneously
       const [kpiData, activityData, myGroupData] = await Promise.all([
-        // Cached: shared class-wide stats (served from cache if < 60s old)
         getCachedOfferingKPIs(offering.id, offering.classId, offering.termId),
-        // User-specific: must be fresh, not cached
         db.notification.findMany({
           where: { userId: scope.userId },
           orderBy: { createdAt: 'desc' },
           take: 4,
         }),
-        // User-specific: my group membership
         db.groupMembership.findFirst({
           where: { offeringId: offering.id, studentId: scope.userId },
           include: { group: { include: { memberships: { include: { student: true } } } } },
@@ -112,9 +107,7 @@ export default async function Dashboard() {
       color: 'var(--color-danger)',
       iconBg: 'var(--color-danger-bg)',
       badge: { text: 'Needs action', cls: 'badge-danger' },
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>),
     },
     {
       key: 'incomplete',
@@ -125,9 +118,7 @@ export default async function Dashboard() {
       color: 'var(--color-warning)',
       iconBg: 'var(--color-warning-bg)',
       badge: { text: 'Min size: 4', cls: 'badge-warning' },
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>),
     },
     {
       key: 'requests',
@@ -138,9 +129,7 @@ export default async function Dashboard() {
       color: 'var(--color-warning)',
       iconBg: 'var(--color-warning-bg)',
       badge: null,
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>),
     },
     {
       key: 'issues',
@@ -151,9 +140,7 @@ export default async function Dashboard() {
       color: 'var(--color-danger)',
       iconBg: 'var(--color-danger-bg)',
       badge: null,
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>),
     },
     {
       key: 'deadlines',
@@ -164,9 +151,7 @@ export default async function Dashboard() {
       color: 'var(--color-primary)',
       iconBg: 'var(--color-primary-transparent)',
       badge: { text: 'Next: Nov 14', cls: 'badge-primary' },
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>),
     },
     {
       key: 'submissions',
@@ -177,9 +162,7 @@ export default async function Dashboard() {
       color: 'var(--color-success)',
       iconBg: 'var(--color-success-bg)',
       badge: { text: `${stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}% submitted`, cls: 'badge-success' },
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      ),
+      icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>),
     },
   ];
 
@@ -188,7 +171,7 @@ export default async function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
-      
+
       {/* Header */}
       <header className="page-header">
         <div>
@@ -211,11 +194,11 @@ export default async function Dashboard() {
 
       {/* Dashboard Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Recent Activity — spans 2 cols */}
-        <div className="lg:col-span-2 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+        <div className="lg:col-span-2 glass-panel p-6">
           <div className="flex justify-between items-center mb-5">
-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications & Activity</h3>
+            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications &amp; Activity</h3>
             <a href="/notifications" className="text-primary text-[0.8125rem] font-medium">View all</a>
           </div>
           <div className="flex flex-col">
@@ -228,9 +211,7 @@ export default async function Dashboard() {
                 </div>
                 <div>
                   <div className="text-sm text-text-primary">{item.title}</div>
-                  <div className="text-xs text-text-muted mt-0.5">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </div>
+                  <div className="text-xs text-text-muted mt-0.5">{new Date(item.createdAt).toLocaleDateString()}</div>
                 </div>
               </div>
             ))}
@@ -238,7 +219,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Upcoming Deadlines — spans 1 col */}
-        <div className="lg:col-span-1 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+        <div className="lg:col-span-1 glass-panel p-6">
           <div className="flex justify-between items-center mb-5">
             <h3 className="text-[0.9375rem] font-semibold text-text-primary">Upcoming Deadlines</h3>
             <a href="/timetable" className="text-primary text-[0.8125rem] font-medium">Calendar</a>
@@ -250,16 +231,13 @@ export default async function Dashboard() {
               const diffDays = Math.ceil((new Date(dl.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
               const urgency = diffDays <= 2 ? 'var(--color-danger)' : 'var(--color-primary)';
               const badgeCls = diffDays <= 2 ? 'badge-danger' : 'badge-primary';
-              
               return (
                 <div key={dl.id} className="flex justify-between items-center">
                   <div className="flex items-center gap-2.5 text-sm text-text-secondary">
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: urgency, flexShrink: 0 }} />
                     {dl.title}
                   </div>
-                  <span className={`badge ${badgeCls}`}>
-                    {diffDays}d left
-                  </span>
+                  <span className={`badge ${badgeCls}`}>{diffDays}d left</span>
                 </div>
               );
             })}
@@ -267,12 +245,11 @@ export default async function Dashboard() {
         </div>
 
         {/* My Group — full width */}
-        <div className="lg:col-span-3 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+        <div className="lg:col-span-3 glass-panel p-6">
           <div className="flex justify-between items-center mb-5">
             <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
             <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
           </div>
-          
           {myGroup ? (
             <div>
               <div className="flex items-center gap-3 mb-4">
@@ -284,25 +261,24 @@ export default async function Dashboard() {
                   <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
                 </div>
               </div>
-              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                 {myGroup.memberships.map((m: any) => (
-                  <div key={m.id} className="flex items-center justify-between px-3 py-2.5 bg-bg-surface-hover rounded-lg border border-border-subtle">
-                    <div className="text-sm text-text-primary font-medium truncate">{m.student?.fullName || 'Unknown Student'}</div>
-                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary ml-2 text-[0.65rem] shrink-0">Leader</span>}
+                  <div key={m.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span className="text-sm text-text-primary font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.student?.fullName || 'Unknown Student'}</span>
+                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '8px', flexShrink: 0, fontSize: '0.65rem' }}>Leader</span>}
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 px-4 bg-black/20 rounded-lg border border-dashed border-border-subtle">
-              <div className="text-text-muted text-sm mb-4">You are not currently in a group for this offering.</div>
+            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <div className="text-text-muted text-sm" style={{ marginBottom: '1rem' }}>You are not currently in a group for this offering.</div>
               <a href="/groups" className="btn-primary">Find a Group</a>
             </div>
           )}
         </div>
 
-        {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
+        {/* Class Overview — Reps/Admins only */}
         {isRepOrAdmin && (
           <div className="lg:col-span-3 flex flex-col gap-6">
             <div className="flex justify-between items-center">
@@ -314,9 +290,7 @@ export default async function Dashboard() {
               {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
                 <div key={kpi.key} className="glass-panel kpi-card">
                   <div className="kpi-card-header">
-                    <div className="kpi-icon" style={{ background: kpi.iconBg, color: kpi.color }}>
-                      {kpi.icon}
-                    </div>
+                    <div className="kpi-icon" style={{ background: kpi.iconBg, color: kpi.color }}>{kpi.icon}</div>
                     {kpi.badge && <span className={`badge ${kpi.badge.cls}`}>{kpi.badge.text}</span>}
                   </div>
                   <div className="kpi-value" style={{ color: kpi.color }}>{kpi.value}</div>
@@ -336,28 +310,20 @@ export default async function Dashboard() {
                     {latestAssignment ? latestAssignment.title : 'Assignments'} — Class Submission Progress
                   </h3>
                   <div className="text-[0.8125rem] text-text-secondary">
-                    {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''} 
+                    {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''}
                     {stats.totalSubmissions} of {stats.totalEnrolled} students submitted
                   </div>
                 </div>
                 <a href="/assignments" className="text-primary text-[0.8125rem] font-medium">View all submissions</a>
               </div>
-
               <div className="progress-track h-2 mb-4">
                 <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions/stats.totalEnrolled)*100 : 0}%`, background: 'var(--color-success)' }} />
               </div>
-
               <div className="flex justify-between items-center text-sm">
                 <div className="flex gap-5">
-                  <span className="text-text-secondary">
-                    <span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong>
-                  </span>
-                  <span className="text-text-secondary">
-                    <span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong>
-                  </span>
-                  <span className="text-text-secondary">
-                    <span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong>
-                  </span>
+                  <span className="text-text-secondary"><span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong></span>
+                  <span className="text-text-secondary"><span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong></span>
+                  <span className="text-text-secondary"><span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong></span>
                 </div>
                 <span className="font-extrabold text-text-primary font-display text-base">
                   {stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}%
