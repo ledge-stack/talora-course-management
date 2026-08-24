@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 type RoleType = 'PLATFORM_ADMIN' | 'CLASS_REPRESENTATIVE' | 'GROUP_LEADER' | 'STUDENT';
 
@@ -76,7 +77,7 @@ export default function AdminUsersPage() {
       setUsers(users.map(u => u.id === editingUser.id ? { ...u, roles: editRoles.map(r => ({ role: r })) } : u));
       setEditingUser(null);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setSavingRoles(false);
     }
@@ -96,7 +97,7 @@ export default function AdminUsersPage() {
       
       setUsers(users.map(u => u.id === user.id ? { ...u, isActive: !user.isActive } : u));
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -112,7 +113,7 @@ export default function AdminUsersPage() {
       
       setUsers(users.filter(u => u.id !== user.id));
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

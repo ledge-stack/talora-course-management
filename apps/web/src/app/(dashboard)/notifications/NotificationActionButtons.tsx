@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function NotificationActionButtons({ notificationId }: { notificationId: string }) {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function NotificationActionButtons({ notificationId }: { notifica
 
       router.refresh();
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

@@ -27,6 +27,7 @@
     "sonner": "^2.0.8"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.11.0",
     "@types/nodemailer": "^8.0.1",
     "@types/react": "^18.3.0",

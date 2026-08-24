@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function DeleteAccountButton({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
       window.location.href = '/login';
     } catch (err) {
       console.error(err);
-      alert('Could not delete account. Please try again.');
+      toast.error('Could not delete account. Please try again.');
       setConfirming(false);
     } finally {
       setLoading(false);

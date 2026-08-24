@@ -58,41 +58,41 @@ export default function EnrollPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '800px', margin: '0 auto', paddingTop: '2rem' }}>
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto pt-4 sm:pt-8">
       <header className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>Course Enrollment</h1>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Select the course units you intend to study this semester.</p>
+          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Course Enrollment</h1>
+          <p className="text-text-secondary text-sm">Select the course units you intend to study this semester.</p>
         </div>
       </header>
 
       {error && (
-        <div style={{ padding: '1rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}>
+        <div className="p-4 bg-danger-bg text-danger rounded-md text-sm border border-danger/20">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem' }}>Loading available courses...</div>
+        <div className="text-center text-text-muted p-8">Loading available courses...</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex flex-col gap-4">
           {offerings.map(offering => (
-            <div key={offering.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.25rem' }}>
+            <div key={offering.id} className="bg-bg-surface border border-border-subtle rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm transition-colors hover:border-border-strong">
+              <div className="flex-1">
+                <div className="text-lg font-semibold text-text-primary mb-1">
                   {offering.unit.code} — {offering.unit.title}
                 </div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                <div className="text-sm text-text-secondary">
                   {offering.term.name} • Class: {offering.class.name}
                 </div>
                 {offering.unit.lecturerName && (
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                  <div className="text-xs text-text-muted mt-2">
                     Lecturer: {offering.unit.lecturerName}
                   </div>
                 )}
               </div>
               <button 
-                className="btn-primary" 
+                className="btn-primary w-full sm:w-auto" 
                 onClick={() => handleEnroll(offering.id)}
                 disabled={enrollingId !== null}
               >
@@ -102,7 +102,7 @@ export default function EnrollPage() {
           ))}
 
           {offerings.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '3rem 1rem', background: 'var(--color-bg-surface)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-muted)' }}>
+            <div className="text-center p-12 bg-bg-surface rounded-md text-text-muted">
               No available courses found to enroll in.
             </div>
           )}

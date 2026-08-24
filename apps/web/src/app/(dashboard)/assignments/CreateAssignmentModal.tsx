@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import * as Dialog from '@radix-ui/react-dialog';
 
 export default function CreateAssignmentModal({ offeringId, onClose }: { offeringId: string, onClose: () => void }) {
   const router = useRouter();
@@ -40,74 +41,80 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-      <div className="glass-panel" style={{ width: '500px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem' }}>Create Assignment</h2>
-          <button onClick={onClose} className="btn-ghost" style={{ padding: '0.4rem' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-
-        {error && (
-          <div style={{ padding: '0.75rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: '8px', fontSize: '0.875rem' }}>
-            {error}
+    <Dialog.Root open={true} onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border-subtle bg-bg-surface p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl">
+          <div className="flex justify-between items-center mb-2">
+            <Dialog.Title className="text-xl font-display font-semibold text-text-primary">Create Assignment</Dialog.Title>
+            <Dialog.Close asChild>
+              <button className="btn-ghost p-1.5 text-text-muted hover:text-text-primary rounded-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </Dialog.Close>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Type</label>
-              <select className="select" value={type} onChange={e => setType(e.target.value)} required>
-                <option value="HOMEWORK">Homework</option>
-                <option value="PROJECT">Project</option>
-                <option value="QUIZ">Quiz</option>
-                <option value="EXAM">Exam</option>
-              </select>
+          {error && (
+            <div className="p-3 bg-danger/10 text-danger rounded-lg text-sm border border-danger/20">
+              {error}
             </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label className="label">Type</label>
+                <select className="select w-full" value={type} onChange={e => setType(e.target.value)} required>
+                  <option value="HOMEWORK">Homework</option>
+                  <option value="PROJECT">Project</option>
+                  <option value="QUIZ">Quiz</option>
+                  <option value="EXAM">Exam</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="label">Due Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  className="input w-full" 
+                  value={dueDate}
+                  onChange={e => setDueDate(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Due Date & Time</label>
+              <label className="label">Title</label>
               <input 
-                type="datetime-local" 
-                className="input" 
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
+                type="text" 
+                className="input w-full" 
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. Midterm Report" 
                 required
               />
             </div>
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Title</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. Midterm Report" 
-              required
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Instructions</label>
-            <textarea 
-              className="input" 
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Provide instructions or a link to the specification..." 
-              rows={4}
-              style={{ resize: 'vertical' }}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Assignment'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <div>
+              <label className="label">Instructions</label>
+              <textarea 
+                className="input w-full resize-y" 
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Provide instructions or a link to the specification..." 
+                rows={4}
+              />
+            </div>
+            <div className="flex justify-end gap-3 mt-4">
+              <Dialog.Close asChild>
+                <button type="button" className="btn-secondary">Cancel</button>
+              </Dialog.Close>
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Assignment'}
+              </button>
+            </div>
+          </form>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

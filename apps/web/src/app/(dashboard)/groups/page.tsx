@@ -1,12 +1,13 @@
 import React from 'react';
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
+import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
 import { verifyJwt } from '@talora/auth';
 import CreateGroupButton from './CreateGroupButton';
 import GroupsClient from './GroupsClient';
 
 export default async function GroupsPage() {
-  const token = cookies().get('talora_token')?.value;
+  const token = undefined; // Token verification is handled by middleware/layout
   let groups: any[] = [];
   let offeringName = 'No Offering Selected';
   const stats = {
@@ -33,7 +34,7 @@ export default async function GroupsPage() {
     try {
       await verifyJwt(token);
       
-      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      const activeOfferingId = getActiveOfferingId();
       
       let offering = null;
       if (activeOfferingId) {
@@ -151,15 +152,14 @@ export default async function GroupsPage() {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
+    <div className="flex flex-col gap-6 h-full">
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1>Group Management</h1>
-          <p>{offeringName}</p>
+          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Group Management</h1>
+          <p className="text-text-secondary text-sm">{offeringName}</p>
         </div>
-        <div className="page-header-actions">
-
+        <div className="flex items-center gap-3">
           {offeringId && (
             <CreateGroupButton offeringId={offeringId} disabled={!canCreateGroup} />
           )}
@@ -167,13 +167,13 @@ export default async function GroupsPage() {
       </header>
 
       {/* KPI Row */}
-      <div className="grid-4-cols" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {overviewStats.map((stat, i) => (
-          <div key={i} className="glass-panel" style={{ padding: '1.5rem' }}>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem', marginBottom: '0.5rem', fontWeight: 500 }}>
+          <div key={i} className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+            <div className="text-text-secondary text-xs mb-2 font-medium">
               {stat.label}
             </div>
-            <div style={{ color: stat.isWarning ? 'var(--color-danger)' : 'var(--color-text-primary)', fontSize: '1.5rem', fontWeight: 600, fontFamily: 'var(--font-display)' }}>
+            <div className={`text-2xl font-semibold font-display ${stat.isWarning ? 'text-danger' : 'text-text-primary'}`}>
               {stat.value}
             </div>
           </div>

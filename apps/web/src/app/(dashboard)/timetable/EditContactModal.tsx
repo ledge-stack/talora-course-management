@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import * as Dialog from '@radix-ui/react-dialog';
 
 export default function EditContactModal({ 
   unit, 
@@ -51,72 +52,79 @@ export default function EditContactModal({
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-      <div className="glass-panel" style={{ width: '450px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem' }}>Edit Course Information</h2>
-          <button onClick={onClose} className="btn-ghost" style={{ padding: '0.4rem' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-
-        {error && (
-          <div style={{ padding: '0.75rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          
-          <div>
-            <label className="label">Course Title</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)}
-              required 
-            />
+    <Dialog.Root open={true} onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border border-border-subtle bg-bg-surface p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl">
+          <div className="flex justify-between items-center mb-2">
+            <Dialog.Title className="text-xl font-display font-semibold text-text-primary">Edit Course Information</Dialog.Title>
+            <Dialog.Close asChild>
+              <button className="btn-ghost p-1.5 text-text-muted hover:text-text-primary rounded-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </Dialog.Close>
           </div>
 
-          <div>
-            <label className="label">Lecturer Name (Optional)</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={lecturerName} 
-              onChange={(e) => setLecturerName(e.target.value)}
-            />
-          </div>
-          
-          <div>
-            <label className="label">Lecturer Email (Optional)</label>
-            <input 
-              type="email" 
-              className="input" 
-              value={lecturerEmail} 
-              onChange={(e) => setLecturerEmail(e.target.value)}
-            />
-          </div>
+          {error && (
+            <div className="p-3 bg-danger/10 text-danger rounded-lg text-sm border border-danger/20">
+              {error}
+            </div>
+          )}
 
-          <div>
-            <label className="label">Lecturer Phone (Optional)</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={lecturerPhone} 
-              onChange={(e) => setLecturerPhone(e.target.value)}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            
+            <div>
+              <label className="label">Course Title</label>
+              <input 
+                type="text" 
+                className="input w-full" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)}
+                required 
+              />
+            </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <button type="button" onClick={onClose} className="btn-secondary" disabled={loading}>Cancel</button>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <div>
+              <label className="label">Lecturer Name (Optional)</label>
+              <input 
+                type="text" 
+                className="input w-full" 
+                value={lecturerName} 
+                onChange={(e) => setLecturerName(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="label">Lecturer Email (Optional)</label>
+              <input 
+                type="email" 
+                className="input w-full" 
+                value={lecturerEmail} 
+                onChange={(e) => setLecturerEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="label">Lecturer Phone (Optional)</label>
+              <input 
+                type="text" 
+                className="input w-full" 
+                value={lecturerPhone} 
+                onChange={(e) => setLecturerPhone(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <Dialog.Close asChild>
+                <button type="button" className="btn-secondary" disabled={loading}>Cancel</button>
+              </Dialog.Close>
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

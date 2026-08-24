@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 type ResetRequest = {
   id: string;
@@ -64,7 +65,7 @@ export default function PasswordResetsClient() {
       setRequests(prev => prev.filter(r => r.id !== id));
       
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setProcessingId(null);
     }

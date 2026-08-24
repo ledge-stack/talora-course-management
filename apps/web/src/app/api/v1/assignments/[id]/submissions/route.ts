@@ -19,6 +19,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Assignment not found' }, { status: 404 });
     }
 
+    if (assignment.dueDate && new Date() > new Date(assignment.dueDate)) {
+      return NextResponse.json({ error: 'Submissions are closed for this assignment.' }, { status: 403 });
+    }
+
     const isStudent = scope.roles.some((r: any) => r.role === 'STUDENT' && r.offeringId === assignment.offeringId);
     if (!isStudent) {
       // Platform Admins/Reps might not need to submit, but if they do, we can allow it

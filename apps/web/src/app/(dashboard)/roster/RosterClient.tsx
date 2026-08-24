@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { GapYearToggle } from './GapYearToggle';
+import { toast } from 'sonner';
 
 type Student = {
   id: string;
@@ -113,7 +114,7 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                           style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
                           onClick={async () => {
                             if (window.confirm(`Are you sure you want to completely remove ${student.name} from the class roster?`)) {
-                              if (!offeringId) return alert('No offering selected');
+                              if (!offeringId) return toast.error('No offering selected');
                               
                               const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, {
                                 method: 'DELETE'

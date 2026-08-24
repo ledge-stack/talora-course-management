@@ -1,5 +1,5 @@
 import React from 'react';
-import { cookies } from 'next/headers';
+import { getActiveOfferingId } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
 import { verifyJwt } from '@talora/auth';
 import CreateAssignmentButton from './CreateAssignmentButton';
@@ -19,7 +19,7 @@ export default async function AssignmentsPage() {
       const payload = await verifyJwt(token);
       canCreate = payload.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
-      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      const activeOfferingId = getActiveOfferingId();
       
       let offering = null;
       if (activeOfferingId) {
@@ -71,14 +71,14 @@ export default async function AssignmentsPage() {
   const totalEnrolledForProps = offeringId ? await db.enrollment.count({ where: { offeringId } }) : 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
+    <div className="flex flex-col gap-6 h-full">
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1>Assignments</h1>
-          <p>{offeringName} — Deadlines and submissions</p>
+          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Assignments</h1>
+          <p className="text-text-secondary text-sm">{offeringName} — Deadlines and submissions</p>
         </div>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-3">
           {offeringId && (
             <CreateAssignmentButton offeringId={offeringId} disabled={!canCreate} />
           )}
