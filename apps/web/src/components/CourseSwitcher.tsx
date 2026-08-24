@@ -43,41 +43,22 @@ export default function CourseSwitcher({
   if (!availableOfferings || availableOfferings.length === 0) return null;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', position: 'relative' }}>
-      <div style={{
-        padding: '0.4rem 0.75rem',
-        background: 'var(--color-bg-surface-hover)',
-        borderRadius: 'var(--radius-md)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        opacity: isUpdating ? 0.7 : 1,
-        pointerEvents: isUpdating ? 'none' : 'auto'
-      }}>
+    <div className="relative flex items-center gap-3">
+      <div 
+        className={`flex items-center gap-2 px-3 py-1.5 bg-bg-surface-hover rounded-md transition-opacity ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
+      >
         <select 
           value={activeOfferingId || availableOfferings[0]?.id || ''}
           onChange={(e) => handleChange(e.target.value)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-text-primary)',
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            outline: 'none',
-            cursor: 'pointer',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            appearance: 'none',
-            paddingRight: '1rem'
-          }}
+          className="bg-transparent border-none text-text-primary text-sm font-semibold outline-none cursor-pointer appearance-none pr-4"
         >
           {availableOfferings.map(o => (
-            <option key={o.id} value={o.id} style={{ color: '#000' }}>
+            <option key={o.id} value={o.id} className="text-black">
               {o.unit?.title} · {o.class?.name}
             </option>
           ))}
         </select>
-        <div style={{ position: 'absolute', right: '0.75rem', pointerEvents: 'none', display: 'flex' }}>
+        <div className="absolute right-3 pointer-events-none flex text-text-secondary">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
       </div>

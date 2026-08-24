@@ -3,6 +3,7 @@ import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { getCachedOfferingKPIs } from '@/lib/cached-queries';
 import type { UserScope } from '@talora/auth';
+import { getActiveOfferingId } from '@/lib/getActiveOffering';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export default async function Dashboard() {
     try {
       const scope = JSON.parse(scopeHeader) as UserScope;
 
-      const activeOfferingId = cookies().get('active_offering_id')?.value;
+      const activeOfferingId = getActiveOfferingId();
 
       // Resolve which offering to show — first try the cookie, then first enrollment
       let offering = null;
@@ -208,13 +209,11 @@ export default async function Dashboard() {
         </div>
       </header>
 
-      {/* --- MY PERSONAL VIEW (All Users) --- */}
-      <section>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '1.5rem' }}>My Student Overview</h2>
-        <div className="grid-2-cols" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.25rem' }}>
-          
-          {/* Recent Activity */}
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+      {/* Dashboard Content Grid */}
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
+        
+        {/* Recent Activity */}
+        <div className="order-4 lg:order-1 lg:col-span-2 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>My Notifications & Activity</h3>
               <a href="/notifications" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>View all</a>
@@ -239,7 +238,7 @@ export default async function Dashboard() {
           </div>
 
           {/* Upcoming Deadlines */}
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <div className="order-3 lg:order-2 lg:col-span-1 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Upcoming Deadlines</h3>
               <a href="/timetable" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>Calendar</a>
@@ -268,7 +267,7 @@ export default async function Dashboard() {
           </div>
 
           {/* My Group */}
-          <div className="glass-panel" style={{ padding: '1.5rem', gridColumn: '1 / -1' }}>
+          <div className="order-1 lg:order-3 lg:col-span-3 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>My Group</h3>
               <a href="/groups" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>View all groups</a>
@@ -302,12 +301,9 @@ export default async function Dashboard() {
             )}
           </div>
 
-        </div>
-      </section>
-
-      {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
-      {isRepOrAdmin && (
-        <section>
+        {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
+        {isRepOrAdmin && (
+          <div className="order-2 lg:order-4 lg:col-span-3 flex flex-col gap-6">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Class Overview</h2>
             <span className="badge badge-warning">Class Rep Privileges Active</span>
@@ -367,9 +363,10 @@ export default async function Dashboard() {
               </span>
             </div>
           </div>
-        </section>
-      )}
+          </div>
+        )}
 
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EditAnnouncementModal from './EditAnnouncementModal';
+import { toast } from 'sonner';
 
 export default function AnnouncementListClient({ announcements, canEdit }: { announcements: any[], canEdit: boolean }) {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
       if (!res.ok) throw new Error('Failed to delete announcement');
       router.refresh();
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

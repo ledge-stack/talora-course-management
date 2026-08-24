@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Core Backgrounds */
@@ -146,18 +149,6 @@ input, select {
   animation: modalEnter 0.2s ease-out forwards;
 }
 
-.input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: var(--color-input-bg);
-  border: 1px solid var(--border-subtle);
-  color: var(--color-text-primary);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  transition: all var(--transition-fast);
-  outline: none;
-}
 
 .input:focus {
   border-color: var(--color-primary);
@@ -334,9 +325,9 @@ tr {
 
 .page-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   padding: 2.5rem 2rem;
   background: var(--color-glass-panel);
   backdrop-filter: blur(12px);
@@ -348,13 +339,14 @@ tr {
 
 .page-header h1 {
   font-size: 2rem;
+  font-family: var(--font-display);
   color: var(--color-text-primary);
   margin-bottom: 0.5rem;
 }
 
 .page-header p {
   color: var(--color-text-secondary);
-  font-size: 1rem;
+  font-size: 0.875rem;
   margin: 0;
 }
 
@@ -481,33 +473,16 @@ tr {
   gap: 0.5rem;
 }
 
-/* Page Components */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0.5rem;
-}
 
-.page-header h1 {
-  font-size: 2rem;
-  font-family: var(--font-display);
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.page-header p {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-}
-
-.page-header-actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
 
 /* Forms */
+.label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
 .input, .select {
   width: 100%;
   background: var(--color-bg-base);

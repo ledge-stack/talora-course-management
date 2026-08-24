@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui/Card';
 
-export default function TimetableGrid({ events, canEdit, courseUnits }: { events: any[], canEdit: boolean, courseUnits: any[] }) {
+export default function TimetableGrid({ events, canEdit = false, courseUnits = [] }: any) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,10 +97,15 @@ export default function TimetableGrid({ events, canEdit, courseUnits }: { events
   const showCurrentTime = currentDayIndex >= 0 && currentDayIndex < 5 && currentHourFloat >= 8 && currentHourFloat <= 18;
   const currentTimeTop = (currentHourFloat - 8) * 80;
 
+  const agendaDays = days.map((day, i) => {
+    const dayEvents = events.filter((e: any) => e.dayOfWeek === i + 1).sort((a: any, b: any) => parseTime(a.startTime) - parseTime(b.startTime));
+    return { day, events: dayEvents, isToday: currentDayIndex === i };
+  }).filter(d => d.events.length > 0 || d.isToday);
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative">
       {canEdit && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <div className="flex justify-end mb-4">
           <button className="btn-primary" onClick={() => setShowModal(true)}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Event
@@ -107,7 +113,62 @@ export default function TimetableGrid({ events, canEdit, courseUnits }: { events
         </div>
       )}
 
-      <div className="table-responsive-wrapper">
+      {/* Mobile Agenda View */}
+      <div className="md:hidden flex flex-col gap-6">
+        {agendaDays.length === 0 ? (
+          <div className="text-center p-8 text-text-muted bg-bg-surface rounded-xl border border-border-subtle">
+            No events scheduled.
+          </div>
+        ) : (
+          agendaDays.map(({ day, events: dayEvents, isToday }) => (
+            <div key={day} className="flex flex-col gap-3">
+              <h3 className={`text-lg font-semibold ${isToday ? 'text-primary' : 'text-text-primary'}`}>
+                {day} {isToday && <span className="text-xs font-normal ml-2 bg-primary/10 text-primary px-2 py-0.5 rounded-full">Today</span>}
+              </h3>
+              
+              {dayEvents.length === 0 ? (
+                <div className="text-sm text-text-muted italic px-2">No events</div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {dayEvents.map((event: any) => {
+                    const colors = getEventColors(event.offeringId);
+                    return (
+                      <Card key={event.id} className="p-3 border-l-4 overflow-hidden relative" /* @ts-ignore */
+                        style={{ borderLeftColor: colors.border, background: 'var(--color-bg-surface)' }}>
+                        <div className="absolute inset-0 opacity-10" style={{ background: colors.border }} />
+                        <div className="relative z-10 flex justify-between items-start">
+                          <div>
+                            <div className="font-semibold text-text-primary mb-1">{event.title}</div>
+                            <div className="text-xs text-text-secondary flex items-center gap-2 mb-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              {event.startTime} - {event.endTime}
+                            </div>
+                            <div className="text-xs text-text-secondary flex items-center gap-2">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                              {event.location}
+                            </div>
+                          </div>
+                          {canEdit && (
+                            <button 
+                              onClick={() => handleDelete(event.id)}
+                              className="text-danger hover:bg-danger/10 p-1.5 rounded-md transition-colors"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Grid View */}
+      <div className="hidden md:block table-responsive-wrapper">
         <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(5, 1fr)', gap: '1px', background: 'var(--border-subtle)', border: '1px solid var(--border-subtle)', borderRadius: '8px', overflow: 'hidden', minWidth: '700px' }}>
           <div style={{ background: 'var(--color-bg-surface)', padding: '1rem', textAlign: 'center', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>Time</div>
           {days.map((day, i) => (
@@ -138,7 +199,7 @@ export default function TimetableGrid({ events, canEdit, courseUnits }: { events
                   </div>
                 )}
 
-                {events.filter(e => e.dayOfWeek === dayIndex + 1).map((event) => {
+                {events.filter((e: any) => e.dayOfWeek === dayIndex + 1).map((event) => {
                   const colors = getEventColors(event.offeringId);
                   return (
                     <div 

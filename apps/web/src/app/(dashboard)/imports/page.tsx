@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 export default function ImportsPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -34,8 +35,8 @@ export default function ImportsPage() {
   };
 
   const handleUpload = async () => {
-    if (!file) return alert('Please select a file');
-    if (!offerings.length) return alert('No offerings available. (Seed the DB first!)');
+    if (!file) return toast.error('Please select a file');
+    if (!offerings.length) return toast.error('No offerings available. (Seed the DB first!)');
     
     setIsUploading(true);
     const formData = new FormData();
@@ -51,13 +52,13 @@ export default function ImportsPage() {
       if (data.data?.jobId) {
         pollJobStatus(data.data.jobId);
       } else {
-        alert('Failed to enqueue job');
+        toast.error('Failed to enqueue job');
         setIsUploading(false);
       }
     } catch (err) {
       console.error(err);
       setIsUploading(false);
-      alert('Upload failed');
+      toast.error('Upload failed');
     }
   };
 

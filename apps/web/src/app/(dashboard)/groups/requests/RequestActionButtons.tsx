@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function RequestActionButtons({ requestId }: { requestId: string }) {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function RequestActionButtons({ requestId }: { requestId: string 
 
       router.refresh();
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
