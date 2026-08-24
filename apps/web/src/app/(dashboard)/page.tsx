@@ -53,13 +53,13 @@ export default async function Dashboard() {
 
       if (!offering) {
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary-transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginBottom: '1rem' }}>
+          <div className="flex flex-col gap-8 items-center justify-center h-[60vh] text-center">
+            <div className="w-16 h-16 rounded-full bg-primary-transparent flex items-center justify-center text-primary mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Welcome to Talora!</h2>
-            <p style={{ color: 'var(--color-text-secondary)', maxWidth: '400px' }}>You haven't enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
-            <a href="/enroll" className="btn-primary" style={{ textDecoration: 'none' }}>Go to Course Enrollment</a>
+            <h2 className="text-2xl font-semibold text-text-primary">Welcome to Talora!</h2>
+            <p className="text-text-secondary max-w-md">You haven't enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
+            <a href="/enroll" className="btn-primary no-underline">Go to Course Enrollment</a>
           </div>
         );
       }
@@ -187,7 +187,7 @@ export default async function Dashboard() {
   const isRepOrAdmin = userRoles.some((r: string) => r.includes('REPRESENTATIVE') || r.includes('ADMIN'));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+    <div className="flex flex-col gap-12">
       
       {/* Header */}
       <header className="page-header">
@@ -196,7 +196,7 @@ export default async function Dashboard() {
           <p>{offeringName}</p>
         </div>
         <div className="page-header-actions">
-          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border-subtle)', padding: '0.4375rem 0.875rem', borderRadius: 'var(--radius-md)' }}>
+          <span className="text-text-muted text-[0.8125rem] flex items-center gap-2 border border-border-subtle px-3.5 py-1.5 rounded-md">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3"/></svg>
             Live synced
           </span>
@@ -214,21 +214,21 @@ export default async function Dashboard() {
         
         {/* Recent Activity */}
         <div className="order-4 lg:order-1 lg:col-span-2 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>My Notifications & Activity</h3>
-              <a href="/notifications" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>View all</a>
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications & Activity</h3>
+              <a href="/notifications" className="text-primary text-[0.8125rem] font-medium">View all</a>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="flex flex-col">
               {recentActivity.length === 0 ? (
-                <div style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>No recent activity.</div>
+                <div className="text-text-muted text-sm">No recent activity.</div>
               ) : recentActivity.map((item: any) => (
                 <div key={item.id} className="activity-item">
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-primary-transparent)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div className="w-8 h-8 rounded-full bg-primary-transparent text-primary flex items-center justify-center shrink-0">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>{item.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem' }}>
+                    <div className="text-sm text-text-primary">{item.title}</div>
+                    <div className="text-xs text-text-muted mt-0.5">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -239,21 +239,21 @@ export default async function Dashboard() {
 
           {/* Upcoming Deadlines */}
           <div className="order-3 lg:order-2 lg:col-span-1 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Upcoming Deadlines</h3>
-              <a href="/timetable" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>Calendar</a>
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="text-[0.9375rem] font-semibold text-text-primary">Upcoming Deadlines</h3>
+              <a href="/timetable" className="text-primary text-[0.8125rem] font-medium">Calendar</a>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            <div className="flex flex-col gap-3.5">
               {dbDeadlines.length === 0 ? (
-                <div style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>No upcoming deadlines.</div>
+                <div className="text-text-muted text-sm">No upcoming deadlines.</div>
               ) : dbDeadlines.map((dl: any) => {
                 const diffDays = Math.ceil((new Date(dl.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
                 const urgency = diffDays <= 2 ? 'var(--color-danger)' : 'var(--color-primary)';
                 const badgeCls = diffDays <= 2 ? 'badge-danger' : 'badge-primary';
                 
                 return (
-                  <div key={dl.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                  <div key={dl.id} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2.5 text-sm text-text-secondary">
                       <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: urgency, flexShrink: 0 }} />
                       {dl.title}
                     </div>
@@ -268,34 +268,34 @@ export default async function Dashboard() {
 
           {/* My Group */}
           <div className="order-1 lg:order-3 lg:col-span-3 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>My Group</h3>
-              <a href="/groups" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>View all groups</a>
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
+              <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
             </div>
             
             {myGroup ? (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.125rem' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
                     {myGroup.name.charAt(0)}
                   </div>
                   <div>
-                    <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>{myGroup.name}</div>
-                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{myGroup.memberships.length} members</div>
+                    <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
+                    <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div className="flex flex-col gap-2">
                   {myGroup.memberships.map((m: any) => (
-                    <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', background: 'var(--color-bg-surface-hover)', borderRadius: '6px' }}>
-                      <div style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>{m.student?.fullName || 'Unknown Student'} {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '0.5rem', fontSize: '0.65rem' }}>Leader</span>}</div>
+                    <div key={m.id} className="flex justify-between p-2 bg-bg-surface-hover rounded-md">
+                      <div className="text-sm text-text-primary">{m.student?.fullName || 'Unknown Student'} {m.studentId === myGroup.leaderId && <span className="badge badge-primary ml-2 text-[0.65rem]">Leader</span>}</div>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px dashed var(--border-subtle)' }}>
-                <div style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>You are not currently in a group for this offering.</div>
+              <div className="text-center py-8 px-4 bg-black/20 rounded-lg border border-dashed border-border-subtle">
+                <div className="text-text-muted text-sm mb-4">You are not currently in a group for this offering.</div>
                 <a href="/groups" className="btn-primary">Find a Group</a>
               </div>
             )}
@@ -304,12 +304,12 @@ export default async function Dashboard() {
         {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
         {isRepOrAdmin && (
           <div className="order-2 lg:order-4 lg:col-span-3 flex flex-col gap-6">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>Class Overview</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-text-primary">Class Overview</h2>
             <span className="badge badge-warning">Class Rep Privileges Active</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 mb-6">
             {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
               <div key={kpi.key} className="glass-panel kpi-card">
                 <div className="kpi-card-header">
@@ -328,37 +328,37 @@ export default async function Dashboard() {
             ))}
           </div>
 
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+          <div className="glass-panel p-6">
+            <div className="flex justify-between items-start mb-5">
               <div>
-                <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.25rem' }}>
+                <h3 className="text-[0.9375rem] font-semibold text-text-primary mb-1">
                   {latestAssignment ? latestAssignment.title : 'Assignments'} — Class Submission Progress
                 </h3>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                <div className="text-[0.8125rem] text-text-secondary">
                   {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''} 
                   {stats.totalSubmissions} of {stats.totalEnrolled} students submitted
                 </div>
               </div>
-              <a href="/assignments" style={{ color: 'var(--color-primary)', fontSize: '0.8125rem', fontWeight: 500 }}>View all submissions</a>
+              <a href="/assignments" className="text-primary text-[0.8125rem] font-medium">View all submissions</a>
             </div>
 
-            <div className="progress-track" style={{ height: '8px', marginBottom: '1rem' }}>
+            <div className="progress-track h-2 mb-4">
               <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions/stats.totalEnrolled)*100 : 0}%`, background: 'var(--color-success)' }} />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem' }}>
-              <div style={{ display: 'flex', gap: '1.25rem' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>
-                  <span style={{ color: 'var(--color-success)' }}>●</span> Submitted: <strong style={{ color: 'var(--color-text-primary)' }}>{stats.totalSubmissions}</strong>
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex gap-5">
+                <span className="text-text-secondary">
+                  <span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong>
                 </span>
-                <span style={{ color: 'var(--color-text-secondary)' }}>
-                  <span style={{ color: 'var(--color-danger)' }}>●</span> Pending: <strong style={{ color: 'var(--color-text-primary)' }}>{stats.totalEnrolled - stats.totalSubmissions}</strong>
+                <span className="text-text-secondary">
+                  <span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong>
                 </span>
-                <span style={{ color: 'var(--color-text-secondary)' }}>
-                  <span style={{ color: 'var(--color-text-muted)' }}>●</span> Total: <strong style={{ color: 'var(--color-text-primary)' }}>{stats.totalEnrolled}</strong>
+                <span className="text-text-secondary">
+                  <span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong>
                 </span>
               </div>
-              <span style={{ fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontSize: '1rem' }}>
+              <span className="font-extrabold text-text-primary font-display text-base">
                 {stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}%
               </span>
             </div>
