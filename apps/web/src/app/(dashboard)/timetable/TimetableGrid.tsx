@@ -199,7 +199,7 @@ export default function TimetableGrid({ events, canEdit = false, courseUnits = [
                   </div>
                 )}
 
-                {events.filter((e: any) => e.dayOfWeek === dayIndex + 1).map((event) => {
+                {events.filter((e: any) => e.dayOfWeek === dayIndex + 1).map((event: any) => {
                   const colors = getEventColors(event.offeringId);
                   return (
                     <div 
@@ -254,9 +254,9 @@ export default function TimetableGrid({ events, canEdit = false, courseUnits = [
             <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label className="label">Course Unit</label>
-                <select className="input" value={formData.offeringId} onChange={e => setFormData({...formData, offeringId: e.target.value, title: e.target.options[e.target.selectedIndex].text})} required>
+                <select className="input" value={formData.offeringId} onChange={(e: any) => setFormData({...formData, offeringId: e.target.value, title: e.target.options[e.target.selectedIndex].text})} required>
                   <option value="">Select a course...</option>
-                  {courseUnits.map(cu => (
+                  {courseUnits.map((cu: any) => (
                     <option key={cu.id} value={cu.offeringId}>{cu.code} - {cu.title}</option>
                   ))}
                 </select>
@@ -265,24 +265,24 @@ export default function TimetableGrid({ events, canEdit = false, courseUnits = [
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1 }}>
                   <label className="label">Day of Week</label>
-                  <select className="input" value={formData.dayOfWeek} onChange={e => setFormData({...formData, dayOfWeek: Number(e.target.value)})} required>
-                    {days.map((d, i) => <option key={i+1} value={i+1}>{d}</option>)}
+                  <select className="input" value={formData.dayOfWeek} onChange={(e: any) => setFormData({...formData, dayOfWeek: Number(e.target.value)})} required>
+                    {days.map((d: any, i: any) => <option key={i+1} value={i+1}>{d}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label className="label">Location</label>
-                  <input type="text" className="input" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Room 101" required />
+                  <input type="text" className="input" value={formData.location} onChange={(e: any) => setFormData({...formData, location: e.target.value})} placeholder="e.g. Room 101" required />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1 }}>
                   <label className="label">Start Time</label>
-                  <input type="time" className="input" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} required />
+                  <input type="time" className="input" value={formData.startTime} onChange={(e: any) => setFormData({...formData, startTime: e.target.value})} required />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label className="label">End Time</label>
-                  <input type="time" className="input" value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} required />
+                  <input type="time" className="input" value={formData.endTime} onChange={(e: any) => setFormData({...formData, endTime: e.target.value})} required />
                 </div>
               </div>
 
