@@ -32,8 +32,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         userInitials = user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         
         // Prioritize showing the highest role
-        const topRole = payload.roles.find(r => r.role === 'PLATFORM_ADMIN') 
-                     || payload.roles.find(r => r.role === 'CLASS_REPRESENTATIVE') 
+        const topRole = payload.roles.find((r: any) => r.role === 'PLATFORM_ADMIN') 
+                     || payload.roles.find((r: any) => r.role === 'CLASS_REPRESENTATIVE') 
                      || payload.roles[0];
                      
         userRole = topRole?.role?.replace('_', ' ')?.toLowerCase() || 'Student';

@@ -1,6 +1,6 @@
 {
   "/(auth)/login/page": "app/(auth)/login/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/enroll/page": "app/(dashboard)/enroll/page.js",
-  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js"
+  "/(dashboard)/timetable/page": "app/(dashboard)/timetable/page.js",
+  "/(dashboard)/enroll/page": "app/(dashboard)/enroll/page.js"
 }
