@@ -187,7 +187,7 @@ export default async function Dashboard() {
   const isRepOrAdmin = userRoles.some((r: string) => r.includes('REPRESENTATIVE') || r.includes('ADMIN'));
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-8">
       
       {/* Header */}
       <header className="page-header">
@@ -210,159 +210,160 @@ export default async function Dashboard() {
       </header>
 
       {/* Dashboard Content Grid */}
-      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Recent Activity */}
-        <div className="order-4 lg:order-1 lg:col-span-2 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications & Activity</h3>
-              <a href="/notifications" className="text-primary text-[0.8125rem] font-medium">View all</a>
-            </div>
-            <div className="flex flex-col">
-              {recentActivity.length === 0 ? (
-                <div className="text-text-muted text-sm">No recent activity.</div>
-              ) : recentActivity.map((item: any) => (
-                <div key={item.id} className="activity-item">
-                  <div className="w-8 h-8 rounded-full bg-primary-transparent text-primary flex items-center justify-center shrink-0">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                  </div>
-                  <div>
-                    <div className="text-sm text-text-primary">{item.title}</div>
-                    <div className="text-xs text-text-muted mt-0.5">
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </div>
+        {/* Recent Activity — spans 2 cols */}
+        <div className="lg:col-span-2 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications & Activity</h3>
+            <a href="/notifications" className="text-primary text-[0.8125rem] font-medium">View all</a>
+          </div>
+          <div className="flex flex-col">
+            {recentActivity.length === 0 ? (
+              <div className="text-text-muted text-sm">No recent activity.</div>
+            ) : recentActivity.map((item: any) => (
+              <div key={item.id} className="activity-item">
+                <div className="w-8 h-8 rounded-full bg-primary-transparent text-primary flex items-center justify-center shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </div>
+                <div>
+                  <div className="text-sm text-text-primary">{item.title}</div>
+                  <div className="text-xs text-text-muted mt-0.5">
+                    {new Date(item.createdAt).toLocaleDateString()}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Upcoming Deadlines */}
-          <div className="order-3 lg:order-2 lg:col-span-1 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-[0.9375rem] font-semibold text-text-primary">Upcoming Deadlines</h3>
-              <a href="/timetable" className="text-primary text-[0.8125rem] font-medium">Calendar</a>
-            </div>
-            <div className="flex flex-col gap-3.5">
-              {dbDeadlines.length === 0 ? (
-                <div className="text-text-muted text-sm">No upcoming deadlines.</div>
-              ) : dbDeadlines.map((dl: any) => {
-                const diffDays = Math.ceil((new Date(dl.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
-                const urgency = diffDays <= 2 ? 'var(--color-danger)' : 'var(--color-primary)';
-                const badgeCls = diffDays <= 2 ? 'badge-danger' : 'badge-primary';
-                
-                return (
-                  <div key={dl.id} className="flex justify-between items-center">
-                    <div className="flex items-center gap-2.5 text-sm text-text-secondary">
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: urgency, flexShrink: 0 }} />
-                      {dl.title}
-                    </div>
-                    <span className={`badge ${badgeCls}`}>
-                      {diffDays}d left
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* My Group */}
-          <div className="order-1 lg:order-3 lg:col-span-3 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
-              <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
-            </div>
-            
-            {myGroup ? (
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
-                    {myGroup.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
-                    <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-2">
-                  {myGroup.memberships.map((m: any) => (
-                    <div key={m.id} className="flex justify-between p-2 bg-bg-surface-hover rounded-md">
-                      <div className="text-sm text-text-primary">{m.student?.fullName || 'Unknown Student'} {m.studentId === myGroup.leaderId && <span className="badge badge-primary ml-2 text-[0.65rem]">Leader</span>}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 px-4 bg-black/20 rounded-lg border border-dashed border-border-subtle">
-                <div className="text-text-muted text-sm mb-4">You are not currently in a group for this offering.</div>
-                <a href="/groups" className="btn-primary">Find a Group</a>
-              </div>
-            )}
-          </div>
-
-        {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
-        {isRepOrAdmin && (
-          <div className="order-2 lg:order-4 lg:col-span-3 flex flex-col gap-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-text-primary">Class Overview</h2>
-            <span className="badge badge-warning">Class Rep Privileges Active</span>
-          </div>
-
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 mb-6">
-            {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
-              <div key={kpi.key} className="glass-panel kpi-card">
-                <div className="kpi-card-header">
-                  <div className="kpi-icon" style={{ background: kpi.iconBg, color: kpi.color }}>
-                    {kpi.icon}
-                  </div>
-                  {kpi.badge && <span className={`badge ${kpi.badge.cls}`}>{kpi.badge.text}</span>}
-                </div>
-                <div className="kpi-value" style={{ color: kpi.color }}>{kpi.value}</div>
-                <div className="kpi-label">{kpi.label}</div>
-                <div className="kpi-sublabel">{kpi.sub}</div>
-                <a href={kpi.link.startsWith('/') ? kpi.link : '#'} className="kpi-link">
-                  {kpi.link.startsWith('/') ? 'View details' : kpi.link} →
-                </a>
               </div>
             ))}
           </div>
+        </div>
 
-          <div className="glass-panel p-6">
-            <div className="flex justify-between items-start mb-5">
-              <div>
-                <h3 className="text-[0.9375rem] font-semibold text-text-primary mb-1">
-                  {latestAssignment ? latestAssignment.title : 'Assignments'} — Class Submission Progress
-                </h3>
-                <div className="text-[0.8125rem] text-text-secondary">
-                  {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''} 
-                  {stats.totalSubmissions} of {stats.totalEnrolled} students submitted
+        {/* Upcoming Deadlines — spans 1 col */}
+        <div className="lg:col-span-1 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-[0.9375rem] font-semibold text-text-primary">Upcoming Deadlines</h3>
+            <a href="/timetable" className="text-primary text-[0.8125rem] font-medium">Calendar</a>
+          </div>
+          <div className="flex flex-col gap-3.5">
+            {dbDeadlines.length === 0 ? (
+              <div className="text-text-muted text-sm">No upcoming deadlines.</div>
+            ) : dbDeadlines.map((dl: any) => {
+              const diffDays = Math.ceil((new Date(dl.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+              const urgency = diffDays <= 2 ? 'var(--color-danger)' : 'var(--color-primary)';
+              const badgeCls = diffDays <= 2 ? 'badge-danger' : 'badge-primary';
+              
+              return (
+                <div key={dl.id} className="flex justify-between items-center">
+                  <div className="flex items-center gap-2.5 text-sm text-text-secondary">
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: urgency, flexShrink: 0 }} />
+                    {dl.title}
+                  </div>
+                  <span className={`badge ${badgeCls}`}>
+                    {diffDays}d left
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* My Group — full width */}
+        <div className="lg:col-span-3 bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
+            <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
+          </div>
+          
+          {myGroup ? (
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+                  {myGroup.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
+                  <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
                 </div>
               </div>
-              <a href="/assignments" className="text-primary text-[0.8125rem] font-medium">View all submissions</a>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                {myGroup.memberships.map((m: any) => (
+                  <div key={m.id} className="flex items-center justify-between px-3 py-2.5 bg-bg-surface-hover rounded-lg border border-border-subtle">
+                    <div className="text-sm text-text-primary font-medium truncate">{m.student?.fullName || 'Unknown Student'}</div>
+                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary ml-2 text-[0.65rem] shrink-0">Leader</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 px-4 bg-black/20 rounded-lg border border-dashed border-border-subtle">
+              <div className="text-text-muted text-sm mb-4">You are not currently in a group for this offering.</div>
+              <a href="/groups" className="btn-primary">Find a Group</a>
+            </div>
+          )}
+        </div>
+
+        {/* --- CLASS OVERVIEW (Reps/Admins Only) --- */}
+        {isRepOrAdmin && (
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-text-primary">Class Overview</h2>
+              <span className="badge badge-warning">Class Rep Privileges Active</span>
             </div>
 
-            <div className="progress-track h-2 mb-4">
-              <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions/stats.totalEnrolled)*100 : 0}%`, background: 'var(--color-success)' }} />
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
+              {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
+                <div key={kpi.key} className="glass-panel kpi-card">
+                  <div className="kpi-card-header">
+                    <div className="kpi-icon" style={{ background: kpi.iconBg, color: kpi.color }}>
+                      {kpi.icon}
+                    </div>
+                    {kpi.badge && <span className={`badge ${kpi.badge.cls}`}>{kpi.badge.text}</span>}
+                  </div>
+                  <div className="kpi-value" style={{ color: kpi.color }}>{kpi.value}</div>
+                  <div className="kpi-label">{kpi.label}</div>
+                  <div className="kpi-sublabel">{kpi.sub}</div>
+                  <a href={kpi.link.startsWith('/') ? kpi.link : '#'} className="kpi-link">
+                    {kpi.link.startsWith('/') ? 'View details' : kpi.link} →
+                  </a>
+                </div>
+              ))}
             </div>
 
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex gap-5">
-                <span className="text-text-secondary">
-                  <span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong>
-                </span>
-                <span className="text-text-secondary">
-                  <span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong>
-                </span>
-                <span className="text-text-secondary">
-                  <span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong>
+            <div className="glass-panel p-6">
+              <div className="flex justify-between items-start mb-5">
+                <div>
+                  <h3 className="text-[0.9375rem] font-semibold text-text-primary mb-1">
+                    {latestAssignment ? latestAssignment.title : 'Assignments'} — Class Submission Progress
+                  </h3>
+                  <div className="text-[0.8125rem] text-text-secondary">
+                    {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''} 
+                    {stats.totalSubmissions} of {stats.totalEnrolled} students submitted
+                  </div>
+                </div>
+                <a href="/assignments" className="text-primary text-[0.8125rem] font-medium">View all submissions</a>
+              </div>
+
+              <div className="progress-track h-2 mb-4">
+                <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions/stats.totalEnrolled)*100 : 0}%`, background: 'var(--color-success)' }} />
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex gap-5">
+                  <span className="text-text-secondary">
+                    <span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong>
+                  </span>
+                  <span className="text-text-secondary">
+                    <span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong>
+                  </span>
+                  <span className="text-text-secondary">
+                    <span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong>
+                  </span>
+                </div>
+                <span className="font-extrabold text-text-primary font-display text-base">
+                  {stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}%
                 </span>
               </div>
-              <span className="font-extrabold text-text-primary font-display text-base">
-                {stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}%
-              </span>
             </div>
-          </div>
           </div>
         )}
 
