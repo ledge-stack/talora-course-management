@@ -60,6 +60,23 @@ export async function DELETE(
     // If last member leaves, delete the group?
     if (group._count.memberships - 1 === 0) {
       await db.group.delete({ where: { id: group.id } });
+
+      // Renumber remaining standard "Group N" groups
+      const allGroups = await db.group.findMany({
+        where: { offeringId: group.offeringId },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      let number = 1;
+      for (const g of allGroups) {
+        if (/^Group \d+$/i.test(g.name)) {
+           await db.group.update({
+              where: { id: g.id },
+              data: { name: `Group ${number}` }
+           });
+           number++;
+        }
+      }
     }
 
     return NextResponse.json({ message: 'Member removed' });

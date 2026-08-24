@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       })),
     };
 
-    const token = await signJwt(payload, rememberMe ? '30d' : '24h');
+    const token = await signJwt(payload, rememberMe ? '30d' : '7d');
 
     const response = NextResponse.json({
       message: 'Logged in successfully',
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      ...(rememberMe ? { maxAge: 60 * 60 * 24 * 30 } : {}), // 30 days if rememberMe, otherwise session cookie
+      maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days if rememberMe, otherwise 7 days
     });
 
     return response;

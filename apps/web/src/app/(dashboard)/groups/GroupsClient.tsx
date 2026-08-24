@@ -598,8 +598,8 @@ export default function GroupsClient({
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
               {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
-                <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <div>
+                <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ flex: '1 1 200px' }}>
                     <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{req.studentEmail}</div>
                     {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}

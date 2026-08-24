@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       })),
     };
 
-    const token = await signJwt(payload);
+    const token = await signJwt(payload, '7d');
 
     // Send "Successfully Registered" Welcome Email asynchronously
     sendEmail({
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return response;
