@@ -89,7 +89,12 @@ export default async function GroupsPage() {
         }));
 
         stats.totalStudents = await db.enrollment.count({ where: { offeringId: offering.id } });
-        stats.studentsInGroups = await db.groupMembership.count({ where: { offeringId: offering.id } });
+        stats.studentsInGroups = await db.groupMembership.count({ 
+          where: { 
+            offeringId: offering.id,
+            student: { enrollments: { some: { offeringId: offering.id } } }
+          } 
+        });
 
         if (scopeHeader) {
           const scope = JSON.parse(scopeHeader);
@@ -143,7 +148,7 @@ export default async function GroupsPage() {
   const overviewStats = [
     { label: 'Total Groups', value: stats.totalGroups },
     { label: 'Students in Groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
-    { label: 'Ungrouped Students', value: stats.totalStudents - stats.studentsInGroups, isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
+    { label: 'Ungrouped Students', value: Math.max(0, stats.totalStudents - stats.studentsInGroups), isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
     { label: 'Group Rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
   ];
 
