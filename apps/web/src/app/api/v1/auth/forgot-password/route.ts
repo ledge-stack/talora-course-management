@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { rateLimit } from '@/lib/rateLimit';
+import { sendEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,27 +40,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
     }
 
-    // Check if there is already a pending request
-    const existingReq = await db.passwordResetRequest.findFirst({
-      where: {
-        studentId: user.id,
-        status: 'PENDING'
-      }
-    });
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    if (existingReq) {
-      return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
-    }
-
-    // Create a new request
-    await db.passwordResetRequest.create({
+    await db.user.update({
+      where: { id: user.id },
       data: {
-        studentId: user.id,
-        status: 'PENDING'
+        resetToken: otp,
+        resetTokenExpires: expiresAt
       }
     });
 
-    return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
+    // Send the OTP via email
+    await sendEmail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Password Reset</h2>
+          <p>Hi ${user.fullName},</p>
+          <p>We received a request to reset your password. Here is your 6-digit code:</p>
+          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
+          <p>This code will expire in 15 minutes.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `
+    });
+
+    return NextResponse.json({ success: true, email: user.email });
   } catch (error) {
     console.error('Error in forgot-password:', error);
     return NextResponse.json({ code: 'INTERNAL_ERROR', message: 'An error occurred while submitting the request' }, { status: 500 });

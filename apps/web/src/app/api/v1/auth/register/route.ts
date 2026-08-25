@@ -76,8 +76,25 @@ export async function POST(req: NextRequest) {
         registrationNumber,
         passwordHash: hashedPassword,
         institutionId: institution.id,
-        isEmailVerified: true,
+        isEmailVerified: false,
+        verificationToken: otp,
+        verificationTokenExpires: expiresAt,
       }
+    });
+
+    // Send the OTP via email
+    await sendEmail({
+      to: newUser.email,
+      subject: 'Verify your Talora account',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Welcome to Talora!</h2>
+          <p>Hi ${newUser.fullName},</p>
+          <p>Here is your 6-digit code to verify your email address:</p>
+          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
+          <p>This code will expire in 15 minutes.</p>
+        </div>
+      `
     });
 
     // Assign generic STUDENT role (without a specific class for now, they will enroll in offerings manually)
@@ -88,7 +105,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, userId: newUser.id }, { status: 201 });
+    return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
   } catch (err: any) {
     console.error('Registration Error:', err);
     if (err.code === 'P2002') {

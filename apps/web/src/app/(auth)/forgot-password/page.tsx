@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,6 +30,7 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess(true);
+      router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -54,25 +57,6 @@ export default function ForgotPasswordPage() {
           </div>
         )}
 
-        {success ? (
-          <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <div style={{ color: 'var(--color-success)', marginBottom: '1rem' }}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: '0 auto' }}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Request Sent</h3>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              If your account exists, a password reset request has been securely logged. 
-              <strong> Please notify your Class Representative </strong> 
-              so they can verify your identity and approve the reset on their dashboard.
-            </p>
-            <Link href="/login" className="btn-primary" style={{ width: '100%', padding: '0.75rem', fontSize: '0.9375rem', textDecoration: 'none' }}>
-              Return to Login
-            </Link>
-          </div>
-        ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
               <label className="label" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Student Number or Email</label>
@@ -101,7 +85,6 @@ export default function ForgotPasswordPage() {
               </Link>
             </div>
           </form>
-        )}
       </div>
     </div>
   );
