@@ -931,7 +931,7 @@ export default function GroupsClient({
                   <div key={student.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
                     <div style={{ flex: '1 1 200px' }}>
                       <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{student.fullName}</div>
-                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{student.email}</div>
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{student.studentNumber}</div>
                       {student.pendingRequest && (
                         <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span className="badge badge-warning" style={{ fontSize: '0.7rem' }}>Pending Application: {student.pendingRequest.targetGroupName}</span>
