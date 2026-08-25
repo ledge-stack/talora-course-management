@@ -46,12 +46,12 @@ export default function CourseSwitcher({
   return (
     <div className="relative flex items-center gap-3">
       <div 
-        className={`flex items-center gap-2 px-3 py-1.5 bg-bg-surface-hover rounded-md transition-opacity ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
+        className={`flex items-center gap-2 px-2 sm:px-3 py-1.5 bg-bg-surface-hover rounded-md transition-opacity ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
       >
         <select 
           value={activeOfferingId || availableOfferings[0]?.id || ''}
           onChange={(e) => handleChange(e.target.value)}
-          className="bg-transparent border-none text-text-primary text-sm font-semibold outline-none cursor-pointer appearance-none pr-4"
+          className="bg-transparent border-none text-text-primary text-xs sm:text-sm font-semibold outline-none cursor-pointer appearance-none pr-4 w-[120px] sm:w-[160px] md:w-auto truncate"
         >
           {availableOfferings.map(o => (
             <option key={o.id} value={o.id} className="text-black">

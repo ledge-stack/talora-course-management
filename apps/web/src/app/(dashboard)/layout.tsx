@@ -76,10 +76,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="font-display text-xl font-bold text-text-primary">Talora</div>
       </div>
 
-      <div className="lg:hidden px-4 py-4 border-b border-border-subtle bg-bg-surface/30">
-        <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Context</div>
-        <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
-      </div>
+
 
       <SidebarNav userRole={userRole} unreadCount={unreadCount} />
 
@@ -97,9 +94,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const topbarContent = (
     <>
-      <div className="hidden lg:block">
-        <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
-      </div>
+      <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
       <div className="hidden sm:block"><RoleBadge role={userRole} /></div>
       <form action="/api/v1/auth/logout" method="POST">
         <button type="submit" className="px-3 py-1.5 text-xs bg-bg-surface-hover hover:bg-bg-surface-active text-text-primary rounded-md transition-colors border border-border-strong font-medium">Logout</button>
