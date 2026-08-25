@@ -85,7 +85,7 @@ export default async function AssignmentsPage() {
       </header>
 
       {/* Main Content Card */}
-      <AssignmentsListClient assignments={assignments} totalEnrolled={totalEnrolledForProps} />
+      <AssignmentsListClient assignments={assignments} totalEnrolled={totalEnrolledForProps} canManage={canCreate} />
     </div>
   );
 }

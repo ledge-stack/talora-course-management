@@ -1,16 +1,39 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ViewAssignmentButton from './ViewAssignmentButton';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 
+import EditAssignmentModal from './EditAssignmentModal';
+
 type SortColumn = 'title' | 'type' | 'dueDate' | 'submissions';
 type SortDirection = 'asc' | 'desc';
 
-export default function AssignmentsListClient({ assignments, totalEnrolled }: { assignments: any[], totalEnrolled: number }) {
+export default function AssignmentsListClient({ assignments, totalEnrolled, canManage }: { assignments: any[], totalEnrolled: number, canManage?: boolean }) {
+  const router = useRouter();
   const [sortCol, setSortCol] = useState<SortColumn>('dueDate');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
+  const [editingAssignment, setEditingAssignment] = useState<any>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this assignment? All submissions will also be deleted. This action cannot be undone.")) return;
+    
+    try {
+      const res = await fetch(`/api/v1/assignments/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete assignment');
+      }
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
   const handleSort = (col: SortColumn) => {
     if (sortCol === col) {
@@ -131,7 +154,49 @@ export default function AssignmentsListClient({ assignments, totalEnrolled }: { 
                     </div>
                   </td>
                   <td className="py-4 px-6 text-right">
-                    <ViewAssignmentButton id={assignment.id} />
+                    <div className="flex items-center justify-end gap-2 relative">
+                      <ViewAssignmentButton id={assignment.id} />
+                      {canManage && (
+                        <div className="relative">
+                          <button 
+                            className="btn-ghost p-1.5 text-text-muted hover:text-text-primary rounded-md"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenDropdownId(openDropdownId === assignment.id ? null : assignment.id);
+                            }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                          </button>
+                          {openDropdownId === assignment.id && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
+                              <div className="absolute right-0 top-full mt-1 w-32 bg-bg-surface border border-border-subtle rounded-md shadow-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                                <button 
+                                  className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-bg-surface-hover transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingAssignment(assignment);
+                                    setOpenDropdownId(null);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(assignment.id);
+                                    setOpenDropdownId(null);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -166,13 +231,36 @@ export default function AssignmentsListClient({ assignments, totalEnrolled }: { 
                  </div>
                </div>
 
-               <div className="mt-3 flex justify-end">
+               <div className="mt-3 flex justify-end gap-2 items-center">
+                 {canManage && (
+                   <>
+                     <button 
+                       className="btn-ghost text-xs py-1 px-2"
+                       onClick={() => setEditingAssignment(assignment)}
+                     >
+                       Edit
+                     </button>
+                     <button 
+                       className="btn-ghost text-danger text-xs py-1 px-2 hover:bg-danger/10"
+                       onClick={() => handleDelete(assignment.id)}
+                     >
+                       Delete
+                     </button>
+                   </>
+                 )}
                  <ViewAssignmentButton id={assignment.id} />
                </div>
              </Card>
            ))
         )}
       </div>
+
+      {editingAssignment && (
+        <EditAssignmentModal 
+          assignment={editingAssignment} 
+          onClose={() => setEditingAssignment(null)} 
+        />
+      )}
     </div>
   );
 }
