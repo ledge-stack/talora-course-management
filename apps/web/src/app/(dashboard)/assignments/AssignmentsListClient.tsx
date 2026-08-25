@@ -99,7 +99,7 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden lg:block bg-bg-surface border border-border-subtle rounded-xl overflow-x-auto shadow-sm">
+      <div className="hidden lg:block bg-bg-surface border border-border-subtle rounded-xl overflow-x-auto shadow-sm pb-24">
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-border-subtle bg-bg-surface-hover/30">
