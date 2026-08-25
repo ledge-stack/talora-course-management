@@ -21,7 +21,7 @@ export const sendEmail = async ({
     });
 
     const info = await transporter.sendMail({
-      from: '"Talora Platform" <b4e33a001@smtp-brevo.com>', // Sender address
+      from: '"Talora System" <talora.system@gmail.com>', // Sender address
       to: Array.isArray(to) ? to.join(', ') : to, // list of receivers
       subject: subject, // Subject line
       html: html, // html body

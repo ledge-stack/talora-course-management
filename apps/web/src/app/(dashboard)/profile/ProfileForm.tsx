@@ -122,8 +122,7 @@ export default function ProfileForm({ user }: { user: any }) {
             type="text" 
             className="input" 
             value={formData.studentNumber}
-            disabled
-            style={{ backgroundColor: 'var(--color-bg-surface-hover)', color: 'var(--color-text-muted)', cursor: 'not-allowed' }}
+            onChange={e => setFormData({...formData, studentNumber: e.target.value})}
           />
         </div>
         <div>
@@ -132,8 +131,7 @@ export default function ProfileForm({ user }: { user: any }) {
             type="text" 
             className="input" 
             value={formData.registrationNumber}
-            disabled
-            style={{ backgroundColor: 'var(--color-bg-surface-hover)', color: 'var(--color-text-muted)', cursor: 'not-allowed' }}
+            onChange={e => setFormData({...formData, registrationNumber: e.target.value})}
           />
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
