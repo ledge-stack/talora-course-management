@@ -36,17 +36,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
     
     const body = await request.json();
-    const { name, email } = body;
+    const { studentNumber } = body;
     
-    if (!name || name.trim().length === 0) {
-      return NextResponse.json({ message: 'Name is required' }, { status: 400 });
+    if (!studentNumber || studentNumber.trim().length === 0) {
+      return NextResponse.json({ message: 'Student Number is required' }, { status: 400 });
     }
     
     const placeholder = await db.groupPlaceholder.create({
       data: {
         groupId,
-        name: name.trim(),
-        email: email?.trim() || null
+        studentNumber: studentNumber.trim(),
       }
     });
     

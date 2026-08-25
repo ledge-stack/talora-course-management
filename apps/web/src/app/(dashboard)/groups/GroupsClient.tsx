@@ -64,8 +64,7 @@ export default function GroupsClient({
   const [newGroupName, setNewGroupName] = useState('');
 
   const [showReserveSpot, setShowReserveSpot] = useState<string | null>(null);
-  const [reserveName, setReserveName] = useState('');
-  const [reserveEmail, setReserveEmail] = useState('');
+  const [reserveStudentNumber, setReserveStudentNumber] = useState('');
 
   const [showMembersGroup, setShowMembersGroup] = useState<string | null>(null);
   const [groupMembers, setGroupMembers] = useState<{ id: string, fullName: string, studentNumber: string, isLeader: boolean }[]>([]);
@@ -84,7 +83,7 @@ export default function GroupsClient({
     const matchesStatus = statusFilter === 'all' ? true : g.status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  });
+  }).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
   const handleFetchUngrouped = async () => {
     if (!offeringId) return;
@@ -137,6 +136,26 @@ export default function GroupsClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to auto-assign');
       alert(data.message);
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkAutoAssign = async () => {
+    if (!offeringId) return;
+    if (!confirm('Are you sure you want to randomly assign ALL ungrouped students? This action cannot be undone.')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/offerings/${offeringId}/groups/bulk-auto-assign`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to bulk assign');
+      alert(data.message);
+      setShowUngrouped(false);
       router.refresh();
     } catch (err: any) {
       alert(err.message);
@@ -315,20 +334,19 @@ export default function GroupsClient({
 
   const handleReserveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!showReserveSpot || !reserveName.trim()) return;
+    if (!showReserveSpot || !reserveStudentNumber.trim()) return;
     setLoading(true);
     setLocalGroups(prev => prev.map(g => g.id === showReserveSpot ? { ...g, membersCount: g.membersCount + 1 } : g));
     try {
       const res = await fetch(`/api/v1/groups/${showReserveSpot}/placeholders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: reserveName, email: reserveEmail })
+        body: JSON.stringify({ studentNumber: reserveStudentNumber })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to reserve spot');
       setShowReserveSpot(null);
-      setReserveName('');
-      setReserveEmail('');
+      setReserveStudentNumber('');
       router.refresh();
     } catch (err: any) {
       alert(err.message);
@@ -849,23 +867,15 @@ export default function GroupsClient({
             <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
             <form onSubmit={handleReserveSubmit}>
               <div style={{ marginBottom: '1rem' }}>
-                <label className="label">Student Name</label>
+                <label className="label">Student Number</label>
                 <input 
                   type="text" 
                   className="input" 
-                  value={reserveName}
-                  onChange={(e) => setReserveName(e.target.value)}
+                  value={reserveStudentNumber}
+                  onChange={(e) => setReserveStudentNumber(e.target.value)}
                   autoFocus
                   required
-                />
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="label">Email (Optional)</label>
-                <input 
-                  type="email" 
-                  className="input" 
-                  value={reserveEmail}
-                  onChange={(e) => setReserveEmail(e.target.value)}
+                  placeholder="e.g. 21/U/1234"
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
@@ -897,8 +907,20 @@ export default function GroupsClient({
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: 'var(--color-text-primary)' }}>Manage Ungrouped Students</h3>
-              <span className="badge badge-primary">{ungroupedStudents.length} Students</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <h3 style={{ color: 'var(--color-text-primary)' }}>Manage Ungrouped</h3>
+                <span className="badge badge-primary">{ungroupedStudents.length} Students</span>
+              </div>
+              {ungroupedStudents.length > 0 && (
+                <button 
+                  className="btn-primary" 
+                  onClick={handleBulkAutoAssign} 
+                  disabled={loading}
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}
+                >
+                  Auto-Assign All
+                </button>
+              )}
             </div>
             
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

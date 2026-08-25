@@ -190,11 +190,10 @@ model GroupMembership {
 }
 
 model GroupPlaceholder {
-  id         String   @id @default(uuid())
-  groupId    String
-  name       String
-  email      String?  // Optional email for potential future notifications
-  createdAt  DateTime @default(now())
+  id            String   @id @default(uuid())
+  groupId       String
+  studentNumber String
+  createdAt     DateTime @default(now())
 
   group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
