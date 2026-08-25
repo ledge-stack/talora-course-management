@@ -1,6 +1,5 @@
 import React from 'react';
-import { cookies } from 'next/headers';
-import { getActiveOfferingId } from '@/lib/getActiveOffering';
+import { resolveAuthorizedOffering } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
 import { headers } from 'next/headers';
 import CreateAssignmentButton from './CreateAssignmentButton';
@@ -18,21 +17,7 @@ export default async function AssignmentsPage() {
       const payload = JSON.parse(scopeHeader);
       canCreate = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
 
-      const activeOfferingId = getActiveOfferingId();
-      
-      let offering = null;
-      if (activeOfferingId) {
-        offering = await db.courseOffering.findUnique({
-          where: { id: activeOfferingId },
-          include: { unit: true, term: true, class: true },
-        });
-      }
-
-      if (!offering) {
-        offering = await db.courseOffering.findFirst({
-          include: { unit: true, term: true, class: true },
-        });
-      }
+      const offering = await resolveAuthorizedOffering(payload);
 
       if (offering) {
         offeringId = offering.id;

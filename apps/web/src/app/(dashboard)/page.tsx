@@ -3,7 +3,7 @@ import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { getCachedOfferingKPIs } from '@/lib/cached-queries';
 import type { UserScope } from '@talora/auth';
-import { getActiveOfferingId } from '@/lib/getActiveOffering';
+import { resolveAuthorizedOffering } from '@/lib/getActiveOffering';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,26 +29,7 @@ export default async function Dashboard() {
     try {
       const scope = JSON.parse(scopeHeader) as UserScope;
 
-      const activeOfferingId = getActiveOfferingId();
-
-      let offering = null;
-
-      if (activeOfferingId) {
-        offering = await db.courseOffering.findUnique({
-          where: { id: activeOfferingId },
-          include: { unit: true, term: true, class: true },
-        });
-      }
-
-      if (!offering) {
-        const firstEnrollment = await db.enrollment.findFirst({
-          where: { studentId: scope.userId },
-          include: { offering: { include: { unit: true, term: true, class: true } } },
-        });
-        if (firstEnrollment) {
-          offering = firstEnrollment.offering;
-        }
-      }
+      const offering = await resolveAuthorizedOffering(scope);
 
       if (!offering) {
         return (

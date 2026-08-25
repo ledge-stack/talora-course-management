@@ -1,6 +1,5 @@
 import React from 'react';
-import { cookies } from 'next/headers';
-import { getActiveOfferingId } from '@/lib/getActiveOffering';
+import { resolveAuthorizedOffering } from '@/lib/getActiveOffering';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { db } from '@talora/database';
@@ -20,21 +19,7 @@ export default async function IssuesPage() {
       const payload = JSON.parse(scopeHeader);
       isRep = payload.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE');
 
-      const activeOfferingId = getActiveOfferingId();
-      
-      let offering = null;
-      if (activeOfferingId) {
-        offering = await db.courseOffering.findUnique({
-          where: { id: activeOfferingId },
-          include: { unit: true, term: true, class: true },
-        });
-      }
-
-      if (!offering) {
-        offering = await db.courseOffering.findFirst({
-          include: { unit: true, term: true, class: true },
-        });
-      }
+      const offering = await resolveAuthorizedOffering(payload);
 
       if (offering) {
         offeringId = offering.id;

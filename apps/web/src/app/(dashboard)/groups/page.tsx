@@ -1,6 +1,6 @@
 import React from 'react';
 import { headers } from 'next/headers';
-import { getActiveOfferingId } from '@/lib/getActiveOffering';
+import { resolveAuthorizedOffering } from '@/lib/getActiveOffering';
 import { db } from '@talora/database';
 import CreateGroupButton from './CreateGroupButton';
 import GroupsClient from './GroupsClient';
@@ -21,39 +21,17 @@ export default async function GroupsPage() {
   let currentUserId = '';
   let userGroupId: string | null = null;
 
+  let scope: any = null;
   const scopeHeader = headers().get('x-user-scope');
   if (scopeHeader) {
-    const scope = JSON.parse(scopeHeader);
+    scope = JSON.parse(scopeHeader);
     currentUserId = scope.userId;
     isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
   }
 
-  if (scopeHeader) {
+  if (scope) {
     try {
-      const activeOfferingId = getActiveOfferingId();
-      
-      let offering = null;
-      if (activeOfferingId) {
-        offering = await db.courseOffering.findUnique({
-          where: { id: activeOfferingId },
-          include: { unit: true, term: true, class: true },
-        });
-      }
-
-      if (!offering) {
-        const firstEnrollment = await db.enrollment.findFirst({
-          where: { studentId: currentUserId },
-          include: { offering: { include: { unit: true, term: true, class: true } } },
-        });
-        if (firstEnrollment) {
-          offering = firstEnrollment.offering;
-        } else {
-          // Fallback if not enrolled
-          offering = await db.courseOffering.findFirst({
-            include: { unit: true, term: true, class: true },
-          });
-        }
-      }
+      const offering = await resolveAuthorizedOffering(scope);
 
       if (offering) {
         offeringId = offering.id;
