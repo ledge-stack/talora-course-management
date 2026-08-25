@@ -9,7 +9,7 @@
 
 ## 🏗️ Architecture & Monorepo Structure
 
-Talora is designed as an **API-first modular monolith**. The repository is organized as a monorepo under `apps/` and `packages/` as defined in Section 16 of the System Architecture Document:
+Talora is designed as an **API-first modular monolith**. The repository is organized as a monorepo under `apps/` and `packages/`:
 
 ```
 talora/
@@ -34,6 +34,7 @@ talora/
 - **Web UI & API (BFF):** Next.js (App Router), React, TypeScript
 - **Mobile Client:** Flutter (Dart) — Cross-platform Android & iOS app
 - **System of Record:** PostgreSQL (relational constraints, transactional group memberships)
+- **Email (SMTP):** Brevo SMTP relay (`smtp-relay.brevo.com`) for OTP delivery and notifications
 - **Contracts:** OpenAPI 3.0
 
 ---
@@ -49,6 +50,9 @@ talora/
    - Registration Number: `YY/[Letter]/XXXXX` with optional `/EVE`, `/PS`, or `/PSA` suffix (e.g., `24/U/12345`, `24/I/12345/PS`, `24/X/12345/PSA`).
    - Matching leading `YY` verified across student and registration numbers.
 6. **Spreadsheet Protection:** CSV/Excel formula injection escaping and preview validation.
+7. **OTP Verification:** Account registration and password reset are guarded by a 6-digit time-limited OTP code delivered via Brevo SMTP. Codes expire after 15 minutes.
+8. **Placeholder Reservations:** Group Leaders and Class Reps can reserve spots for students not yet registered on the platform using a student number as a placeholder.
+9. **Notification Lifecycle:** Notifications are linked to their source records via `referenceId` and `referenceType`. When the source (e.g., an Announcement) is deleted, its notifications are atomically purged in a database transaction.
 
 ---
 
@@ -65,7 +69,17 @@ npm install
 ```
 
 ### 3. Configure Environment Variables
-Create a `.env` file from `.env.example` and add your PostgreSQL connection string (e.g. from Neon or Supabase).
+Create a `.env` file from `.env.example` and add your PostgreSQL connection string (e.g. from Neon or Supabase) and Brevo SMTP credentials.
+
+```env
+DATABASE_URL=postgresql://...
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=your-brevo-login@smtp-brevo.com
+SMTP_PASS=your-brevo-smtp-key
+EMAIL_FROM="Talora System <talora.system@yourdomain.com>"
+JWT_SECRET=your-long-random-secret
+```
 
 ### 4. Generate Prisma Client & Push Schema
 ```bash
@@ -101,6 +115,8 @@ npm run format
 
 - [System Architecture Document](docs/SYSTEM_ARCHITECTURE.md)
 - [Product Requirements Document (PRD)](docs/PRODUCT_REQUIREMENTS.md)
+- [Entity Relationship Diagram](docs/ERD.md)
+- [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md)
 - [OpenAPI Specification](packages/contracts/openapi.yaml)
 - [Infrastructure & Deployment Guide](infrastructure/deployment/README.md)
 
