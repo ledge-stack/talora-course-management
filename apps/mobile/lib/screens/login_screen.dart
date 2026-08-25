@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talora_mobile/screens/main_layout.dart';
+import 'package:talora_mobile/screens/register_screen.dart';
+import 'package:talora_mobile/screens/forgot_password_screen.dart';
 import 'package:talora_mobile/theme/app_theme.dart';
 
 import 'package:talora_mobile/services/api_client.dart';
@@ -168,6 +170,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       enabled: !_isLoading,
                     ),
+                    const SizedBox(height: 8),
+                    
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.accentColor,
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(50, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Forgot Password?'),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     
                     if (_error != null) ...[
@@ -190,17 +212,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                       ),
+                      ),
                     ),
-                    
+
                     const SizedBox(height: 24),
                     
-                    const Text(
-                      'By signing in, you agree to our Terms of Service & Privacy Policy.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Don\'t have an account? ',
+                          style: TextStyle(color: AppTheme.textSecondary),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                            );
+                          },
+                          child: const Text('Register'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

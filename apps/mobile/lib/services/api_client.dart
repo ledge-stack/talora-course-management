@@ -87,4 +87,21 @@ class ApiClient {
       throw Exception('Failed to post data: ${response.statusCode} - ${response.body}');
     }
   }
+
+  // Auth Helpers
+  static Future<dynamic> register(Map<String, dynamic> data) async {
+    return post('/auth/register', data);
+  }
+
+  static Future<dynamic> verifyRegistration(Map<String, dynamic> data) async {
+    return post('/auth/verify', data);
+  }
+
+  static Future<dynamic> forgotPassword(Map<String, dynamic> data) async {
+    return post('/auth/forgot-password', data);
+  }
+
+  static Future<dynamic> resetPassword(Map<String, dynamic> data) async {
+    return post('/auth/reset-password', data);
+  }
 }
