@@ -34,9 +34,17 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
     if (!isRep) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    await db.announcement.delete({
-      where: { id: params.id }
-    });
+    await db.$transaction([
+      db.notification.deleteMany({
+        where: {
+          referenceId: params.id,
+          referenceType: 'ANNOUNCEMENT'
+        }
+      }),
+      db.announcement.delete({
+        where: { id: params.id }
+      })
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
