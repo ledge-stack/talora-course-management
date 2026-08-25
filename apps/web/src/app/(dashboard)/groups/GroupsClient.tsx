@@ -495,7 +495,7 @@ export default function GroupsClient({
           </div>
         </div>
 
-        <div className="table-responsive-wrapper" style={{ marginTop: '1rem', paddingBottom: '4rem' }}>
+        <div className="table-responsive-wrapper" style={{ marginTop: '1rem', paddingBottom: '10rem' }}>
           <table className="data-table">
             <thead>
               <tr>
@@ -611,8 +611,8 @@ export default function GroupsClient({
                               <div 
                                 style={{ 
                                   position: 'absolute', 
-                                  right: '1.5rem', 
-                                  ...(filteredGroups.findIndex(g => g.id === group.id) >= Math.max(0, filteredGroups.length - 2) && filteredGroups.length > 1 ? { bottom: '2.5rem' } : { top: '2.5rem' }),
+                                  right: '1.5rem',
+                                  top: '2.5rem',
                                   background: 'var(--color-bg-surface)', 
                                   border: '1px solid var(--border-subtle)', 
                                   borderRadius: '8px', 
