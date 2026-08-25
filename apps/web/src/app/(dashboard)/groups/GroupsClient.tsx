@@ -391,7 +391,7 @@ export default function GroupsClient({
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExportExcel = async () => {
     if (!offeringId) return;
     setLoading(true);
     try {
@@ -404,7 +404,7 @@ export default function GroupsClient({
       
       // Attempt to get filename from Content-Disposition
       const disposition = res.headers.get('Content-Disposition');
-      let filename = `class_roster_${offeringId}.csv`;
+      let filename = `class_roster_${offeringId}.xlsx`;
       if (disposition && disposition.indexOf('filename=') !== -1) {
         const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
         if (matches != null && matches[1]) { 
@@ -458,11 +458,11 @@ export default function GroupsClient({
               <div className="flex gap-2 w-full md:w-auto shrink-0">
                 <button 
                   className="btn-secondary flex-1 md:flex-none flex items-center justify-center gap-2" 
-                  onClick={handleExportCSV}
+                  onClick={handleExportExcel}
                   disabled={loading}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  Export CSV
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  Export Excel
                 </button>
                 <button 
                   className="btn-secondary flex-1 md:flex-none flex items-center justify-center gap-2" 
