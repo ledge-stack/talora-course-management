@@ -44,8 +44,12 @@ export default function EnrollPage() {
         throw new Error(data.error || data.message || 'Failed to enroll');
       }
 
-      // Automatically set this as active offering
-      document.cookie = `active_offering_id=${offeringId}; path=/; max-age=31536000`;
+      // Automatically set this as active offering using the server endpoint
+      await fetch('/api/v1/active-offering', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offeringId })
+      });
       
       // Redirect to dashboard
       router.push('/');

@@ -13,9 +13,10 @@ export default function CourseSwitcher({
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // If no offering is active but we have available offerings, set the first one as active automatically
+  // If no offering is active (or if it's stale/invalid), set the first available one as active
   useEffect(() => {
-    if (!activeOfferingId && availableOfferings.length > 0) {
+    const isStale = activeOfferingId && !availableOfferings.some(o => o.id === activeOfferingId);
+    if ((!activeOfferingId || isStale) && availableOfferings.length > 0) {
       handleChange(availableOfferings[0].id);
     }
   }, [activeOfferingId, availableOfferings]);
