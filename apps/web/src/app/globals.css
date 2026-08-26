@@ -754,6 +754,25 @@ tr {
   }
 }
 
+/* React Phone Number Input Fixes */
+.PhoneInputCountrySelect {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+}
+
+.PhoneInputCountrySelect option {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+}
+[data-theme='light'] .PhoneInputCountrySelect option {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+[data-theme='dark'] .PhoneInputCountrySelect option {
+  color: #f9fafb;
+  background-color: #1a2d4e;
+}
+
 @media print {
   body { 
     background: white !important; 
