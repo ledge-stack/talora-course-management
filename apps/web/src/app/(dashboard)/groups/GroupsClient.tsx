@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ClassSettingsModal from './ClassSettingsModal';
+import AssignUngroupedDnD from './AssignUngroupedDnD';
 
 type Group = {
   id: string;
@@ -897,78 +898,16 @@ export default function GroupsClient({
       )}
 
       {showUngrouped && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowUngrouped(false)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '600px', borderRadius: '12px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <h3 style={{ color: 'var(--color-text-primary)' }}>Manage Ungrouped</h3>
-                <span className="badge badge-primary">{ungroupedStudents.length} Students</span>
-              </div>
-              {ungroupedStudents.length > 0 && (
-                <button 
-                  className="btn-primary" 
-                  onClick={handleBulkAutoAssign} 
-                  disabled={loading}
-                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}
-                >
-                  Auto-Assign All
-                </button>
-              )}
-            </div>
-            
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {ungroupedStudents.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>All students have been assigned to a group!</div>
-              ) : (
-                ungroupedStudents.map(student => (
-                  <div key={student.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{student.fullName}</div>
-                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{student.studentNumber}</div>
-                      {student.pendingRequest && (
-                        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span className="badge badge-warning" style={{ fontSize: '0.7rem' }}>Pending Application: {student.pendingRequest.targetGroupName}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}>
-                      <select 
-                        className="select" 
-                        style={{ padding: '0.4rem', fontSize: '0.8125rem', minWidth: '150px' }}
-                        value={selectedGroupForStudent[student.id] || ''}
-                        onChange={(e) => setSelectedGroupForStudent(prev => ({ ...prev, [student.id]: e.target.value }))}
-                      >
-                        <option value="">Select Group...</option>
-                        {groups.filter(g => g.membersCount < g.capacity && g.status !== 'LOCKED').map(g => (
-                          <option key={g.id} value={g.id}>{g.name} ({g.membersCount}/{g.capacity})</option>
-                        ))}
-                      </select>
-                      <button 
-                        className="btn-primary" 
-                        style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
-                        onClick={() => handleForceAssign(student.id, selectedGroupForStudent[student.id])}
-                        disabled={loading || !selectedGroupForStudent[student.id]}
-                      >
-                        Assign
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowUngrouped(false)}>Close</button>
-            </div>
-          </div>
-        </div>
+        <AssignUngroupedDnD
+          ungroupedStudents={ungroupedStudents}
+          groups={groups.filter(g => g.status !== 'LOCKED')}
+          loading={loading}
+          onClose={() => setShowUngrouped(false)}
+          onBulkAssign={handleBulkAutoAssign}
+          onAssign={async (studentId, groupId) => {
+            await handleForceAssign(studentId, groupId);
+          }}
+        />
       )}
     </>
   );

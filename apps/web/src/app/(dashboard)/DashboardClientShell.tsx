@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import CommandPalette from '../../components/CommandPalette';
 
 export default function DashboardClientShell({ 
   sidebarContent, 
@@ -22,6 +23,8 @@ export default function DashboardClientShell({
 
   return (
     <div className="flex h-screen bg-bg-base overflow-hidden">
+      <CommandPalette />
+      
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
@@ -66,6 +69,13 @@ export default function DashboardClientShell({
                   </span>
                 </>
               )}
+            </div>
+
+            {/* Command Palette Hint */}
+            <div className="hidden lg:flex items-center gap-2 ml-4 px-3 py-1.5 bg-bg-surface rounded-md border border-border-subtle text-xs text-text-muted cursor-pointer hover:bg-bg-surface-hover transition-colors" onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Search...</span>
+              <kbd className="ml-2 font-sans font-semibold bg-bg-base px-1.5 py-0.5 rounded border border-border-strong">⌘K</kbd>
             </div>
           </div>
           
