@@ -40,12 +40,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
     
     const groupedStudentIds = new Set(memberships.map(m => m.studentId));
     
-    const ungroupedStudents = enrollments
+    let ungroupedStudents = enrollments
       .filter(e => !groupedStudentIds.has(e.studentId))
       .map(e => e.student);
       
     if (ungroupedStudents.length === 0) {
       return NextResponse.json({ message: 'No ungrouped students to assign' });
+    }
+
+    // Shuffle the students to ensure truly random allocation, especially when creating new groups
+    for (let i = ungroupedStudents.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ungroupedStudents[i], ungroupedStudents[j]] = [ungroupedStudents[j], ungroupedStudents[i]];
     }
 
     // Find all groups that are open, not locked, and have space
