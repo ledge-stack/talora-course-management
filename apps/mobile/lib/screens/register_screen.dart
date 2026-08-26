@@ -3,6 +3,7 @@ import 'package:talora_mobile/theme/app_theme.dart';
 import 'package:talora_mobile/services/api_client.dart';
 import 'package:talora_mobile/screens/verify_otp_screen.dart';
 import 'package:talora_mobile/screens/login_screen.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -53,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'fullName': _fullNameController.text,
         'studentNumber': _studentNumberController.text,
         'email': _emailController.text,
-        'phoneNumber': _phoneNumberController.text,
+        'phoneNumber': _phoneNumberController.text, // this will be the complete number
         'password': _passwordController.text,
         'institutionId': _institutionIdController.text,
         'acceptedTerms': _acceptedTerms,
@@ -171,13 +172,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             enabled: !_isLoading,
                           ),
                           const SizedBox(height: 16),
-                          TextField(
-                            controller: _phoneNumberController,
+                          IntlPhoneField(
                             decoration: const InputDecoration(
-                              labelText: 'Phone Number (e.g. +256700123456)',
-                              prefixIcon: Icon(Icons.phone),
+                              labelText: 'Phone Number',
                             ),
-                            keyboardType: TextInputType.phone,
+                            initialCountryCode: 'UG',
+                            onChanged: (phone) {
+                              _phoneNumberController.text = phone.completeNumber;
+                            },
                             enabled: !_isLoading,
                           ),
                           const SizedBox(height: 16),

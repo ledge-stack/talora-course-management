@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 export default function ProfileForm({ user }: { user: any }) {
   const router = useRouter();
@@ -141,11 +143,16 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Phone Number</label>
-          <input 
-            type="tel" 
-            className="input" 
+          <PhoneInput
+            international
+            defaultCountry="UG"
+            className="input phone-input"
             value={formData.phoneNumber}
-            onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
+            onChange={(value) => setFormData({...formData, phoneNumber: value || ''})}
+            style={{ 
+              '--PhoneInputCountryFlag-height': '16px',
+              '--PhoneInput-color--focus': 'var(--color-primary)'
+            } as any}
           />
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
