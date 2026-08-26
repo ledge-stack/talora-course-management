@@ -24,6 +24,7 @@ type PendingRequest = {
   studentId: string;
   studentName: string;
   studentEmail: string;
+  studentNumber?: string;
   reason: string;
 };
 
@@ -704,7 +705,9 @@ export default function GroupsClient({
                 <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
                   <div style={{ flex: '1 1 200px' }}>
                     <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
-                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{req.studentEmail}</div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                      {req.studentNumber ? `${req.studentNumber} · ` : ''}{req.studentEmail}
+                    </div>
                     {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>

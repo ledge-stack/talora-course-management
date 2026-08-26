@@ -106,7 +106,7 @@ export default async function GroupsPage() {
       const studentIds = rawRequests.map(r => r.studentId);
       const students = await db.user.findMany({
         where: { id: { in: studentIds } },
-        select: { id: true, fullName: true, email: true }
+        select: { id: true, fullName: true, email: true, studentNumber: true }
       });
       const studentMap = new Map(students.map(s => [s.id, s]));
 
@@ -118,6 +118,7 @@ export default async function GroupsPage() {
         studentId: r.studentId,
         studentName: studentMap.get(r.studentId)?.fullName || 'Unknown Student',
         studentEmail: studentMap.get(r.studentId)?.email,
+        studentNumber: studentMap.get(r.studentId)?.studentNumber,
         reason: r.reason
       }));
     }
