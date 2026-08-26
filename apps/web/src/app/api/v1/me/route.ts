@@ -31,6 +31,7 @@ export async function GET(request: Request) {
         fullName: user.fullName,
         studentNumber: user.studentNumber,
         registrationNumber: user.registrationNumber,
+        phoneNumber: user.phoneNumber,
         roles: scope.roles,
       },
     });

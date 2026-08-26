@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const body = await req.json();
-    const { fullName, email, studentNumber, registrationNumber, isActive } = body;
+    const { fullName, email, studentNumber, registrationNumber, phoneNumber, isActive } = body;
 
     const currentUser = await db.user.findUnique({ where: { id: params.id } });
     
@@ -57,6 +57,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         email, 
         studentNumber, 
         registrationNumber,
+        phoneNumber,
         ...(finalIsActive !== undefined ? { isActive: finalIsActive } : {})
       }
     });

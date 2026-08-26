@@ -16,8 +16,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _studentNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   final _institutionIdController = TextEditingController(text: 'MAK'); // Default to MAK for now
   
+  bool _acceptedTerms = false;
   bool _isLoading = false;
   String? _error;
 
@@ -27,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _studentNumberController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneNumberController.dispose();
     _institutionIdController.dispose();
     super.dispose();
   }
@@ -37,13 +40,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _error = null;
     });
 
+    if (!_acceptedTerms) {
+      setState(() {
+        _error = 'You must accept the Terms and Conditions to register.';
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       await ApiClient.register({
         'fullName': _fullNameController.text,
         'studentNumber': _studentNumberController.text,
         'email': _emailController.text,
+        'phoneNumber': _phoneNumberController.text,
         'password': _passwordController.text,
         'institutionId': _institutionIdController.text,
+        'acceptedTerms': _acceptedTerms,
       });
 
       if (!mounted) return;
@@ -159,6 +172,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextField(
+                            controller: _phoneNumberController,
+                            decoration: const InputDecoration(
+                              labelText: 'Phone Number (e.g. +256700123456)',
+                              prefixIcon: Icon(Icons.phone),
+                            ),
+                            keyboardType: TextInputType.phone,
+                            enabled: !_isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
                             controller: _passwordController,
                             decoration: const InputDecoration(
                               labelText: 'Password',
@@ -166,6 +189,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             obscureText: true,
                             enabled: !_isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          CheckboxListTile(
+                            title: const Text(
+                              'I agree to the Terms and Conditions regarding data usage for academic coordination.',
+                              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                            ),
+                            value: _acceptedTerms,
+                            onChanged: _isLoading ? null : (value) {
+                              setState(() {
+                                _acceptedTerms = value ?? false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                            activeColor: AppTheme.primaryColor,
                           ),
                           const SizedBox(height: 24),
                           

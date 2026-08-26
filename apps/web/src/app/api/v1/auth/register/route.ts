@@ -20,10 +20,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    let { fullName, email, studentNumber, registrationNumber, password } = body;
+    let { fullName, email, studentNumber, registrationNumber, phoneNumber, acceptedTerms, password } = body;
 
-    if (!fullName || !email || !studentNumber || !registrationNumber || !password) {
+    if (!fullName || !email || !studentNumber || !registrationNumber || !phoneNumber || !password) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    }
+
+    if (!acceptedTerms) {
+      return NextResponse.json({ error: 'You must accept the Terms and Conditions to register.' }, { status: 400 });
     }
 
     studentNumber = studentNumber.replace(/\s+/g, '');
@@ -74,6 +78,8 @@ export async function POST(req: NextRequest) {
         email,
         studentNumber,
         registrationNumber,
+        phoneNumber,
+        acceptedTerms: true,
         passwordHash: hashedPassword,
         institutionId: institution.id,
         isEmailVerified: false,

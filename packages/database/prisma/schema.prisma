@@ -105,6 +105,8 @@ model User {
   fullName           String
   studentNumber      String?  @unique
   registrationNumber String?  @unique
+  phoneNumber        String?  @unique
+  acceptedTerms      Boolean  @default(false)
   isActive           Boolean  @default(true)
   isEmailVerified    Boolean  @default(false)
   verificationToken  String?

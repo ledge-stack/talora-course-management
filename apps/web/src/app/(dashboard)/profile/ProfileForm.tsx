@@ -13,7 +13,8 @@ export default function ProfileForm({ user }: { user: any }) {
     fullName: user.fullName,
     email: user.email,
     studentNumber: user.studentNumber || '',
-    registrationNumber: user.registrationNumber || ''
+    registrationNumber: user.registrationNumber || '',
+    phoneNumber: user.phoneNumber || ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,6 +81,10 @@ export default function ProfileForm({ user }: { user: any }) {
             <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>Registration Number</div>
             <div style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>{user.registrationNumber || 'N/A'}</div>
           </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>Phone Number</div>
+            <div style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>{user.phoneNumber || 'N/A'}</div>
+          </div>
         </div>
       </div>
     );
@@ -132,6 +137,15 @@ export default function ProfileForm({ user }: { user: any }) {
             className="input" 
             value={formData.registrationNumber}
             onChange={e => setFormData({...formData, registrationNumber: e.target.value})}
+          />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Phone Number</label>
+          <input 
+            type="tel" 
+            className="input" 
+            value={formData.phoneNumber}
+            onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
           />
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
