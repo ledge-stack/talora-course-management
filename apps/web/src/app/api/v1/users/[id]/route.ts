@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const body = await req.json();
-    const { fullName, email, studentNumber, registrationNumber, phoneNumber, isActive } = body;
+    const { fullName, email, studentNumber, registrationNumber, phoneNumber, acceptedTerms, isActive } = body;
 
     const currentUser = await db.user.findUnique({ where: { id: params.id } });
     
@@ -50,16 +50,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       emailChanged = true;
     }
 
+    const updateData: any = {
+      fullName, 
+      email, 
+      studentNumber, 
+      registrationNumber,
+      phoneNumber,
+      ...(finalIsActive !== undefined ? { isActive: finalIsActive } : {})
+    };
+
+    if (acceptedTerms !== undefined) {
+      updateData.acceptedTerms = acceptedTerms;
+    }
+
     const user = await db.user.update({
       where: { id: params.id },
-      data: { 
-        fullName, 
-        email, 
-        studentNumber, 
-        registrationNumber,
-        phoneNumber,
-        ...(finalIsActive !== undefined ? { isActive: finalIsActive } : {})
-      }
+      data: updateData
     });
 
     return NextResponse.json({ data: user, emailChanged });

@@ -5,6 +5,7 @@ import SidebarNav from './SidebarNav';
 
 import CourseSwitcher from '../../components/CourseSwitcher';
 import DashboardClientShell from './DashboardClientShell';
+import PhoneOnboardingModal from './PhoneOnboardingModal';
 
 export const metadata = {
   title: 'Talora — Class & Group Coordination Platform',
@@ -17,6 +18,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let userName = 'Unknown User';
   let userRole = 'Student';
   let unreadCount = 0;
+  let userNeedsOnboarding = false;
+  let currentUserId = '';
 
   let availableOfferings: any[] = [];
   const activeOfferingId: string | null = cookies().get('active_offering_id')?.value || null;
@@ -28,6 +31,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       const { db } = await import('@talora/database');
       const user = await db.user.findUnique({ where: { id: payload.userId } });
       if (user) {
+        currentUserId = user.id;
+        userNeedsOnboarding = !user.phoneNumber || !user.acceptedTerms;
         userName = user.fullName;
         userInitials = user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         
@@ -105,6 +110,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <DashboardClientShell sidebarContent={sidebarContent} topbarContent={topbarContent}>
       {children}
+      {userNeedsOnboarding && <PhoneOnboardingModal userId={currentUserId} />}
     </DashboardClientShell>
   );
 }

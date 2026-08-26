@@ -27,18 +27,22 @@ export async function GET(
     const leaderIds = groups.map(g => g.leaderId);
     const leaders = await db.user.findMany({
       where: { id: { in: leaderIds } },
-      select: { id: true, fullName: true },
+      select: { id: true, fullName: true, phoneNumber: true },
     });
-    const leaderMap = new Map(leaders.map(l => [l.id, l.fullName]));
+    const leaderMap = new Map(leaders.map(l => [l.id, { name: l.fullName, phone: l.phoneNumber }]));
 
-    const mapped = groups.map(g => ({
-      id: g.id,
-      name: g.name,
-      leader: leaderMap.get(g.leaderId) || 'Unknown',
-      members: g._count.memberships,
-      capacity: g.offering.maxGroupSize,
-      status: g.status,
-    }));
+    const mapped = groups.map(g => {
+      const leaderInfo = leaderMap.get(g.leaderId) || { name: 'Unknown', phone: null };
+      return {
+        id: g.id,
+        name: g.name,
+        leader: leaderInfo.name,
+        leaderPhone: leaderInfo.phone,
+        members: g._count.memberships,
+        capacity: g.offering.maxGroupSize,
+        status: g.status,
+      };
+    });
 
     return NextResponse.json({ data: mapped });
   } catch (error) {
