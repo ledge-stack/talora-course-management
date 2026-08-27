@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:talora_mobile/theme/app_theme.dart';
 import 'package:talora_mobile/services/api_client.dart';
 import 'package:talora_mobile/screens/main_layout.dart';
 import 'package:talora_mobile/screens/login_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const TaloraMobileApp());
 }
 

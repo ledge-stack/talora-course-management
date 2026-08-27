@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talora_mobile/theme/app_theme.dart';
 import 'package:talora_mobile/services/api_client.dart';
 import 'package:talora_mobile/screens/verify_otp_screen.dart';
@@ -50,34 +51,115 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: _phoneNumberController.text,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _signInWithCredentialAndRegister(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() {
+            _error = e.message ?? 'Verification failed';
+            _isLoading = false;
+          });
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showOtpDialog(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to initiate phone verification.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showOtpDialog(String verificationId) {
+    String smsCode = '';
+    bool isVerifying = false;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('Enter SMS Code'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) => smsCode = val,
+                  decoration: const InputDecoration(labelText: '6-digit code'),
+                ),
+                if (isVerifying) const Padding(
+                  padding: EdgeInsets.only(top: 16.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isVerifying ? null : () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: isVerifying ? null : () async {
+                  setDialogState(() => isVerifying = true);
+                  try {
+                    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                      verificationId: verificationId,
+                      smsCode: smsCode,
+                    );
+                    await _signInWithCredentialAndRegister(credential);
+                    if (mounted) Navigator.pop(context);
+                  } catch (e) {
+                    setDialogState(() => isVerifying = false);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid code')));
+                  }
+                },
+                child: const Text('Verify & Register'),
+              ),
+            ],
+          );
+        }
+      ),
+    );
+  }
+
+  Future<void> _signInWithCredentialAndRegister(PhoneAuthCredential credential) async {
+    try {
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final idToken = await userCredential.user?.getIdToken();
+
+      if (idToken == null) throw Exception("Failed to get ID token");
+
       await ApiClient.register({
         'fullName': _fullNameController.text,
         'studentNumber': _studentNumberController.text,
         'email': _emailController.text,
-        'phoneNumber': _phoneNumberController.text, // this will be the complete number
+        'phoneNumber': _phoneNumberController.text,
         'password': _passwordController.text,
         'institutionId': _institutionIdController.text,
         'acceptedTerms': _acceptedTerms,
+        'firebaseIdToken': idToken,
       });
 
       if (!mounted) return;
-      // Navigate to OTP verification screen
-      Navigator.push(
+      
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => VerifyOtpScreen(
-            email: _emailController.text,
-            isPasswordReset: false,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration successful! Please sign in.')));
     } catch (e) {
-      setState(() {
-        _error = 'Failed to register. Please check your details.';
-      });
-    } finally {
       if (mounted) {
         setState(() {
+          _error = 'Registration failed. Check details or if account already exists.';
           _isLoading = false;
         });
       }

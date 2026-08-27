@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { sendEmail } from '@/lib/email';
 import { cookies } from 'next/headers';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,12 +28,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const body = await req.json();
-    const { fullName, email, studentNumber, registrationNumber, phoneNumber, acceptedTerms, isActive } = body;
+    const { fullName, email, studentNumber, registrationNumber, phoneNumber, acceptedTerms, isActive, firebaseIdToken } = body;
 
     const currentUser = await db.user.findUnique({ where: { id: params.id } });
     
     if (!currentUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (phoneNumber && phoneNumber !== currentUser.phoneNumber) {
+      if (!firebaseIdToken) {
+        return NextResponse.json({ error: 'Phone verification is required to update phone number.' }, { status: 400 });
+      }
+      try {
+        if (!adminAuth) throw new Error("Firebase admin not initialized");
+        const decodedToken = await adminAuth.verifyIdToken(firebaseIdToken);
+        if (decodedToken.phone_number !== phoneNumber) {
+          return NextResponse.json({ error: 'The verified phone number does not match.' }, { status: 400 });
+        }
+      } catch (error) {
+        return NextResponse.json({ error: 'Invalid or expired phone verification token.' }, { status: 401 });
+      }
     }
 
     // Check permissions for isActive

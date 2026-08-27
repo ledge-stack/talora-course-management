@@ -3,6 +3,7 @@ import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
 import { sendEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/rateLimit';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,10 +68,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Platform configuration error: No institution found.' }, { status: 500 });
     }
 
-    const hashedPassword = await hashPassword(password);
+    const { firebaseIdToken } = body;
+    if (!firebaseIdToken) {
+      return NextResponse.json({ error: 'Phone verification is required. Please verify your phone number first.' }, { status: 400 });
+    }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    // Verify Firebase token
+    let decodedToken;
+    try {
+      if (!adminAuth) throw new Error("Firebase admin not initialized");
+      decodedToken = await adminAuth.verifyIdToken(firebaseIdToken);
+    } catch (error) {
+      return NextResponse.json({ error: 'Invalid or expired phone verification token.' }, { status: 401 });
+    }
+
+    // Optional: check if phone number matches
+    // Note: Firebase numbers are in E.164 format (e.g. +256701234567)
+    if (decodedToken.phone_number !== phoneNumber) {
+      return NextResponse.json({ error: 'The verified phone number does not match the provided phone number.' }, { status: 400 });
+    }
+
+    const hashedPassword = await hashPassword(password);
 
     const newUser = await db.user.create({
       data: {
@@ -82,25 +100,8 @@ export async function POST(req: NextRequest) {
         acceptedTerms: true,
         passwordHash: hashedPassword,
         institutionId: institution.id,
-        isEmailVerified: false,
-        verificationToken: otp,
-        verificationTokenExpires: expiresAt,
+        isEmailVerified: true, // Auto-verify since they verified phone
       }
-    });
-
-    // Send the OTP via email
-    await sendEmail({
-      to: newUser.email,
-      subject: 'Verify your Talora account',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Welcome to Talora!</h2>
-          <p>Hi ${newUser.fullName},</p>
-          <p>Here is your 6-digit code to verify your email address:</p>
-          <h1 style="color: #4F46E5; letter-spacing: 2px;">${otp}</h1>
-          <p>This code will expire in 15 minutes.</p>
-        </div>
-      `
     });
 
     // Assign generic STUDENT role (without a specific class for now, they will enroll in offerings manually)
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: true }, { status: 201 });
+    return NextResponse.json({ success: true, userId: newUser.id, requiresVerification: false }, { status: 201 });
   } catch (err: any) {
     console.error('Registration Error:', err);
     if (err.code === 'P2002') {
