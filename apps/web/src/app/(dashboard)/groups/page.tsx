@@ -51,14 +51,15 @@ export default async function GroupsPage() {
         const leaderIds = dbGroups.map(g => g.leaderId);
         const leaders = await db.user.findMany({
           where: { id: { in: leaderIds } },
-          select: { id: true, fullName: true },
+          select: { id: true, fullName: true, phoneNumber: true },
         });
-        const leaderMap = new Map(leaders.map(l => [l.id, l.fullName]));
+        const leaderMap = new Map(leaders.map(l => [l.id, l]));
 
         groups = dbGroups.map(g => ({
           id: g.id,
           name: g.name,
-          leader: leaderMap.get(g.leaderId) || 'Unknown',
+          leader: leaderMap.get(g.leaderId)?.fullName || 'Unknown',
+          leaderPhone: leaderMap.get(g.leaderId)?.phoneNumber || null,
           leaderId: g.leaderId,
           membersCount: g._count.memberships,
           status: g.status,
