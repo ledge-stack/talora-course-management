@@ -291,6 +291,14 @@ export default function RosterImportWizard() {
               <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Enrolled</div>
             </div>
             <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-info)' }}>{results.updated}</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Groups Updated</div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-text-muted)' }}>{results.unchanged}</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Unchanged</div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
               <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-warning)' }}>{results.skipped}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Skipped (No Email)</div>
             </div>

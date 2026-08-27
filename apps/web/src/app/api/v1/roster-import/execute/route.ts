@@ -134,6 +134,8 @@ export async function POST(request: Request) {
     // --- EXECUTION PHASE ---
     const results = {
       enrolled: 0,
+      updated: 0,
+      unchanged: 0,
       skipped: 0,
       errors: 0,
       retakers: 0,
@@ -147,6 +149,9 @@ export async function POST(request: Request) {
         results.details.push({ row: data, error: 'Missing required fields (Name or Student Number)' });
         continue;
       }
+
+      let isNewEnrollment = false;
+      let isGroupUpdated = false;
 
       const studentNumber = data.studentNumber.trim();
       const email = data.email?.trim() || null;
@@ -220,6 +225,7 @@ export async function POST(request: Request) {
           await db.enrollment.create({
             data: { studentId: user.id, offeringId: offering.id }
           });
+          isNewEnrollment = true;
         }
 
         // 5. Handle Group Assignment
@@ -253,13 +259,33 @@ export async function POST(request: Request) {
                await db.groupMembership.create({
                  data: { studentId: user.id, groupId: group.id, offeringId: offering.id }
                });
+               isGroupUpdated = true;
              } else {
                results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Enrolled as ungrouped.` });
+             }
+          } else if (membershipExists.groupId !== group.id) {
+             // User is in a different group, update their group
+             const memberCount = await db.groupMembership.count({ where: { groupId: group.id } });
+             if (memberCount < offering.maxGroupSize) {
+               await db.groupMembership.update({
+                 where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } },
+                 data: { groupId: group.id }
+               });
+               isGroupUpdated = true;
+               results.details.push({ row: data, warning: `Moved from previous group to '${data.groupName}'.` });
+             } else {
+               results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Kept in previous group.` });
              }
           }
         }
 
-        results.enrolled++;
+        if (isNewEnrollment) {
+          results.enrolled++;
+        } else if (isGroupUpdated) {
+          results.updated++;
+        } else {
+          results.unchanged++;
+        }
 
       } catch (err: any) {
         console.error('Error importing row:', err);
