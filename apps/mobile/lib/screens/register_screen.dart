@@ -84,6 +84,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Terms and Conditions'),
+        content: const SingleChildScrollView(
+          child: Text(
+            '1. Introduction\nWelcome to Talora. By accessing or using our platform, you agree to be bound by these Terms and Conditions.\n\n'
+            '2. Data Usage and Privacy\nYour privacy is important to us. We collect your phone number and email address strictly for the purpose of academic coordination. Specifically, your phone number may be shared with your designated Group Leader to facilitate out-of-band communication for group projects and assignments.\n\n'
+            '3. Acceptable Use\nYou agree to use this platform only for academic purposes related to your enrolled courses. Harassment, spam, and the sharing of unauthorized or malicious content are strictly prohibited.\n\n'
+            '4. Limitation of Liability\nTalora is provided "as is". We are not responsible for any disputes arising between students, loss of assignment data, or missed deadlines resulting from platform usage.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,9 +217,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
                           CheckboxListTile(
-                            title: const Text(
-                              'I agree to the Terms and Conditions regarding data usage for academic coordination.',
-                              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                            title: GestureDetector(
+                              onTap: _showTermsDialog,
+                              child: const Text.rich(
+                                TextSpan(
+                                  text: 'I agree to the ',
+                                  style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                                  children: [
+                                    TextSpan(
+                                      text: 'Terms and Conditions',
+                                      style: TextStyle(color: AppTheme.primaryColor, decoration: TextDecoration.underline),
+                                    ),
+                                    TextSpan(
+                                      text: ' regarding data usage for academic coordination.',
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                             value: _acceptedTerms,
                             onChanged: _isLoading ? null : (value) {

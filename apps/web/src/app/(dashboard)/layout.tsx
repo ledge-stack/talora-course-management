@@ -107,10 +107,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
     </>
   );
 
+  if (userNeedsOnboarding) {
+    return (
+      <div className="flex h-screen bg-bg-base overflow-hidden w-full items-center justify-center">
+        <PhoneOnboardingModal userId={currentUserId} />
+      </div>
+    );
+  }
+
   return (
     <DashboardClientShell sidebarContent={sidebarContent} topbarContent={topbarContent}>
       {children}
-      {userNeedsOnboarding && <PhoneOnboardingModal userId={currentUserId} />}
     </DashboardClientShell>
   );
 }
