@@ -87,6 +87,7 @@ export default async function RosterPage() {
             userId: user.id,
             name: user.fullName,
             email: user.email,
+            phoneNumber: user.phoneNumber,
             group: user.memberships[0]?.group?.name || 'Unassigned',
             isRetaker,
             tookGapYear: user.tookGapYear

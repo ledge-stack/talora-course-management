@@ -70,7 +70,7 @@ export default function GroupsClient({
   const [reserveStudentNumber, setReserveStudentNumber] = useState('');
 
   const [showMembersGroup, setShowMembersGroup] = useState<string | null>(null);
-  const [groupMembers, setGroupMembers] = useState<{ id: string, fullName: string, studentNumber: string, isLeader: boolean }[]>([]);
+  const [groupMembers, setGroupMembers] = useState<{ id: string, fullName: string, studentNumber: string, phoneNumber?: string | null, isLeader: boolean }[]>([]);
 
   const [showTransferLeadership, setShowTransferLeadership] = useState<string | null>(null);
 
@@ -810,7 +810,9 @@ export default function GroupsClient({
                   <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{m.studentNumber}</span>
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
+                        {m.studentNumber} {m.phoneNumber && `· 📞 ${m.phoneNumber}`}
+                      </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {m.isLeader ? (

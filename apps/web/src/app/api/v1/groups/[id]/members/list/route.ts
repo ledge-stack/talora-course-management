@@ -24,7 +24,8 @@ export async function GET(
               select: {
                 id: true,
                 fullName: true,
-                studentNumber: true
+                studentNumber: true,
+                phoneNumber: true
               }
             }
           }
@@ -41,6 +42,7 @@ export async function GET(
       id: m.student.id,
       fullName: m.student.fullName,
       studentNumber: m.student.studentNumber,
+      phoneNumber: m.student.phoneNumber,
       isLeader: m.student.id === group.leaderId
     }));
 

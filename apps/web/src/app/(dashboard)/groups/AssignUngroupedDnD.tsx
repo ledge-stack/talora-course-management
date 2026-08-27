@@ -19,6 +19,7 @@ type Student = {
   id: string;
   fullName: string;
   studentNumber: string;
+  phoneNumber?: string | null;
 };
 
 type Group = {
@@ -53,7 +54,15 @@ function SortableStudentCard({ student, isDragging }: { student: Student; isDrag
       className={`p-3 bg-bg-surface border ${isDragging ? 'border-primary' : 'border-border-subtle'} rounded-lg shadow-sm mb-2 cursor-grab active:cursor-grabbing hover:border-border-strong transition-colors`}
     >
       <div className="font-medium text-text-primary text-sm">{student.fullName}</div>
-      <div className="text-xs text-text-secondary">{student.studentNumber}</div>
+      <div className="text-xs text-text-secondary mt-1">
+        <div>{student.studentNumber}</div>
+        {student.phoneNumber && (
+          <div className="mt-0.5 flex items-center gap-1">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            {student.phoneNumber}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -62,7 +71,15 @@ function StaticStudentCard({ student }: { student: Student }) {
   return (
     <div className="p-3 bg-bg-surface border border-primary rounded-lg shadow-lg mb-2 cursor-grabbing rotate-2 opacity-90 scale-105 transition-transform">
       <div className="font-medium text-text-primary text-sm">{student.fullName}</div>
-      <div className="text-xs text-text-secondary">{student.studentNumber}</div>
+      <div className="text-xs text-text-secondary mt-1">
+        <div>{student.studentNumber}</div>
+        {student.phoneNumber && (
+          <div className="mt-0.5 flex items-center gap-1">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            {student.phoneNumber}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

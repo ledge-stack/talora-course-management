@@ -30,7 +30,8 @@ export async function GET(
             id: true,
             fullName: true,
             email: true,
-            studentNumber: true
+            studentNumber: true,
+            phoneNumber: true
           }
         }
       }
@@ -99,6 +100,7 @@ export async function GET(
       fullName: s.fullName,
       email: s.email,
       studentNumber: s.studentNumber,
+      phoneNumber: s.phoneNumber,
       pendingRequest: requestMap.get(s.id) || null
     }));
 

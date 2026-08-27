@@ -9,6 +9,7 @@ type Student = {
   userId: string;
   name: string;
   email: string;
+  phoneNumber?: string | null;
   group: string;
   isRetaker: boolean;
   tookGapYear: boolean;
@@ -97,7 +98,15 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                       {student.tookGapYear && <span className="badge badge-subtle" style={{ fontSize: '0.65rem', border: '1px solid var(--color-text-muted)' }}>Gap Year</span>}
                     </div>
                   </td>
-                  <td style={{ color: 'var(--color-text-secondary)' }}>{student.email}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>
+                    <div>{student.email}</div>
+                    {student.phoneNumber && (
+                      <div style={{ fontSize: '0.75rem', marginTop: '0.125rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        {student.phoneNumber}
+                      </div>
+                    )}
+                  </td>
                   <td>
                     {student.group === 'Unassigned' ? (
                       <span className="badge badge-warning">Unassigned</span>

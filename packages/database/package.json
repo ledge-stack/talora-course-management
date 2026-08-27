@@ -10,7 +10,8 @@
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0"
+    "@prisma/client": "^5.22.0",
+    "jose": "^4.15.9"
   },
   "devDependencies": {
     "prisma": "^5.22.0",
