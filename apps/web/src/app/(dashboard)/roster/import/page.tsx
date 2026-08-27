@@ -23,6 +23,7 @@ export default function RosterImportWizard() {
 
   // Execute State
   const [isExecuting, setIsExecuting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
   const [results, setResults] = useState<any>(null);
 
   // Fetch Offerings (Simulating Class Rep context)
@@ -77,6 +78,16 @@ export default function RosterImportWizard() {
 
   const handleExecute = async () => {
     setIsExecuting(true);
+    setImportProgress(0);
+    
+    // Smooth simulated progress that slows down as it gets closer to 95%
+    const progressInterval = setInterval(() => {
+      setImportProgress(prev => {
+        if (prev >= 95) return prev;
+        return prev + Math.max(0.5, (95 - prev) * 0.05);
+      });
+    }, 200);
+
     const formData = new FormData();
     formData.append('file', file!);
     formData.append('offeringId', offeringId);
@@ -98,14 +109,19 @@ export default function RosterImportWizard() {
       });
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || 'Import failed');
+      clearInterval(progressInterval);
+      setImportProgress(100);
       
-      setResults(data.data);
-      setStep(4);
+      // Wait for progress bar to hit 100% visually before switching steps
+      setTimeout(() => {
+        setResults(data.data);
+        setStep(4);
+      }, 400);
     } catch (err: any) {
+      clearInterval(progressInterval);
       toast.error(err.message);
     } finally {
-      setIsExecuting(false);
+      setTimeout(() => setIsExecuting(false), 400);
     }
   };
 
@@ -270,12 +286,31 @@ export default function RosterImportWizard() {
              We are ready to import. The backend will validate retaker status and required fields on the fly during execution.
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-            <button className="btn-secondary" onClick={() => setStep(previewData.structureType === 'SECTION_BASED' ? 1 : 2)}>← Back</button>
-            <button className="btn-primary" onClick={handleExecute} disabled={isExecuting}>
-              {isExecuting ? 'Importing...' : 'Confirm & Execute Import'}
-            </button>
-          </div>
+          {isExecuting ? (
+            <div style={{ marginTop: '2rem', padding: '2rem', background: 'var(--color-bg-surface)', borderRadius: '12px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
+              <div style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                Importing Roster... Please wait.
+              </div>
+              <div style={{ width: '100%', height: '8px', background: 'var(--border-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ 
+                  height: '100%', 
+                  width: `${importProgress}%`, 
+                  background: 'var(--color-primary)', 
+                  transition: 'width 0.2s ease-out' 
+                }} />
+              </div>
+              <div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                {Math.round(importProgress)}% Complete
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+              <button className="btn-secondary" onClick={() => setStep(previewData.structureType === 'SECTION_BASED' ? 1 : 2)}>← Back</button>
+              <button className="btn-primary" onClick={handleExecute} disabled={isExecuting}>
+                Confirm & Execute Import
+              </button>
+            </div>
+          )}
         </div>
       )}
 
