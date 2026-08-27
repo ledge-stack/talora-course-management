@@ -3,7 +3,7 @@ import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
 import { sendEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/rateLimit';
-import { adminAuth } from '@/lib/firebase-admin';
+import { verifyFirebaseToken } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,8 +76,7 @@ export async function POST(req: NextRequest) {
     // Verify Firebase token
     let decodedToken;
     try {
-      if (!adminAuth) throw new Error("Firebase admin not initialized");
-      decodedToken = await adminAuth.verifyIdToken(firebaseIdToken);
+      decodedToken = await verifyFirebaseToken(firebaseIdToken);
     } catch (error) {
       return NextResponse.json({ error: 'Invalid or expired phone verification token.' }, { status: 401 });
     }
