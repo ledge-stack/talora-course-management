@@ -34,7 +34,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border-subtle flex justify-end">
-          <button onClick={() => window.close()} className="btn-primary">Close Window</button>
+          <Link href="/" className="btn-primary">Return to Dashboard</Link>
         </div>
       </div>
     </div>
