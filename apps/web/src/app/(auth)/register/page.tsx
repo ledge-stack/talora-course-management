@@ -212,15 +212,55 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', marginTop: '0.5rem' }}>
-              <input 
-                type="checkbox" 
+            <label
+              htmlFor="accept-terms"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.875rem',
+                cursor: 'pointer',
+                marginTop: '0.5rem',
+                padding: '1rem',
+                borderRadius: '10px',
+                background: acceptedTerms ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.03)',
+                border: acceptedTerms ? '1.5px solid var(--color-primary)' : '1.5px solid var(--border-subtle)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {/* Hidden native checkbox for form semantics */}
+              <input
+                id="accept-terms"
+                type="checkbox"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', accentColor: 'var(--color-primary)' }}
+                style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
               />
-              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-                I agree to the <Link href="/terms" target="_blank" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Terms and Conditions</Link>.
+              {/* Custom visible checkbox */}
+              <div style={{
+                flexShrink: 0,
+                width: '22px',
+                height: '22px',
+                borderRadius: '6px',
+                border: acceptedTerms ? '2px solid var(--color-primary)' : '2px solid var(--border-strong)',
+                background: acceptedTerms ? 'var(--color-primary)' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                marginTop: '1px',
+              }}>
+                {acceptedTerms && (
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M2 6.5L5 9.5L11 3.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, userSelect: 'none' }}>
+                I have read and agree to the{' '}
+                <Link href="/terms" target="_blank" style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 500 }}>
+                  Terms and Conditions
+                </Link>
+                {' '}regarding data usage for academic coordination on this platform.
               </span>
             </label>
 
