@@ -11,6 +11,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ['firebase-admin', 'jwks-rsa'],
 };
 
 export default nextConfig;
