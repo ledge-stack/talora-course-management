@@ -12,8 +12,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const scope = JSON.parse(scopeHeader) as UserScope;
-    
-    // Fetch the caller
+
     const caller = await db.user.findUnique({
       where: { id: scope.userId },
       include: { roles: true }
@@ -28,13 +27,24 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Forbidden. Requires PLATFORM_ADMIN role.' }, { status: 403 });
     }
 
-    // Target User
     const targetUserId = params.id;
     const body = await req.json();
-    const { roles } = body; // Expected to be an array of RoleType strings e.g. ["STUDENT", "PLATFORM_ADMIN"]
+    // roles is now an array of { role, classId? } objects
+    const { roles } = body;
 
     if (!Array.isArray(roles)) {
-      return NextResponse.json({ error: 'Roles must be an array of strings' }, { status: 400 });
+      return NextResponse.json({ error: 'Roles must be an array' }, { status: 400 });
+    }
+
+    // Enforce: CLASS_REPRESENTATIVE must always have a classId
+    const repWithoutClass = roles.find(
+      (r: any) => r.role === 'CLASS_REPRESENTATIVE' && !r.classId
+    );
+    if (repWithoutClass) {
+      return NextResponse.json(
+        { error: 'A class must be selected when assigning the CLASS_REPRESENTATIVE role.' },
+        { status: 400 }
+      );
     }
 
     const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
@@ -47,23 +57,19 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     // Prevent removing your own PLATFORM_ADMIN role to avoid locking yourself out
-    if (caller.id === targetUserId && !roles.includes('PLATFORM_ADMIN')) {
+    if (caller.id === targetUserId && !roles.some((r: any) => r.role === 'PLATFORM_ADMIN')) {
       return NextResponse.json({ error: 'You cannot remove your own PLATFORM_ADMIN role' }, { status: 400 });
     }
 
-    // Wrap the role update in a transaction
     await db.$transaction(async (tx) => {
-      // 1. Delete existing roles for this user
-      await tx.userRole.deleteMany({
-        where: { userId: targetUserId }
-      });
+      await tx.userRole.deleteMany({ where: { userId: targetUserId } });
 
-      // 2. Insert the new roles
       if (roles.length > 0) {
         await tx.userRole.createMany({
-          data: roles.map((role: any) => ({
+          data: roles.map((r: any) => ({
             userId: targetUserId,
-            role: role
+            role: r.role,
+            classId: r.classId || null,
           }))
         });
       }
@@ -71,7 +77,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const updatedUser = await db.user.findUnique({
       where: { id: targetUserId },
-      include: { roles: true }
+      include: { roles: { include: { class: true } } }
     });
 
     return NextResponse.json({ success: true, data: updatedUser }, { status: 200 });
