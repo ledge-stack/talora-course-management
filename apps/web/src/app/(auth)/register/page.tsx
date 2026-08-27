@@ -264,7 +264,20 @@ export default function RegisterPage() {
               </span>
             </label>
 
-            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }} disabled={loading}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{
+                width: '100%',
+                marginTop: '0.5rem',
+                justifyContent: 'center',
+                opacity: (!acceptedTerms || loading) ? 0.5 : 1,
+                cursor: (!acceptedTerms || loading) ? 'not-allowed' : 'pointer',
+                transition: 'opacity 0.2s ease',
+              }}
+              disabled={loading || !acceptedTerms}
+              title={!acceptedTerms ? 'You must accept the Terms and Conditions first' : ''}
+            >
               {loading ? 'Sending OTP...' : 'Continue'}
             </button>
           </form>
