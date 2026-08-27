@@ -77,6 +77,7 @@ export default function RegisterPage() {
       // 2. Register User
       const payload = {
         ...formData,
+        acceptedTerms,
         firebaseIdToken
       };
 
