@@ -30,7 +30,7 @@ export default function PhoneOnboardingModal({ userId }: { userId: string }) {
       const res = await fetch(`/api/v1/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber }) // the backend will only patch what's provided
+        body: JSON.stringify({ phoneNumber, acceptedTerms }) 
       });
       
       const data = await res.json();
