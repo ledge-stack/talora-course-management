@@ -39,7 +39,7 @@ export default function PhoneOnboardingModal({ userId }: { userId: string }) {
         throw new Error(data.message || data.error || 'Failed to update profile');
       }
 
-      router.refresh();
+      window.location.reload();
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
