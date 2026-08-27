@@ -33,16 +33,50 @@ export default async function Dashboard() {
 
       if (!offering) {
         return (
-          <div className="flex flex-col gap-8 items-center justify-center h-[60vh] text-center">
-            <div className="w-16 h-16 rounded-full bg-primary-transparent flex items-center justify-center text-primary mb-4">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', textAlign: 'center', padding: '2rem', gap: '0' }}>
+            {/* Animated icon */}
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '24px',
+              background: 'linear-gradient(135deg, var(--color-primary), #818cf8)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: '2rem',
+              boxShadow: '0 20px 60px -10px rgba(99,102,241,0.4)',
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-text-primary">Welcome to Talora!</h2>
-            <p className="text-text-secondary max-w-md">You haven&apos;t enrolled in any course units yet. Please visit the Course Enrollment page to select the units you intend to study.</p>
-            <a href="/enroll" className="btn-primary no-underline">Go to Course Enrollment</a>
+
+            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+              Welcome to Talora! 🎉
+            </h1>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+              Your account is all set up. The next step is to <strong style={{ color: 'var(--color-text-primary)' }}>enroll in your course units</strong> so the system can assign you to the right groups and show you relevant assignments and announcements.
+            </p>
+
+            {/* Steps */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '420px', marginBottom: '2.5rem', textAlign: 'left' }}>
+              {[
+                { n: '1', text: 'Go to Course Enrollment below' },
+                { n: '2', text: 'Select the course units you are studying this semester' },
+                { n: '3', text: 'Return here — your dashboard will be fully loaded' },
+              ].map(step => (
+                <div key={step.n} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1.25rem', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-subtle)', borderRadius: '12px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8125rem', flexShrink: 0 }}>
+                    {step.n}
+                  </div>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>{step.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <a href="/enroll" className="btn-primary" style={{ padding: '0.875rem 2.5rem', fontSize: '1rem', textDecoration: 'none', borderRadius: '12px' }}>
+              Enroll in Course Units →
+            </a>
           </div>
         );
       }
+
 
       offeringName = `${offering.term.name} · ${offering.unit.title} · ${offering.class.name}`;
 
