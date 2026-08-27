@@ -23,13 +23,33 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-text-primary mb-3">3. Acceptable Use</h2>
-            <p>You agree to use this platform only for academic purposes related to your enrolled courses. Harassment, spam, and the sharing of unauthorized or malicious content are strictly prohibited and will result in account termination.</p>
+            <h2 className="text-xl font-bold text-text-primary mb-3">3. Academic Integrity</h2>
+            <p>You agree that all assignments and work submitted through Talora are your own original work. Plagiarism, cheating, or the unauthorized sharing of copyrighted academic materials is strictly prohibited and violates these terms.</p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-text-primary mb-3">4. Limitation of Liability</h2>
-            <p>Talora is provided "as is". We are not responsible for any disputes arising between students, loss of assignment data, or missed deadlines resulting from platform usage.</p>
+            <h2 className="text-xl font-bold text-text-primary mb-3">4. Account Security</h2>
+            <p>You are responsible for maintaining the confidentiality of your account credentials. You must not share your password or allow others to access your account. You are responsible for all activities that occur under your account.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-text-primary mb-3">5. Acceptable Use</h2>
+            <p>You agree to use this platform only for academic purposes related to your enrolled courses. Harassment, spam, abusive language, and the sharing of malicious content are strictly prohibited and will result in account termination.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-text-primary mb-3">6. Content Moderation & Right to Remove</h2>
+            <p>Platform Administrators and Class Representatives reserve the right to moderate, remove, or modify any content, disband groups, or suspend user accounts if they determine a violation of these terms or university policies has occurred.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-text-primary mb-3">7. Data Retention & Service Availability</h2>
+            <p>Talora reserves the right to archive or permanently delete course data, including assignment submissions and group structures, after a semester concludes. Furthermore, Talora is provided "as is", and we do not guarantee uninterrupted access or uptime of the platform.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-text-primary mb-3">8. Limitation of Liability</h2>
+            <p>We are not responsible for any disputes arising between students, loss of assignment data, missed deadlines, or academic penalties resulting from the use or inability to use the platform.</p>
           </section>
         </div>
 

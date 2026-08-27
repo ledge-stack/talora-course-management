@@ -93,8 +93,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Text(
             '1. Introduction\nWelcome to Talora. By accessing or using our platform, you agree to be bound by these Terms and Conditions.\n\n'
             '2. Data Usage and Privacy\nYour privacy is important to us. We collect your phone number and email address strictly for the purpose of academic coordination. Specifically, your phone number may be shared with your designated Group Leader to facilitate out-of-band communication for group projects and assignments.\n\n'
-            '3. Acceptable Use\nYou agree to use this platform only for academic purposes related to your enrolled courses. Harassment, spam, and the sharing of unauthorized or malicious content are strictly prohibited.\n\n'
-            '4. Limitation of Liability\nTalora is provided "as is". We are not responsible for any disputes arising between students, loss of assignment data, or missed deadlines resulting from platform usage.',
+            '3. Academic Integrity\nYou agree that all assignments and work submitted through Talora are your own original work. Plagiarism, cheating, or the unauthorized sharing of copyrighted academic materials is strictly prohibited.\n\n'
+            '4. Account Security\nYou are responsible for maintaining the confidentiality of your account credentials. You must not share your password or allow others to access your account.\n\n'
+            '5. Acceptable Use\nYou agree to use this platform only for academic purposes related to your enrolled courses. Harassment, spam, abusive language, and the sharing of malicious content are strictly prohibited.\n\n'
+            '6. Content Moderation & Right to Remove\nPlatform Administrators and Class Representatives reserve the right to moderate, remove, or modify any content, disband groups, or suspend user accounts if they determine a violation of these terms has occurred.\n\n'
+            '7. Data Retention & Service Availability\nTalora reserves the right to archive or permanently delete course data after a semester concludes. Talora is provided "as is", and we do not guarantee uninterrupted access or uptime of the platform.\n\n'
+            '8. Limitation of Liability\nWe are not responsible for any disputes arising between students, loss of assignment data, missed deadlines, or academic penalties resulting from the use or inability to use the platform.',
           ),
         ),
         actions: [
