@@ -60,8 +60,19 @@ export async function resolveAuthorizedOffering(scope: UserScope): Promise<any |
     // Cookie pointed to an unauthorized or deleted offering — fall through
   }
 
-  // Step 2: For students — use first enrollment
+  // Step 2: For students — try to find an offering where they have an active group membership first
   if (!isRep) {
+    const latestMembership = await db.groupMembership.findFirst({
+      where: { studentId: scope.userId },
+      orderBy: { joinedAt: 'desc' },
+      include: { group: { include: { offering: { include: includeRelations } } } }
+    });
+
+    if (latestMembership?.group?.offering) {
+      return latestMembership.group.offering;
+    }
+
+    // Fallback to the most recent enrollment if they have no groups
     const firstEnrollment = await db.enrollment.findFirst({
       where: { studentId: scope.userId },
       orderBy: { createdAt: 'desc' },
