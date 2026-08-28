@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function RosterImportWizard() {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   
   // Selections
   const [importType, setImportType] = useState<'CLASS_ROSTER' | 'COURSE_ENROLLMENT' | null>(null);
@@ -94,13 +94,12 @@ export default function RosterImportWizard() {
     formData.append('importType', importType!);
     formData.append('structureType', previewData.structureType);
     if (previewData.structureType === 'FLAT') {
-       // Reverse mapping for backend (column index -> field name)
-       const backendMapping: Record<string, string> = {};
        Object.entries(mapping).forEach(([colIndex, field]) => {
          backendMapping[colIndex] = field;
        });
        formData.append('mapping', JSON.stringify(backendMapping));
     }
+    formData.append('dryRun', 'true');
 
     try {
       const res = await fetch('/api/v1/roster-import/execute', {
@@ -116,6 +115,53 @@ export default function RosterImportWizard() {
       setTimeout(() => {
         setResults(data.data);
         setStep(4);
+      }, 400);
+    } catch (err: any) {
+      clearInterval(progressInterval);
+      toast.error(err.message);
+    } finally {
+      setTimeout(() => setIsExecuting(false), 400);
+    }
+  };
+
+  const handleApplyChanges = async () => {
+    setIsExecuting(true);
+    setImportProgress(0);
+    
+    const progressInterval = setInterval(() => {
+      setImportProgress(prev => {
+        if (prev >= 95) return prev;
+        return prev + Math.max(0.5, (95 - prev) * 0.05);
+      });
+    }, 200);
+
+    const formData = new FormData();
+    formData.append('file', file!);
+    formData.append('offeringId', offeringId);
+    formData.append('importType', importType!);
+    formData.append('structureType', previewData.structureType);
+    if (previewData.structureType === 'FLAT') {
+       const backendMapping: Record<string, string> = {};
+       Object.entries(mapping).forEach(([colIndex, field]) => {
+         backendMapping[colIndex] = field;
+       });
+       formData.append('mapping', JSON.stringify(backendMapping));
+    }
+    formData.append('dryRun', 'false');
+
+    try {
+      const res = await fetch('/api/v1/roster-import/execute', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      
+      clearInterval(progressInterval);
+      setImportProgress(100);
+      
+      setTimeout(() => {
+        setResults(data.data);
+        setStep(5);
       }, 400);
     } catch (err: any) {
       clearInterval(progressInterval);
@@ -145,7 +191,8 @@ export default function RosterImportWizard() {
           { num: 1, label: 'Upload' },
           { num: 2, label: 'Map Columns' },
           { num: 3, label: 'Review' },
-          { num: 4, label: 'Complete' }
+          { num: 4, label: 'Simulate' },
+          { num: 5, label: 'Complete' }
         ].map((s, i, arr) => (
           <React.Fragment key={s.num}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: step >= s.num ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
@@ -307,49 +354,41 @@ export default function RosterImportWizard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
               <button className="btn-secondary" onClick={() => setStep(previewData.structureType === 'SECTION_BASED' ? 1 : 2)}>← Back</button>
               <button className="btn-primary" onClick={handleExecute} disabled={isExecuting}>
-                Confirm & Execute Import
+                Simulate Import
               </button>
             </div>
           )}
         </div>
       )}
 
-      {/* STEP 4: RESULTS */}
+      {/* STEP 4: SIMULATION RESULTS */}
       {step === 4 && results && (
         <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Import Complete</h3>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Simulation Complete</h3>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>Review the proposed changes below. No changes have been made to the database yet.</p>
           
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '2rem' }}>
-            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px', border: '1px solid var(--color-success)' }}>
               <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-success)' }}>{results.enrolled}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Enrolled</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Will Enroll</div>
             </div>
-            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px', border: '1px solid var(--color-info)' }}>
               <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-info)' }}>{results.updated}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Groups Updated</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Groups Will Update</div>
             </div>
             <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
               <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-text-muted)' }}>{results.unchanged}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Unchanged</div>
             </div>
-            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-warning)' }}>{results.skipped}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Skipped (No Email)</div>
-            </div>
-            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px', border: results.errors > 0 ? '1px solid var(--color-danger)' : 'none' }}>
               <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-danger)' }}>{results.errors}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Errors</div>
-            </div>
-            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#8B5CF6' }}>{results.retakers}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Retakers Detected</div>
             </div>
           </div>
 
           {results.details.length > 0 && (
             <div style={{ textAlign: 'left', marginTop: '2rem' }}>
-              <h4 style={{ marginBottom: '1rem' }}>Import Log</h4>
+              <h4 style={{ marginBottom: '1rem' }}>Simulation Log</h4>
               <div style={{ maxHeight: '300px', overflowY: 'auto', background: 'var(--color-bg-surface)', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border-subtle)', fontSize: '0.875rem' }}>
                 {results.details.map((d: any, i: number) => (
                   <div key={i} style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--border-subtle)', display: 'flex', gap: '1rem' }}>
@@ -361,6 +400,49 @@ export default function RosterImportWizard() {
               </div>
             </div>
           )}
+
+          {isExecuting ? (
+            <div style={{ marginTop: '2rem', padding: '2rem', background: 'var(--color-bg-surface)', borderRadius: '12px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
+              <div style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                Applying Changes... Please wait.
+              </div>
+              <div style={{ width: '100%', height: '8px', background: 'var(--border-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ 
+                  height: '100%', 
+                  width: `${importProgress}%`, 
+                  background: 'var(--color-primary)', 
+                  transition: 'width 0.2s ease-out' 
+                }} />
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3rem' }}>
+              <button className="btn-secondary" onClick={() => setStep(3)}>← Discard & Go Back</button>
+              <button className="btn-primary" onClick={handleApplyChanges} disabled={isExecuting}>
+                Confirm & Apply Changes
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* STEP 5: FINAL RESULTS */}
+      {step === 5 && results && (
+        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Import Complete</h3>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>Changes have been successfully applied to the database.</p>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '2rem' }}>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-success)' }}>{results.enrolled}</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Enrolled</div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'var(--color-bg-surface)', borderRadius: '12px', minWidth: '120px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-info)' }}>{results.updated}</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Groups Updated</div>
+            </div>
+          </div>
 
           <div style={{ marginTop: '3rem' }}>
             <Link href="/roster" className="btn-primary" style={{ textDecoration: 'none' }}>

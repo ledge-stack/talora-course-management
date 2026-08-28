@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     const importType = formData.get('importType') as 'CLASS_ROSTER' | 'COURSE_ENROLLMENT';
     const mappingStr = formData.get('mapping') as string | null;
     const structureType = formData.get('structureType') as 'FLAT' | 'SECTION_BASED';
+    const dryRun = formData.get('dryRun') === 'true';
 
     if (!file || !offeringId || !importType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -185,18 +186,22 @@ export async function POST(request: Request) {
             continue;
           }
 
-          user = await db.user.create({
-            data: {
-              institutionId: offering.term.institutionId,
-              fullName: data.fullName,
-              studentNumber,
-              email: email,
-              passwordHash: generateTempPassword(), // Temp password
-              registrationNumber: data.registrationNumber,
-              isActive: true,
-              isEmailVerified: false,
-            }
-          });
+          if (!dryRun) {
+            user = await db.user.create({
+              data: {
+                institutionId: offering.term.institutionId,
+                fullName: data.fullName,
+                studentNumber,
+                email: email,
+                passwordHash: generateTempPassword(), // Temp password
+                registrationNumber: data.registrationNumber,
+                isActive: true,
+                isEmailVerified: false,
+              }
+            });
+          } else {
+            user = { id: `temp-user-${studentNumber}` } as any;
+          }
         }
 
         // 3. Add to ClassCohort if it's a CLASS_ROSTER import and they aren't a retaker
@@ -205,7 +210,7 @@ export async function POST(request: Request) {
             where: { userId: user.id, role: 'STUDENT', classId: offering.classId }
           });
           
-          if (!roleExists) {
+          if (!roleExists && !dryRun) {
             await db.userRole.create({
               data: {
                 userId: user.id,
@@ -222,9 +227,11 @@ export async function POST(request: Request) {
         });
 
         if (!enrollmentExists) {
-          await db.enrollment.create({
-            data: { studentId: user.id, offeringId: offering.id }
-          });
+          if (!dryRun) {
+            await db.enrollment.create({
+              data: { studentId: user.id, offeringId: offering.id }
+            });
+          }
           isNewEnrollment = true;
         }
 
@@ -236,15 +243,19 @@ export async function POST(request: Request) {
 
           // Create group if it doesn't exist
           if (!group) {
-            group = await db.group.create({
-              data: {
-                offeringId: offering.id,
-                name: data.groupName,
-                leaderId: scope.userId, // Default leader to the rep doing the import
-                status: 'INCOMPLETE',
-                isOpen: true,
-              }
-            });
+            if (!dryRun) {
+              group = await db.group.create({
+                data: {
+                  offeringId: offering.id,
+                  name: data.groupName,
+                  leaderId: scope.userId, // Default leader to the rep doing the import
+                  status: 'INCOMPLETE',
+                  isOpen: true,
+                }
+              });
+            } else {
+              group = { id: `temp-group-${data.groupName}` } as any;
+            }
           }
 
           // Assign membership
@@ -255,10 +266,12 @@ export async function POST(request: Request) {
           if (!membershipExists) {
              // Basic capacity check
              const memberCount = await db.groupMembership.count({ where: { groupId: group.id } });
-             if (memberCount < offering.maxGroupSize) {
-               await db.groupMembership.create({
-                 data: { studentId: user.id, groupId: group.id, offeringId: offering.id }
-               });
+             if (memberCount < offering.maxGroupSize || dryRun) {
+               if (!dryRun) {
+                 await db.groupMembership.create({
+                   data: { studentId: user.id, groupId: group.id, offeringId: offering.id }
+                 });
+               }
                isGroupUpdated = true;
              } else {
                results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Enrolled as ungrouped.` });
@@ -266,11 +279,13 @@ export async function POST(request: Request) {
           } else if (membershipExists.groupId !== group.id) {
              // User is in a different group, update their group
              const memberCount = await db.groupMembership.count({ where: { groupId: group.id } });
-             if (memberCount < offering.maxGroupSize) {
-               await db.groupMembership.update({
-                 where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } },
-                 data: { groupId: group.id }
-               });
+             if (memberCount < offering.maxGroupSize || dryRun) {
+               if (!dryRun) {
+                 await db.groupMembership.update({
+                   where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } },
+                   data: { groupId: group.id }
+                 });
+               }
                isGroupUpdated = true;
                results.details.push({ row: data, warning: `Moved from previous group to '${data.groupName}'.` });
              } else {
