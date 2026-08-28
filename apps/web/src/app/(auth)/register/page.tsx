@@ -29,11 +29,29 @@ export default function RegisterPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    if (!(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible'
-      });
+    // If a verifier from a previous mount is left on the window, clear it out.
+    // This prevents the "reCAPTCHA client element has been removed" error
+    // when navigating away and coming back.
+    if ((window as any).recaptchaVerifier) {
+      try {
+        (window as any).recaptchaVerifier.clear();
+      } catch (e) {}
+      (window as any).recaptchaVerifier = undefined;
     }
+
+    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      size: 'invisible'
+    });
+
+    // Cleanup on unmount
+    return () => {
+      if ((window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {}
+        (window as any).recaptchaVerifier = undefined;
+      }
+    };
   }, []);
 
   const handleSendOtp = async (e: React.FormEvent) => {
