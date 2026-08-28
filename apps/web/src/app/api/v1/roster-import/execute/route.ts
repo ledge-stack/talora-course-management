@@ -265,25 +265,25 @@ export async function POST(request: Request) {
 
           if (!membershipExists) {
              // Basic capacity check
-             const memberCount = await db.groupMembership.count({ where: { groupId: group.id } });
+             const memberCount = await db.groupMembership.count({ where: { groupId: group!.id } });
              if (memberCount < offering.maxGroupSize || dryRun) {
                if (!dryRun) {
                  await db.groupMembership.create({
-                   data: { studentId: user!.id, groupId: group.id, offeringId: offering.id }
+                   data: { studentId: user!.id, groupId: group!.id, offeringId: offering.id }
                  });
                }
                isGroupUpdated = true;
              } else {
                results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Enrolled as ungrouped.` });
              }
-          } else if (membershipExists.groupId !== group.id) {
+          } else if (membershipExists.groupId !== group!.id) {
              // User is in a different group, update their group
-             const memberCount = await db.groupMembership.count({ where: { groupId: group.id } });
+             const memberCount = await db.groupMembership.count({ where: { groupId: group!.id } });
              if (memberCount < offering.maxGroupSize || dryRun) {
                if (!dryRun) {
                  await db.groupMembership.update({
                    where: { studentId_offeringId: { studentId: user!.id, offeringId: offering.id } },
-                   data: { groupId: group.id }
+                   data: { groupId: group!.id }
                  });
                }
                isGroupUpdated = true;
