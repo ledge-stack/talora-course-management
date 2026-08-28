@@ -94,6 +94,7 @@ export default function RosterImportWizard() {
     formData.append('importType', importType!);
     formData.append('structureType', previewData.structureType);
     if (previewData.structureType === 'FLAT') {
+       const backendMapping: Record<string, string> = {};
        Object.entries(mapping).forEach(([colIndex, field]) => {
          backendMapping[colIndex] = field;
        });
