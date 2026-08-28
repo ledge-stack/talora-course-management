@@ -207,13 +207,13 @@ export async function POST(request: Request) {
         // 3. Add to ClassCohort if it's a CLASS_ROSTER import and they aren't a retaker
         if (importType === 'CLASS_ROSTER' && !isRetaker) {
           const roleExists = await db.userRole.findFirst({
-            where: { userId: user.id, role: 'STUDENT', classId: offering.classId }
+            where: { userId: user!.id, role: 'STUDENT', classId: offering.classId }
           });
           
           if (!roleExists && !dryRun) {
             await db.userRole.create({
               data: {
-                userId: user.id,
+                userId: user!.id,
                 role: 'STUDENT',
                 classId: offering.classId
               }
@@ -223,13 +223,13 @@ export async function POST(request: Request) {
 
         // 4. Enroll in CourseOffering
         const enrollmentExists = await db.enrollment.findUnique({
-          where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } }
+          where: { studentId_offeringId: { studentId: user!.id, offeringId: offering.id } }
         });
 
         if (!enrollmentExists) {
           if (!dryRun) {
             await db.enrollment.create({
-              data: { studentId: user.id, offeringId: offering.id }
+              data: { studentId: user!.id, offeringId: offering.id }
             });
           }
           isNewEnrollment = true;
@@ -260,7 +260,7 @@ export async function POST(request: Request) {
 
           // Assign membership
           const membershipExists = await db.groupMembership.findUnique({
-            where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } }
+            where: { studentId_offeringId: { studentId: user!.id, offeringId: offering.id } }
           });
 
           if (!membershipExists) {
@@ -269,7 +269,7 @@ export async function POST(request: Request) {
              if (memberCount < offering.maxGroupSize || dryRun) {
                if (!dryRun) {
                  await db.groupMembership.create({
-                   data: { studentId: user.id, groupId: group.id, offeringId: offering.id }
+                   data: { studentId: user!.id, groupId: group.id, offeringId: offering.id }
                  });
                }
                isGroupUpdated = true;
@@ -282,7 +282,7 @@ export async function POST(request: Request) {
              if (memberCount < offering.maxGroupSize || dryRun) {
                if (!dryRun) {
                  await db.groupMembership.update({
-                   where: { studentId_offeringId: { studentId: user.id, offeringId: offering.id } },
+                   where: { studentId_offeringId: { studentId: user!.id, offeringId: offering.id } },
                    data: { groupId: group.id }
                  });
                }
