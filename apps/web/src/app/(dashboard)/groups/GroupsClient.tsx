@@ -416,7 +416,7 @@ export default function GroupsClient({
     if (!offeringId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/offerings/${offeringId}/export`);
+      const res = await fetch(`/api/v1/offerings/${offeringId}/groups/export`);
       if (!res.ok) throw new Error('Failed to export data');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -425,7 +425,7 @@ export default function GroupsClient({
       
       // Attempt to get filename from Content-Disposition
       const disposition = res.headers.get('Content-Disposition');
-      let filename = `class_roster_${offeringId}.xlsx`;
+      let filename = `groups_list_${offeringId}.xlsx`;
       if (disposition && disposition.indexOf('filename=') !== -1) {
         const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
         if (matches != null && matches[1]) { 
