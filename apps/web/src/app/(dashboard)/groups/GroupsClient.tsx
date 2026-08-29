@@ -59,7 +59,7 @@ export default function GroupsClient({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -661,7 +661,14 @@ export default function GroupsClient({
                                   setDropdownPos(null);
                                 } else {
                                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                  setDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                  const estimatedMenuHeight = 220;
+                                  const spaceBelow = window.innerHeight - rect.bottom;
+                                  const openUpward = spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight;
+                                  setDropdownPos({
+                                    top: openUpward ? undefined : rect.bottom + 4,
+                                    bottom: openUpward ? window.innerHeight - rect.top + 4 : undefined,
+                                    right: window.innerWidth - rect.right,
+                                  });
                                   setOpenDropdownId(group.id);
                                 }
                               }}
@@ -690,6 +697,7 @@ export default function GroupsClient({
             style={{
               position: 'fixed',
               top: dropdownPos.top,
+              bottom: dropdownPos.bottom,
               right: dropdownPos.right,
               background: 'var(--color-bg-surface)',
               border: '1px solid var(--border-subtle)',
