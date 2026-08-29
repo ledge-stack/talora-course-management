@@ -43,7 +43,7 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
 
   if (announcements.length === 0) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+      <div className="ledger-panel" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
         No announcements have been posted yet.
       </div>
     );
@@ -53,11 +53,11 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       
       {/* Filters */}
-      <div className="glass-panel" style={{ padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="ledger-panel" style={{ padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <input 
           type="text" 
           className="input" 
-          placeholder="Search announcements..." 
+          placeholder="Search announcements" 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ flex: 1 }}
@@ -68,7 +68,7 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
           onChange={(e) => setTagFilter(e.target.value)}
           style={{ width: '200px' }}
         >
-          <option value="">All Tags</option>
+          <option value="">All tags</option>
           {uniqueTags.map((tag: any) => (
             <option key={tag} value={tag}>{tag}</option>
           ))}
@@ -76,21 +76,21 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
       </div>
 
       {filteredAnnouncements.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-          No announcements match your search criteria.
+        <div className="ledger-panel" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+          No announcements match your search.
         </div>
       ) : (
         filteredAnnouncements.map((announcement) => (
-          <div key={announcement.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div key={announcement.id} className="ledger-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <h2 style={{ fontSize: '1.125rem', color: 'var(--color-text-primary)' }}>{announcement.title}</h2>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontWeight: 700, fontSize: '1.125rem', color: 'var(--color-text-primary)', margin: 0 }}>{announcement.title}</h2>
                 {announcement.tag && (
                   <span className={`badge ${getTagBadgeClass(announcement.tag)}`}>{announcement.tag}</span>
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>{announcement.date}</div>
+                <div className="reg-number">{announcement.date}</div>
                 {canEdit && (
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button onClick={() => setEditingAnnouncement(announcement)} className="btn-ghost" style={{ padding: '0.25rem', color: 'var(--color-text-secondary)' }} title="Edit">
@@ -104,12 +104,12 @@ export default function AnnouncementListClient({ announcements, canEdit }: { ann
               </div>
             </div>
             
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+            <div style={{ borderTop: '1px solid var(--border-rule)', paddingTop: '1rem', color: 'var(--color-text-secondary)', fontSize: '0.9375rem', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
               {announcement.content}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-primary-transparent)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--color-primary-transparent)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', fontWeight: 500 }}>
                 {announcement.author.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
               </div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
