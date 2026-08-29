@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ClassSettingsModal from './ClassSettingsModal';
 import AssignUngroupedDnD from './AssignUngroupedDnD';
@@ -59,6 +59,7 @@ export default function GroupsClient({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,6 +78,17 @@ export default function GroupsClient({
   const [showUngrouped, setShowUngrouped] = useState(false);
   const [ungroupedStudents, setUngroupedStudents] = useState<any[]>([]);
   const [selectedGroupForStudent, setSelectedGroupForStudent] = useState<Record<string, string>>({});
+
+  // Close dropdown when user scrolls or clicks outside
+  useEffect(() => {
+    const close = () => { setOpenDropdownId(null); setDropdownPos(null); };
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, []);
 
   const filteredGroups = localGroups.filter(g => {
     const matchesSearch = 
@@ -644,60 +656,18 @@ export default function GroupsClient({
                               style={{ padding: '0.4rem', color: 'var(--color-text-muted)' }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setOpenDropdownId(openDropdownId === group.id ? null : group.id);
+                                if (openDropdownId === group.id) {
+                                  setOpenDropdownId(null);
+                                  setDropdownPos(null);
+                                } else {
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                  setDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                  setOpenDropdownId(group.id);
+                                }
                               }}
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
                             </button>
-                            {openDropdownId === group.id && (
-                              <div 
-                                style={{ 
-                                  position: 'absolute', 
-                                  right: '1.5rem',
-                                  top: '2.5rem',
-                                  background: 'var(--color-bg-surface)', 
-                                  border: '1px solid var(--border-subtle)', 
-                                  borderRadius: '8px', 
-                                  padding: '0.5rem', 
-                                  display: 'flex', 
-                                  flexDirection: 'column', 
-                                  gap: '0.25rem',
-                                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)',
-                                  zIndex: 50,
-                                  minWidth: '150px',
-                                  textAlign: 'left'
-                                }}
-                                onClick={e => e.stopPropagation()}
-                              >
-                                {groupRequests.length > 0 && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }} onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); }}>
-                                    View join requests
-                                  </button>
-                                )}
-
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
-                                  View members
-                                </button>
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
-                                  Transfer leadership
-                                </button>
-                                {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
-                                  <>
-                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
-                                      Add member by ID
-                                    </button>
-                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); }}>
-                                      Reserve spot
-                                    </button>
-                                  </>
-                                )}
-                                {group.status !== 'LOCKED' && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
-                                    Lock group
-                                  </button>
-                                )}
-                              </div>
-                            )}
                           </>
                         )}
                       </td>
@@ -709,6 +679,67 @@ export default function GroupsClient({
           </table>
         </div>
       </div>
+
+      {/* Portal dropdown — renders outside table so it's never clipped */}
+      {openDropdownId && dropdownPos && (() => {
+        const group = localGroups.find(g => g.id === openDropdownId);
+        if (!group) return null;
+        const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              top: dropdownPos.top,
+              right: dropdownPos.right,
+              background: 'var(--color-bg-surface)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.25rem',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
+              zIndex: 9999,
+              minWidth: '175px',
+              textAlign: 'left',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {groupRequests.length > 0 && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }}
+                onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                View join requests
+              </button>
+            )}
+            <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+              onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); setDropdownPos(null); }}>
+              View members
+            </button>
+            <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+              onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); setDropdownPos(null); }}>
+              Transfer leadership
+            </button>
+            {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
+              <>
+                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+                  onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                  Add member by ID
+                </button>
+                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+                  onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                  Reserve spot
+                </button>
+              </>
+            )}
+            {group.status !== 'LOCKED' && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }}
+                onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                Lock group
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       {showRequestsFor && (
         <div 
