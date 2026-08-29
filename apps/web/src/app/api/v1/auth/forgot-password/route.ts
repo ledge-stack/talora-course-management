@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     if (!user) {
       // Return success anyway to prevent user enumeration
-      return NextResponse.json({ message: 'If an account matches, a reset request has been sent to your Class Representative.' });
+      return NextResponse.json({ message: 'If an account matches, a reset email has been sent to your registered address.' });
     }
 
     // Generate OTP

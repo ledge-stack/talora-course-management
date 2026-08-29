@@ -187,7 +187,6 @@ export default function SidebarNav({
           <>
             <div className="nav-section-break" style={{ margin: '0.375rem 0' }} />
             <NavItem href="/announcements"  icon={<Icon.Announce />}  label="Announcements" />
-            <NavItem href="/password-resets" icon={<Icon.Password />} label="Resets" />
             <NavItem href="/issues"          icon={<Icon.Issues />}   label="Issues" />
           </>
         )}
