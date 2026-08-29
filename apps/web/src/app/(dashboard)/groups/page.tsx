@@ -137,8 +137,8 @@ export default async function GroupsPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Group formation</h1>
-          <p className="text-text-secondary text-sm">{offeringName}</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Group formation</div>
+          <h1>{offeringName}</h1>
         </div>
         <div className="flex items-center gap-3">
           {offeringId && (
@@ -150,11 +150,9 @@ export default async function GroupsPage() {
       {/* KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {overviewStats.map((stat, i) => (
-          <div key={i} className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div className="eyebrow mb-2">
-              {stat.label}
-            </div>
-            <div className={`text-2xl font-semibold font-display ${stat.isWarning ? 'text-danger' : 'text-text-primary'}`}>
+          <div key={i} className="ledger-panel kpi-card">
+            <div className="kpi-label">{stat.label}</div>
+            <div className="kpi-value" style={{ color: stat.isWarning ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
               {stat.value}
             </div>
           </div>
