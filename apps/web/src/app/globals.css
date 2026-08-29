@@ -1110,3 +1110,5 @@
 .auth-input-line:focus { border-bottom-color: var(--color-primary); }
 
 } /* end @layer components */
+
+.hover-border:hover { border-color: var(--border-strong) !important; }

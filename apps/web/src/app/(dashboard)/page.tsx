@@ -351,9 +351,7 @@ export default async function Dashboard() {
           {/* KPI ledger row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
             {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
-              <a key={kpi.key} href={kpi.link.startsWith('/') ? kpi.link : '#'} className="ledger-panel" style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', textDecoration: 'none', transition: 'border-color 0.15s ease' }}
-                onMouseOver={e => (e.currentTarget.style.borderColor = 'var(--border-strong)')}
-                onMouseOut={e => (e.currentTarget.style.borderColor = 'var(--border-subtle)')}>
+              <a key={kpi.key} href={kpi.link.startsWith('/') ? kpi.link : '#'} className="ledger-panel hover-border" style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', textDecoration: 'none', transition: 'border-color 0.15s ease' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.04em', color: kpi.color, lineHeight: 1 }}>{kpi.value}</div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>{kpi.label}</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, marginTop: '0.125rem' }}>{kpi.sub}</div>

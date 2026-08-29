@@ -13,6 +13,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const isRep = scope.roles.some((r: any) => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
     if (!isRep) return new NextResponse('Forbidden', { status: 403 });
 
+    const offering = await db.courseOffering.findUnique({
+      where: { id: params.id },
+      include: { unit: true, class: true }
+    });
+
+    if (!offering) return new NextResponse('Offering not found', { status: 404 });
+
     const rosterUsers = await db.user.findMany({
       where: {
         OR: [
@@ -32,39 +39,33 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       fullName: user.fullName,
       studentNumber: user.studentNumber || '',
       registrationNumber: user.registrationNumber || '',
+      email: user.email,
       group: user.memberships[0]?.group?.name || 'Unassigned'
     }));
 
-    // Sort by group name (natural numeric sort), then by full name
-    students.sort((a, b) => {
-      const groupCompare = a.group.localeCompare(b.group, undefined, { numeric: true, sensitivity: 'base' });
-      if (groupCompare !== 0) return groupCompare;
-      return a.fullName.localeCompare(b.fullName);
-    });
-
-    // Group students for formatting (merges and blank rows)
-    const groupedStudents: Record<string, typeof students> = {};
-    for (const student of students) {
-      if (!groupedStudents[student.group]) {
-        groupedStudents[student.group] = [];
-      }
-      groupedStudents[student.group].push(student);
-    }
+    // Alphabetical sort by full name
+    students.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Class Roster');
 
     // Define columns
     worksheet.columns = [
-      { header: 'Group', key: 'group', width: 25 },
       { header: 'Full Name', key: 'fullName', width: 35 },
       { header: 'Student Number', key: 'studentNumber', width: 20 },
-      { header: 'Registration Number', key: 'registrationNumber', width: 25 }
+      { header: 'Registration Number', key: 'registrationNumber', width: 25 },
+      { header: 'Email', key: 'email', width: 35 },
+      { header: 'Group', key: 'group', width: 20 }
     ];
 
     // Style the header row
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFEEEEEE' }
+      };
       cell.border = {
         top: { style: 'thin' },
         left: { style: 'thin' },
@@ -74,25 +75,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
     });
 
-    let currentRow = 2;
+    // Add data rows
+    students.forEach((student) => {
+      worksheet.addRow(student);
+    });
 
-    const groupNames = Object.keys(groupedStudents);
-    for (let i = 0; i < groupNames.length; i++) {
-      const groupName = groupNames[i];
-      const members = groupedStudents[groupName];
-      
-      const startRow = currentRow;
-      
-      for (const member of members) {
-        const row = worksheet.getRow(currentRow);
-        row.getCell(1).value = member.group;
-        row.getCell(2).value = member.fullName;
-        row.getCell(3).value = member.studentNumber;
-        row.getCell(4).value = member.registrationNumber;
-        
-        // Apply borders to data cells
-        [2, 3, 4].forEach(colIndex => {
-          const cell = row.getCell(colIndex);
+    // Style data cells
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell((cell) => {
           cell.border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
@@ -100,49 +91,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             right: { style: 'thin' }
           };
         });
-        
-        currentRow++;
       }
-      
-      const endRow = currentRow - 1;
-      
-      // Merge Group column
-      if (startRow < endRow) {
-        worksheet.mergeCells(startRow, 1, endRow, 1);
-      }
-      
-      // Style the merged Group cell
-      const groupCell = worksheet.getCell(startRow, 1);
-      groupCell.alignment = { vertical: 'middle', horizontal: 'center' };
-      groupCell.border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' }
-      };
-      
-      // Apply blue background if it's an actual group (not 'Unassigned')
-      // Actually, in the screenshot even group rows have the blue fill
-      groupCell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF8EA9DB' } // The specific light blue from the screenshot
-      };
-      
-      // Add empty row if it's not the last group
-      if (i < groupNames.length - 1) {
-        // Leave row empty and without borders
-        currentRow++;
-      }
-    }
+    });
 
     const buffer = await workbook.xlsx.writeBuffer();
+    
+    // Proper filename with unit code
+    const unitCode = offering.unit.code.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `class_roster_${unitCode}.xlsx`;
 
     return new NextResponse(buffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="class_roster_${params.id}.xlsx"`
+        'Content-Disposition': `attachment; filename="${filename}"`
       }
     });
   } catch (err: any) {
