@@ -65,7 +65,8 @@ export default function EnrollPage() {
     <div className="flex flex-col gap-8 max-w-4xl mx-auto pt-4 sm:pt-8">
       <header className="page-header">
         <div>
-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Course Enrollment</h1>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Course enrollment</div>
+          <h1>Choose your units</h1>
           <p className="text-text-secondary text-sm">Select the course units you intend to study this semester.</p>
         </div>
       </header>
@@ -77,20 +78,20 @@ export default function EnrollPage() {
       )}
 
       {loading ? (
-        <div className="text-center text-text-muted p-8">Loading available courses...</div>
+        <div className="text-center text-text-muted p-8">Loading available courses…</div>
       ) : (
         <div className="flex flex-col gap-4">
           {offerings.map(offering => (
-            <div key={offering.id} className="bg-bg-surface border border-border-subtle rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm transition-colors hover:border-border-strong">
+            <div key={offering.id} className="ledger-panel p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex-1">
-                <div className="text-lg font-semibold text-text-primary mb-1">
+                <div className="text-lg font-semibold text-text-primary mb-1" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
                   {offering.unit.code} — {offering.unit.title}
                 </div>
                 <div className="text-sm text-text-secondary">
                   {offering.term.name} • Class: {offering.class.name}
                 </div>
                 {offering.unit.lecturerName && (
-                  <div className="text-xs text-text-muted mt-2">
+                  <div className="reg-number mt-2">
                     Lecturer: {offering.unit.lecturerName}
                   </div>
                 )}
@@ -100,13 +101,13 @@ export default function EnrollPage() {
                 onClick={() => handleEnroll(offering.id)}
                 disabled={enrollingId !== null}
               >
-                {enrollingId === offering.id ? 'Enrolling...' : 'Enroll'}
+                {enrollingId === offering.id ? 'Enrolling…' : 'Enroll'}
               </button>
             </div>
           ))}
 
           {offerings.length === 0 && (
-            <div className="text-center p-12 bg-bg-surface rounded-md text-text-muted">
+            <div className="text-center p-12 ledger-panel text-text-muted">
               No available courses found to enroll in.
             </div>
           )}
