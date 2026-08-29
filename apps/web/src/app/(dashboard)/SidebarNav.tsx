@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from 'next-themes';
 
 /* ── SVG Icons ─────────────────────────────────────────────── */
 const Icon = {
@@ -97,6 +97,36 @@ function NavItem({ href, icon, label, badge }: { href: string; icon: React.React
   );
 }
 
+function SidebarThemeToggle() {
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return <div className="nav-item" style={{ opacity: 0 }}><span className="nav-item-icon"></span></div>;
+  }
+
+  const isLight = resolvedTheme === 'light';
+
+  return (
+    <button 
+      className="nav-item" 
+      onClick={() => setTheme(isLight ? 'dark' : 'light')} 
+      title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+      style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', outline: 'none', padding: 0 }}
+    >
+      <span className="nav-item-icon">
+        {isLight ? (
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        ) : (
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        )}
+      </span>
+      <span className="nav-item-label">{isLight ? 'Dark Mode' : 'Light Mode'}</span>
+    </button>
+  );
+}
 /* ── Main Export ─────────────────────────────────────────────── */
 export default function SidebarNav({
   userRole = 'Student',
@@ -177,9 +207,7 @@ export default function SidebarNav({
       <div style={{ padding: '0.375rem 0', borderTop: '1px solid var(--border-subtle)' }}>
         <NavItem href="/notifications" icon={<Icon.Bell />}    label="Notifications" badge={unreadCount} />
         <NavItem href="/profile"       icon={<Icon.Profile />} label="Profile" />
-        <div style={{ display: 'flex', alignItems: 'center', height: '44px', paddingLeft: 'calc(var(--sidebar-width) - 18px)' }}>
-          <ThemeToggle />
-        </div>
+        <SidebarThemeToggle />
       </div>
 
       {/* User sign-off */}
