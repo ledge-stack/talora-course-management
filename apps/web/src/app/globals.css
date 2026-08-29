@@ -623,6 +623,14 @@ tr {
   letter-spacing: 0.01em;
 }
 
+.highlight-row {
+  position: relative;
+}
+
+.highlight-row td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
 .sidebar-footer {
   padding: 1.5rem 1rem;
   border-top: 1px solid var(--border-subtle);

@@ -454,7 +454,7 @@ export default function GroupsClient({
               <svg style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input 
                 type="text" 
-                placeholder="Search groups..." 
+                placeholder="Search groups" 
                 className="input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -468,7 +468,7 @@ export default function GroupsClient({
               onChange={(e) => setStatusFilter(e.target.value)}
               style={{ flex: '0 0 auto', minWidth: '140px' }}
             >
-              <option value="all">All Statuses</option>
+              <option value="all">All statuses</option>
               <option value="FORMING">Forming</option>
               <option value="COMPLETE">Complete</option>
               <option value="INCOMPLETE">Incomplete</option>
@@ -491,12 +491,12 @@ export default function GroupsClient({
                   disabled={loading}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Assign Ungrouped
+                  Assign ungrouped
                 </button>
                 <button 
                   className="btn-ghost flex items-center justify-center px-3 text-text-secondary" 
                   onClick={() => setShowSettingsModal(true)}
-                  title="Class Group Restrictions"
+                  title="Class group restrictions"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
@@ -510,7 +510,7 @@ export default function GroupsClient({
                 disabled={loading}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                Auto-Assign Me
+                Auto-assign me
               </button>
             )}
           </div>
@@ -520,9 +520,9 @@ export default function GroupsClient({
           <table className="data-table">
             <thead>
               <tr>
-                <th style={{ width: '25%' }}>Group Name</th>
+                <th style={{ width: '25%' }}>Group</th>
                 <th style={{ width: '25%' }}>Leader</th>
-                <th style={{ width: '20%' }}>Members</th>
+                <th style={{ width: '20%' }}>Roll call</th>
                 <th style={{ width: '15%' }}>Status</th>
                 <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
               </tr>
@@ -536,7 +536,7 @@ export default function GroupsClient({
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-text-muted opacity-50 mb-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         <p className="text-text-primary font-medium">No groups in this course yet.</p>
                         <p className="text-sm max-w-md mx-auto leading-relaxed">
-                          If you are looking for your groups, make sure you have the correct course selected using the <strong>Course Switcher</strong> at the top right of the screen.
+                          If you're looking for your groups, check that you have the right course selected using the course switcher at the top right of the screen.
                         </p>
                       </div>
                     ) : (
@@ -554,8 +554,8 @@ export default function GroupsClient({
                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
                       <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          {group.name}
-                          {isOwnGroup && <span className="badge badge-success">Your Group</span>}
+                          <span className="font-display">{group.name}</span>
+                          {isOwnGroup && <span className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)' }}>Your group</span>}
                           
                           {canManage ? (
                             <button 
@@ -564,11 +564,11 @@ export default function GroupsClient({
                               style={{ cursor: 'pointer', border: 'none', background: group.isOpen ? 'var(--color-primary-transparent)' : 'rgba(255,255,255,0.05)' }}
                               title="Click to toggle group open/closed"
                             >
-                              {group.isOpen ? 'Open' : 'Invite Only'}
+                              {group.isOpen ? 'Open' : 'Invite only'}
                             </button>
                           ) : (
                             <span className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}>
-                              {group.isOpen ? 'Open' : 'Invite Only'}
+                              {group.isOpen ? 'Open' : 'Invite only'}
                             </span>
                           )}
 
@@ -581,7 +581,7 @@ export default function GroupsClient({
                               className="badge badge-warning"
                               style={{ cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                             >
-                              <span>{groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}</span>
+                              <span>{groupRequests.length} request{groupRequests.length !== 1 ? 's' : ''}</span>
                             </button>
                           )}
                         </div>
@@ -596,12 +596,15 @@ export default function GroupsClient({
                         )}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ flex: 1, height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', background: 'var(--color-primary)', width: `${(group.membersCount / group.capacity) * 100}%` }} />
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', minWidth: '32px' }}>
-                            {group.membersCount} / {group.capacity}
+                        <div className="roster-dots">
+                          {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`}
+                            />
+                          ))}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
+                            {group.membersCount}/{group.capacity}
                           </span>
                         </div>
                       </td>
@@ -619,7 +622,7 @@ export default function GroupsClient({
                             onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
                             disabled={loading}
                           >
-                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to Join') : 'Transfer Here'}
+                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to join') : 'Transfer here'}
                           </button>
                         )}
                         
@@ -630,7 +633,7 @@ export default function GroupsClient({
                             onClick={() => handleLeaveGroup(group.id)}
                             disabled={loading}
                           >
-                            Leave Group
+                            Leave group
                           </button>
                         )}
 
@@ -668,29 +671,29 @@ export default function GroupsClient({
                               >
                                 {groupRequests.length > 0 && (
                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }} onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); }}>
-                                    View Join Requests
+                                    View join requests
                                   </button>
                                 )}
 
                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
-                                  View Members
+                                  View members
                                 </button>
                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
-                                  Transfer Leadership
+                                  Transfer leadership
                                 </button>
                                 {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
                                   <>
                                     <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
-                                      Add Member by ID
+                                      Add member by ID
                                     </button>
                                     <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); }}>
-                                      Reserve Spot
+                                      Reserve spot
                                     </button>
                                   </>
                                 )}
                                 {group.status !== 'LOCKED' && (
                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
-                                    Lock Group
+                                    Lock group
                                   </button>
                                 )}
                               </div>
