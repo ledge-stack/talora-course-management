@@ -377,6 +377,26 @@ export default function GroupsClient({
     }
   };
 
+  const handleDeleteGroup = async (groupId: string) => {
+    if (!confirm('Are you sure you want to delete this group? All members will become ungrouped. This cannot be undone.')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) {
+         const data = await res.json();
+         throw new Error(data.message || 'Failed to delete group');
+      }
+      setLocalGroups(prev => prev.filter(g => g.id !== groupId));
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFetchMembers = async (groupId: string, mode: 'view' | 'transfer') => {
     setLoading(true);
     try {
@@ -691,6 +711,11 @@ export default function GroupsClient({
                                 {group.status !== 'LOCKED' && (
                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
                                     Lock Group
+                                  </button>
+                                )}
+                                {isRep && (
+                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-error)' }} onClick={() => { handleDeleteGroup(group.id); setOpenDropdownId(null); }}>
+                                    Delete Group
                                   </button>
                                 )}
                               </div>
