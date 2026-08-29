@@ -147,7 +147,7 @@ export default function RegisterPage() {
       <div id="recaptcha-container" style={{ position: 'fixed', bottom: 0, right: 0, zIndex: 9999 }} />
 
       {/* ── Left — Editorial Poster ── */}
-      <div style={{
+      <div className="auth-poster" style={{
         flex: '0 0 40%',
         background: '#080809',
         display: 'flex',

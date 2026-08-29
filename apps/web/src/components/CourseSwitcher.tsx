@@ -44,22 +44,46 @@ export default function CourseSwitcher({
   if (!availableOfferings || availableOfferings.length === 0) return null;
 
   return (
-    <div className="relative flex items-center gap-3">
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
       <div 
-        className={`flex items-center gap-2 px-2 sm:px-3 py-1.5 bg-bg-surface-hover rounded-md transition-opacity ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.375rem 0.5rem',
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '6px',
+          transition: 'opacity 0.2s',
+          opacity: isUpdating ? 0.7 : 1,
+          pointerEvents: isUpdating ? 'none' : 'auto',
+          position: 'relative'
+        }}
       >
         <select 
           value={activeOfferingId || availableOfferings[0]?.id || ''}
           onChange={(e) => handleChange(e.target.value)}
-          className="bg-transparent border-none text-text-primary text-xs sm:text-sm font-semibold outline-none cursor-pointer appearance-none pr-4 w-[120px] sm:w-[160px] md:w-auto truncate"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--color-text-primary)',
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            outline: 'none',
+            cursor: 'pointer',
+            appearance: 'none',
+            paddingRight: '1rem',
+            maxWidth: '120px',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden'
+          }}
         >
           {availableOfferings.map(o => (
-            <option key={o.id} value={o.id} className="text-black">
+            <option key={o.id} value={o.id} style={{ color: 'var(--color-text-primary)' }}>
               {o.unit?.title} · {o.class?.name}
             </option>
           ))}
         </select>
-        <div className="absolute right-3 pointer-events-none flex text-text-secondary">
+        <div style={{ position: 'absolute', right: '0.375rem', pointerEvents: 'none', display: 'flex', color: 'var(--color-text-secondary)' }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
       </div>

@@ -66,7 +66,7 @@ export default async function ProfilePage() {
         <ChangePasswordForm />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div className="profile-grid">
         {/* Roles and Permissions */}
         <div className="ledger-panel" style={{ padding: '1.5rem' }}>
           <div className="eyebrow" style={{ marginBottom: '1.25rem' }}>Active roles</div>

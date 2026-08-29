@@ -55,7 +55,7 @@ export default function LoginPage() {
     <div style={{ display: 'flex', minHeight: '100dvh', fontFamily: 'var(--font-sans)' }}>
 
       {/* ── Left — Editorial Poster ── */}
-      <div style={{
+      <div className="auth-poster" style={{
         flex: '0 0 45%',
         background: '#080809',
         display: 'flex',
