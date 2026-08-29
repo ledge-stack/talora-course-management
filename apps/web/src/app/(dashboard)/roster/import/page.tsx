@@ -238,7 +238,9 @@ export default function RosterImportWizard() {
               >
                 {offerings.length === 0 && <option value="">Loading offerings...</option>}
                 {offerings.map(o => (
-                  <option key={o.id} value={o.id}>{o.class?.name || o.id} - {o.unit?.code || 'Course'}</option>
+                  <option key={o.id} value={o.id}>
+                    {o.class?.name || o.id} - {o.unit?.code || 'Course'} {o.unit?.title ? `(${o.unit.title})` : ''}
+                  </option>
                 ))}
               </select>
           </div>
