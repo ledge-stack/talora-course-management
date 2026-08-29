@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           include: {
             leader: true,
             _count: {
-              select: { members: true }
+              select: { memberships: true }
             }
           },
           orderBy: { name: 'asc' }
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         name: group.name,
         leader: group.leader?.fullName || 'No Leader',
         leaderPhone: group.leader?.phoneNumber || 'N/A',
-        members: `${group._count.members} / ${offering.maxGroupSize}`,
+        members: `${group._count.memberships} / ${offering.maxGroupSize}`,
         status: group.status,
         privacy: group.isOpen ? 'Open' : 'Invite Only'
       });
