@@ -18,7 +18,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       include: {
         groups: {
           include: {
-            leader: true,
             _count: {
               select: { memberships: true }
             }
@@ -29,6 +28,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
 
     if (!offering) return new NextResponse('Offering not found', { status: 404 });
+
+    const leaderIds = offering.groups.map(g => g.leaderId);
+    const leaders = await db.user.findMany({
+      where: { id: { in: leaderIds } },
+      select: { id: true, fullName: true, phoneNumber: true }
+    });
+    const leaderMap = new Map(leaders.map(l => [l.id, l]));
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Groups List');
@@ -61,10 +67,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     // Add data rows
     offering.groups.forEach((group) => {
+      const leader = leaderMap.get(group.leaderId);
       worksheet.addRow({
         name: group.name,
-        leader: group.leader?.fullName || 'No Leader',
-        leaderPhone: group.leader?.phoneNumber || 'N/A',
+        leader: leader?.fullName || 'No Leader',
+        leaderPhone: leader?.phoneNumber || 'N/A',
         members: `${group._count.memberships} / ${offering.maxGroupSize}`,
         status: group.status,
         privacy: group.isOpen ? 'Open' : 'Invite Only'
