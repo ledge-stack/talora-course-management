@@ -55,19 +55,23 @@ export default async function AssignmentsPage() {
   const totalEnrolledForProps = offeringId ? await db.enrollment.count({ where: { offeringId } }) : 0;
 
   return (
-    <div className="flex flex-col gap-6 h-full">
-      {/* Header */}
-      <header className="page-header">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
+      {/* ── Masthead ─────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-rule)' }}>
         <div>
-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Assignments</h1>
-          <p className="text-text-secondary text-sm">{offeringName} — Deadlines and submissions</p>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+            {offeringName}
+          </div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-text-primary)', lineHeight: 1.1, margin: 0 }}>
+            Assignments
+          </h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
           {offeringId && (
             <CreateAssignmentButton offeringId={offeringId} disabled={!canCreate} />
           )}
         </div>
-      </header>
+      </div>
 
       {/* Main Content Card */}
       <AssignmentsListClient assignments={assignments} totalEnrolled={totalEnrolledForProps} canManage={canCreate} />
