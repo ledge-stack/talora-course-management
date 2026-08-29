@@ -62,3 +62,52 @@ export async function PATCH(
     return NextResponse.json({ code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const scopeHeader = request.headers.get('x-user-scope');
+    if (!scopeHeader) return NextResponse.json({ code: 'UNAUTHORIZED' }, { status: 401 });
+
+    const scope = JSON.parse(scopeHeader) as UserScope;
+
+    const group = await db.group.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!group) return NextResponse.json({ code: 'NOT_FOUND', message: 'Group not found' }, { status: 404 });
+
+    const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+    const isLeader = group.leaderId === scope.userId;
+
+    if (!isRep && !isLeader) {
+      return NextResponse.json({ code: 'FORBIDDEN', message: 'Not authorized to delete this group' }, { status: 403 });
+    }
+
+    await db.group.delete({ where: { id: group.id } });
+
+    // Renumber remaining standard "Group N" groups for this offering
+    const allGroups = await db.group.findMany({
+      where: { offeringId: group.offeringId },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    let number = 1;
+    for (const g of allGroups) {
+      if (/^Group \d+$/i.test(g.name)) {
+         await db.group.update({
+            where: { id: g.id },
+            data: { name: `Group ${number}` }
+         });
+         number++;
+      }
+    }
+
+    return NextResponse.json({ message: 'Group deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting group:', error);
+    return NextResponse.json({ code: 'INTERNAL_ERROR' }, { status: 500 });
+  }
+}

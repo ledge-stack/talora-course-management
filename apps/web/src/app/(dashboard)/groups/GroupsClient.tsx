@@ -391,6 +391,25 @@ export default function GroupsClient({
     }
   };
 
+  const handleDeleteGroup = async (groupId: string) => {
+    if (!confirm('Are you sure you want to delete this group? All members will be removed and groups will be renumbered.')) return;
+    setLoading(true);
+    // Optimistic UI update
+    setLocalGroups(prev => prev.filter(g => g.id !== groupId));
+    try {
+      const res = await fetch(`/api/v1/groups/${groupId}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete group');
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+      router.refresh(); // Revert optimistic update on failure
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFetchMembers = async (groupId: string, mode: 'view' | 'transfer') => {
     setLoading(true);
     try {
@@ -752,6 +771,12 @@ export default function GroupsClient({
               <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }}
                 onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
                 Lock group
+              </button>
+            )}
+            {(isRep || group.leaderId === currentUserId) && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-danger)' }}
+                onClick={() => { handleDeleteGroup(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                Delete group
               </button>
             )}
           </div>,
