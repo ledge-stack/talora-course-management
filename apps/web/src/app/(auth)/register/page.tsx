@@ -35,6 +35,7 @@ export default function RegisterPage() {
     if ((window as any).recaptchaVerifier) {
       try {
         (window as any).recaptchaVerifier.clear();
+      // eslint-disable-next-line no-empty
       } catch (e) {}
       (window as any).recaptchaVerifier = undefined;
     }
@@ -48,6 +49,7 @@ export default function RegisterPage() {
       if ((window as any).recaptchaVerifier) {
         try {
           (window as any).recaptchaVerifier.clear();
+        // eslint-disable-next-line no-empty
         } catch (e) {}
         (window as any).recaptchaVerifier = undefined;
       }

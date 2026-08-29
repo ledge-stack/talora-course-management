@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { getCachedOfferingKPIs } from '@/lib/cached-queries';

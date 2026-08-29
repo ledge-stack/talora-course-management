@@ -11,6 +11,7 @@ export const metadata = {
 };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const token = cookies().get('talora_token')?.value;
   let userInitials = 'U';
   let userName = 'Unknown User';

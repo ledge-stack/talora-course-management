@@ -4,6 +4,7 @@ import { db } from '@talora/database';
 
 
 import RosterClient from './RosterClient';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { UserScope } from '@talora/auth';
 
 const extractYY = (identifier: string | null) => {

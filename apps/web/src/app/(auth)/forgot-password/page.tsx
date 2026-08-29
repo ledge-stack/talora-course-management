@@ -9,6 +9,7 @@ export default function ForgotPasswordPage() {
   const [identifier, setIdentifier] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

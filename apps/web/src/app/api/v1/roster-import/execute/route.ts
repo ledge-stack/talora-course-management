@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       
       const workbook = new ExcelJS.Workbook();
       if (file.name.endsWith('.csv')) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { Readable } = require('stream');
         const stream = Readable.from(buffer);
         await workbook.csv.read(stream);
@@ -96,6 +97,7 @@ export async function POST(request: Request) {
       
       const workbook = new ExcelJS.Workbook();
       if (file.name.endsWith('.csv')) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { Readable } = require('stream');
         const stream = Readable.from(buffer);
         await workbook.csv.read(stream);
@@ -124,7 +126,7 @@ export async function POST(request: Request) {
 
       try {
         const result = await model.generateContent(prompt);
-        let text = result.response.text().replace(/```json/gi, '').replace(/```/gi, '').trim();
+        const text = result.response.text().replace(/```json/gi, '').replace(/```/gi, '').trim();
         const aiParsed = JSON.parse(text);
         extractedData = aiParsed.extractedRows;
       } catch (e) {

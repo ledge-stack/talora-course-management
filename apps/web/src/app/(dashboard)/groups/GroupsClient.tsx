@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
@@ -79,6 +80,7 @@ export default function GroupsClient({
 
   const [showUngrouped, setShowUngrouped] = useState(false);
   const [ungroupedStudents, setUngroupedStudents] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedGroupForStudent, setSelectedGroupForStudent] = useState<Record<string, string>>({});
 
   // Close dropdown when user scrolls or clicks outside

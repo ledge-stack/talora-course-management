@@ -82,7 +82,7 @@ export async function POST(
     }
 
     // Update status if it reached min size, and also handle leadership handoff if the group was empty or leader is a rep
-    let groupUpdates: any = {};
+    const groupUpdates: any = {};
     if (group._count.memberships + 1 >= group.offering.minGroupSize && group.status === 'FORMING') {
       const { GroupStatus } = await import('@talora/database');
       groupUpdates.status = GroupStatus.COMPLETE;

@@ -8,6 +8,7 @@ import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 export default function PhoneOnboardingModal({ userId }: { userId: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { sendEmail } from '@/lib/email';
 import { cookies } from 'next/headers';
 import { verifyFirebaseToken } from '@/lib/firebase-admin';

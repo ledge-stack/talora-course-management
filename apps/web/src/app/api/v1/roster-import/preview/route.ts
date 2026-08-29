@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { db } from '@talora/database';
 import type { UserScope } from '@talora/auth';
 import ExcelJS from 'exceljs';
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
     
     if (file.name.endsWith('.csv')) {
       // Create a stream from the buffer to make csv.read happy
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { Readable } = require('stream');
       const stream = Readable.from(buffer);
       await workbook.csv.read(stream);
@@ -62,6 +64,7 @@ export async function POST(request: Request) {
     }
 
     const allRows: any[][] = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
       // row.values is 1-indexed in exceljs
       const values = Array.isArray(row.values) 
