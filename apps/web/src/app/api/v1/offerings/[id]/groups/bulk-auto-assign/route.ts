@@ -40,7 +40,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     
     const groupedStudentIds = new Set(memberships.map(m => m.studentId));
     
-    let ungroupedStudents = enrollments
+    const ungroupedStudents = enrollments
       .filter(e => !groupedStudentIds.has(e.studentId))
       .map(e => e.student);
       
@@ -66,7 +66,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       }
     });
 
-    let openGroupsWithSpace = groups
+    const openGroupsWithSpace = groups
       .map(g => ({
         ...g,
         totalMembers: g._count.memberships + g._count.placeholders

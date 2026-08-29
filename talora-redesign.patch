@@ -1,0 +1,775 @@
+diff --git a/apps/web/src/app/(dashboard)/groups/ClassSettingsModal.tsx b/apps/web/src/app/(dashboard)/groups/ClassSettingsModal.tsx
+index 445bac7..6775306 100644
+--- a/apps/web/src/app/(dashboard)/groups/ClassSettingsModal.tsx
++++ b/apps/web/src/app/(dashboard)/groups/ClassSettingsModal.tsx
+@@ -60,7 +60,7 @@ export default function ClassSettingsModal({
+     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+       <div className="glass-panel" style={{ width: '400px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+-          <h2 style={{ fontSize: '1.25rem' }}>Class Restrictions</h2>
++          <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600 }}>Group size rules</h2>
+           <button onClick={onClose} className="btn-ghost" style={{ padding: '0.4rem' }}>
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+           </button>
+@@ -75,7 +75,7 @@ export default function ClassSettingsModal({
+         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+           
+           <div>
+-            <label className="label">Minimum Group Size</label>
++            <label className="label">Minimum group size</label>
+             <input 
+               type="number" 
+               className="input" 
+@@ -87,7 +87,7 @@ export default function ClassSettingsModal({
+           </div>
+ 
+           <div>
+-            <label className="label">Maximum Group Size</label>
++            <label className="label">Maximum group size</label>
+             <input 
+               type="number" 
+               className="input" 
+@@ -101,7 +101,7 @@ export default function ClassSettingsModal({
+           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+             <button type="button" onClick={onClose} className="btn-secondary" disabled={loading}>Cancel</button>
+             <button type="submit" className="btn-primary" disabled={loading}>
+-              {loading ? 'Saving...' : 'Save Restrictions'}
++              {loading ? 'Saving…' : 'Save rules'}
+             </button>
+           </div>
+         </form>
+diff --git a/apps/web/src/app/(dashboard)/groups/CreateGroupModal.tsx b/apps/web/src/app/(dashboard)/groups/CreateGroupModal.tsx
+index df2e6c6..ff79694 100644
+--- a/apps/web/src/app/(dashboard)/groups/CreateGroupModal.tsx
++++ b/apps/web/src/app/(dashboard)/groups/CreateGroupModal.tsx
+@@ -40,7 +40,7 @@ export default function CreateGroupModal({ offeringId, onClose }: { offeringId:
+     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+       <div className="glass-panel" style={{ width: '400px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+-          <h2 style={{ fontSize: '1.25rem' }}>Create New Group</h2>
++          <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600 }}>Start a new group</h2>
+           <button onClick={onClose} className="btn-ghost" style={{ padding: '0.4rem' }}>
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+           </button>
+@@ -54,15 +54,15 @@ export default function CreateGroupModal({ offeringId, onClose }: { offeringId:
+ 
+         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+           <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '1rem', lineHeight: '1.5' }}>
+-            Are you sure you want to form a new group?
++            This opens an empty roll call for others to claim a slot in.
+             <br />
+             <br />
+-            Your group will automatically be assigned the next available numerical name (e.g., Group 1).
++            Your group gets the next available numerical name (for example, Group 1) — you can rename it once it's formed.
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+             <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
+             <button type="submit" className="btn-primary" disabled={loading}>
+-              {loading ? 'Creating...' : 'Create Group'}
++              {loading ? 'Creating…' : 'Create group'}
+             </button>
+           </div>
+         </form>
+diff --git a/apps/web/src/app/(dashboard)/groups/GroupsClient.tsx b/apps/web/src/app/(dashboard)/groups/GroupsClient.tsx
+index e876410..f8354dc 100644
+--- a/apps/web/src/app/(dashboard)/groups/GroupsClient.tsx
++++ b/apps/web/src/app/(dashboard)/groups/GroupsClient.tsx
+@@ -454,7 +454,7 @@ export default function GroupsClient({
+               <svg style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+               <input 
+                 type="text" 
+-                placeholder="Search groups..." 
++                placeholder="Search groups" 
+                 className="input"
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+@@ -468,7 +468,7 @@ export default function GroupsClient({
+               onChange={(e) => setStatusFilter(e.target.value)}
+               style={{ flex: '0 0 auto', minWidth: '140px' }}
+             >
+-              <option value="all">All Statuses</option>
++              <option value="all">All statuses</option>
+               <option value="FORMING">Forming</option>
+               <option value="COMPLETE">Complete</option>
+               <option value="INCOMPLETE">Incomplete</option>
+@@ -491,12 +491,12 @@ export default function GroupsClient({
+                   disabled={loading}
+                 >
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+-                  Assign Ungrouped
++                  Assign ungrouped
+                 </button>
+                 <button 
+                   className="btn-ghost flex items-center justify-center px-3 text-text-secondary" 
+                   onClick={() => setShowSettingsModal(true)}
+-                  title="Class Group Restrictions"
++                  title="Class group restrictions"
+                 >
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                 </button>
+@@ -510,7 +510,7 @@ export default function GroupsClient({
+                 disabled={loading}
+               >
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+-                Auto-Assign Me
++                Auto-assign me
+               </button>
+             )}
+           </div>
+@@ -520,9 +520,9 @@ export default function GroupsClient({
+           <table className="data-table">
+             <thead>
+               <tr>
+-                <th style={{ width: '25%' }}>Group Name</th>
++                <th style={{ width: '25%' }}>Group</th>
+                 <th style={{ width: '25%' }}>Leader</th>
+-                <th style={{ width: '20%' }}>Members</th>
++                <th style={{ width: '20%' }}>Roll call</th>
+                 <th style={{ width: '15%' }}>Status</th>
+                 <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
+               </tr>
+@@ -536,7 +536,7 @@ export default function GroupsClient({
+                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-text-muted opacity-50 mb-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                         <p className="text-text-primary font-medium">No groups in this course yet.</p>
+                         <p className="text-sm max-w-md mx-auto leading-relaxed">
+-                          If you are looking for your groups, make sure you have the correct course selected using the <strong>Course Switcher</strong> at the top right of the screen.
++                          If you're looking for your groups, check that you have the right course selected using the course switcher at the top right of the screen.
+                         </p>
+                       </div>
+                     ) : (
+@@ -554,8 +554,8 @@ export default function GroupsClient({
+                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
+                       <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+-                          {group.name}
+-                          {isOwnGroup && <span className="badge badge-success">Your Group</span>}
++                          <span className="font-display">{group.name}</span>
++                          {isOwnGroup && <span className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)' }}>Your group</span>}
+                           
+                           {canManage ? (
+                             <button 
+@@ -564,11 +564,11 @@ export default function GroupsClient({
+                               style={{ cursor: 'pointer', border: 'none', background: group.isOpen ? 'var(--color-primary-transparent)' : 'rgba(255,255,255,0.05)' }}
+                               title="Click to toggle group open/closed"
+                             >
+-                              {group.isOpen ? 'Open' : 'Invite Only'}
++                              {group.isOpen ? 'Open' : 'Invite only'}
+                             </button>
+                           ) : (
+                             <span className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}>
+-                              {group.isOpen ? 'Open' : 'Invite Only'}
++                              {group.isOpen ? 'Open' : 'Invite only'}
+                             </span>
+                           )}
+ 
+@@ -581,7 +581,7 @@ export default function GroupsClient({
+                               className="badge badge-warning"
+                               style={{ cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                             >
+-                              <span>{groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}</span>
++                              <span>{groupRequests.length} request{groupRequests.length !== 1 ? 's' : ''}</span>
+                             </button>
+                           )}
+                         </div>
+@@ -596,12 +596,15 @@ export default function GroupsClient({
+                         )}
+                       </td>
+                       <td>
+-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+-                          <div style={{ flex: 1, height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
+-                            <div style={{ height: '100%', background: 'var(--color-primary)', width: `${(group.membersCount / group.capacity) * 100}%` }} />
+-                          </div>
+-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', minWidth: '32px' }}>
+-                            {group.membersCount} / {group.capacity}
++                        <div className="roster-dots">
++                          {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
++                            <span
++                              key={i}
++                              className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`}
++                            />
++                          ))}
++                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
++                            {group.membersCount}/{group.capacity}
+                           </span>
+                         </div>
+                       </td>
+@@ -619,7 +622,7 @@ export default function GroupsClient({
+                             onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
+                             disabled={loading}
+                           >
+-                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to Join') : 'Transfer Here'}
++                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to join') : 'Transfer here'}
+                           </button>
+                         )}
+                         
+@@ -630,7 +633,7 @@ export default function GroupsClient({
+                             onClick={() => handleLeaveGroup(group.id)}
+                             disabled={loading}
+                           >
+-                            Leave Group
++                            Leave group
+                           </button>
+                         )}
+ 
+@@ -668,29 +671,29 @@ export default function GroupsClient({
+                               >
+                                 {groupRequests.length > 0 && (
+                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }} onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); }}>
+-                                    View Join Requests
++                                    View join requests
+                                   </button>
+                                 )}
+ 
+                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
+-                                  View Members
++                                  View members
+                                 </button>
+                                 <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
+-                                  Transfer Leadership
++                                  Transfer leadership
+                                 </button>
+                                 {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
+                                   <>
+                                     <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
+-                                      Add Member by ID
++                                      Add member by ID
+                                     </button>
+                                     <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); }}>
+-                                      Reserve Spot
++                                      Reserve spot
+                                     </button>
+                                   </>
+                                 )}
+                                 {group.status !== 'LOCKED' && (
+                                   <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
+-                                    Lock Group
++                                    Lock group
+                                   </button>
+                                 )}
+                               </div>
+diff --git a/apps/web/src/app/(dashboard)/groups/page.tsx b/apps/web/src/app/(dashboard)/groups/page.tsx
+index 85e5e77..89e4149 100644
+--- a/apps/web/src/app/(dashboard)/groups/page.tsx
++++ b/apps/web/src/app/(dashboard)/groups/page.tsx
+@@ -126,10 +126,10 @@ export default async function GroupsPage() {
+   }
+ 
+   const overviewStats = [
+-    { label: 'Total Groups', value: stats.totalGroups },
+-    { label: 'Students in Groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
+-    { label: 'Ungrouped Students', value: Math.max(0, stats.totalStudents - stats.studentsInGroups), isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
+-    { label: 'Group Rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
++    { label: 'Total groups', value: stats.totalGroups },
++    { label: 'Students in groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
++    { label: 'Ungrouped students', value: Math.max(0, stats.totalStudents - stats.studentsInGroups), isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
++    { label: 'Group rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
+   ];
+ 
+   return (
+@@ -137,7 +137,7 @@ export default async function GroupsPage() {
+       {/* Header */}
+       <header className="page-header">
+         <div>
+-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Group Management</h1>
++          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Group formation</h1>
+           <p className="text-text-secondary text-sm">{offeringName}</p>
+         </div>
+         <div className="flex items-center gap-3">
+@@ -151,7 +151,7 @@ export default async function GroupsPage() {
+       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+         {overviewStats.map((stat, i) => (
+           <div key={i} className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
+-            <div className="text-text-secondary text-xs mb-2 font-medium">
++            <div className="eyebrow mb-2">
+               {stat.label}
+             </div>
+             <div className={`text-2xl font-semibold font-display ${stat.isWarning ? 'text-danger' : 'text-text-primary'}`}>
+diff --git a/apps/web/src/app/(dashboard)/groups/requests/page.tsx b/apps/web/src/app/(dashboard)/groups/requests/page.tsx
+index f3f3a17..64ea60b 100644
+--- a/apps/web/src/app/(dashboard)/groups/requests/page.tsx
++++ b/apps/web/src/app/(dashboard)/groups/requests/page.tsx
+@@ -48,7 +48,7 @@ export default async function GroupRequestsPage() {
+         studentName: studentMap.get(r.studentId)?.fullName || 'Unknown',
+         studentNumber: studentMap.get(r.studentId)?.studentNumber || '',
+         fromGroupName: r.group.name,
+-        targetGroupName: r.targetGroupId ? targetGroupMap.get(r.targetGroupId) : 'Leave Group (Unassigned)',
++        targetGroupName: r.targetGroupId ? targetGroupMap.get(r.targetGroupId) : 'Leave group (unassigned)',
+         reason: r.reason,
+         status: r.status,
+         createdAt: r.createdAt
+@@ -63,8 +63,8 @@ export default async function GroupRequestsPage() {
+       {/* Header */}
+       <header className="page-header">
+         <div>
+-          <h1>Group Change Requests</h1>
+-          <p>{offeringName} — Pending & History</p>
++          <h1>Group change requests</h1>
++          <p>{offeringName} — pending and history</p>
+         </div>
+       </header>
+ 
+@@ -76,8 +76,8 @@ export default async function GroupRequestsPage() {
+             <thead>
+               <tr>
+                 <th style={{ width: '20%' }}>Student</th>
+-                <th style={{ width: '15%' }}>Current Group</th>
+-                <th style={{ width: '15%' }}>Requested Target</th>
++                <th style={{ width: '15%' }}>Current group</th>
++                <th style={{ width: '15%' }}>Requested target</th>
+                 <th style={{ width: '25%' }}>Reason</th>
+                 <th style={{ width: '10%' }}>Status</th>
+                 <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
+@@ -94,15 +94,15 @@ export default async function GroupRequestsPage() {
+                 requests.map((req) => (
+                   <tr key={req.id}>
+                     <td style={{ color: 'var(--color-text-primary)' }}>
+-                      <div>{req.studentName}</div>
+-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{req.studentNumber}</div>
++                      <div className="font-medium">{req.studentName}</div>
++                      <div className="reg-number">{req.studentNumber}</div>
+                     </td>
+                     <td style={{ color: 'var(--color-text-secondary)' }}>{req.fromGroupName}</td>
+                     <td style={{ color: 'var(--color-text-primary)' }}>{req.targetGroupName}</td>
+                     <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>{req.reason}</td>
+                     <td>
+                       <span className={`badge ${req.status === 'PENDING' ? 'badge-warning' : req.status === 'APPROVED' ? 'badge-success' : 'badge-danger'}`}>
+-                        {req.status}
++                        {req.status.charAt(0) + req.status.slice(1).toLowerCase()}
+                       </span>
+                     </td>
+                     <td style={{ textAlign: 'right' }}>
+diff --git a/apps/web/src/app/(dashboard)/layout.tsx b/apps/web/src/app/(dashboard)/layout.tsx
+index 45892e6..41d7b47 100644
+--- a/apps/web/src/app/(dashboard)/layout.tsx
++++ b/apps/web/src/app/(dashboard)/layout.tsx
+@@ -77,8 +77,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
+   const sidebarContent = (
+     <>
+       <div className="p-6 flex items-center gap-3 border-b border-border-subtle">
+-        <div className="w-8 h-8 bg-primary rounded-md text-white flex items-center justify-center font-bold text-sm shadow-md shadow-primary/30">T</div>
+-        <div className="font-display text-xl font-bold text-text-primary">Talora</div>
++        <div className="w-8 h-8 bg-primary rounded-full text-white flex items-center justify-center font-display font-semibold text-base">T</div>
++        <div className="font-display text-xl font-semibold text-text-primary tracking-tight">Talora</div>
+       </div>
+ 
+ 
+diff --git a/apps/web/src/app/(dashboard)/page.tsx b/apps/web/src/app/(dashboard)/page.tsx
+index 00199d3..17a8bb2 100644
+--- a/apps/web/src/app/(dashboard)/page.tsx
++++ b/apps/web/src/app/(dashboard)/page.tsx
+@@ -47,11 +47,11 @@ export default async function Dashboard() {
+               </svg>
+             </div>
+ 
+-            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+-              Welcome to Talora! 🎉
++            <h1 className="font-display" style={{ fontSize: '2.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
++              Welcome to Talora
+             </h1>
+             <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+-              Your account is all set up. The next step is to <strong style={{ color: 'var(--color-text-primary)' }}>enroll in your course units</strong> so the system can assign you to the right groups and show you relevant assignments and announcements.
++              Your account is set up. Enroll in your course units next, so we can assign you to the right groups and show you relevant assignments and announcements.
+             </p>
+ 
+             {/* Steps */}
+@@ -71,7 +71,7 @@ export default async function Dashboard() {
+             </div>
+ 
+             <a href="/enroll" className="btn-primary" style={{ padding: '0.875rem 2.5rem', fontSize: '1rem', textDecoration: 'none', borderRadius: '12px' }}>
+-              Enroll in Course Units →
++              Enroll in course units →
+             </a>
+           </div>
+         );
+@@ -259,36 +259,45 @@ export default async function Dashboard() {
+           </div>
+         </div>
+ 
+-        {/* My Group — full width */}
++        {/* My Group — full width, roll-call treatment */}
+         <div className="lg:col-span-3 glass-panel p-6">
+           <div className="flex justify-between items-center mb-5">
+-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
++            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My group</h3>
+             <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
+           </div>
+           {myGroup ? (
+             <div>
+-              <div className="flex items-center gap-3 mb-4">
+-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+-                  {myGroup.name.charAt(0)}
+-                </div>
++              <div className="flex items-center justify-between mb-5">
+                 <div>
+-                  <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
+-                  <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
++                  <div className="eyebrow mb-1.5">Roll call</div>
++                  <div className="text-xl font-display font-semibold text-text-primary">{myGroup.name}</div>
++                </div>
++                <div className="roster-dots">
++                  {Array.from({ length: myGroup.memberships.length }).map((_, i) => (
++                    <span key={i} className="roster-dot filled complete" />
++                  ))}
++                  <span className="text-sm text-text-secondary ml-2 font-mono">{myGroup.memberships.length} claimed</span>
+                 </div>
+               </div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+-                {myGroup.memberships.map((m: any) => (
+-                  <div key={m.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+-                    <span className="text-sm text-text-primary font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.student?.fullName || 'Unknown Student'}</span>
+-                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '8px', flexShrink: 0, fontSize: '0.65rem' }}>Leader</span>}
+-                  </div>
+-                ))}
++                {myGroup.memberships.map((m: any) => {
++                  const isLeader = m.studentId === myGroup.leaderId;
++                  return (
++                    <div key={m.id} className={`roster-slot claimed ${isLeader ? 'leader' : ''}`}>
++                      <span className="roster-slot-mark">
++                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
++                      </span>
++                      <span className="flex-1 min-w-0 truncate font-medium">{m.student?.fullName || 'Unknown Student'}</span>
++                      {isLeader && <span className="leader-tag shrink-0">Leader</span>}
++                    </div>
++                  );
++                })}
+               </div>
+             </div>
+           ) : (
+-            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+-              <div className="text-text-muted text-sm" style={{ marginBottom: '1rem' }}>You are not currently in a group for this offering.</div>
+-              <a href="/groups" className="btn-primary">Find a Group</a>
++            <div className="roster-slot open flex-col items-center text-center py-8 px-4">
++              <div className="text-text-muted text-sm mb-4">You haven't claimed a slot in a group for this offering yet.</div>
++              <a href="/groups" className="btn-primary">Find a group</a>
+             </div>
+           )}
+         </div>
+diff --git a/apps/web/src/app/globals.css b/apps/web/src/app/globals.css
+index 3c17c34..b180c3c 100644
+--- a/apps/web/src/app/globals.css
++++ b/apps/web/src/app/globals.css
+@@ -1,4 +1,4 @@
+-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
++@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap');
+ @import "tailwindcss";
+ @source "./src";
+ 
+@@ -39,91 +39,112 @@
+ 
+   --font-sans: var(--font-sans);
+   --font-display: var(--font-display);
++  --font-mono: var(--font-mono);
++
++  --color-accent-teal: var(--color-accent-teal);
++  --color-accent-teal-bg: var(--color-accent-teal-bg);
++  --color-accent-violet: var(--color-accent-violet);
++  --color-accent-violet-bg: var(--color-accent-violet-bg);
+ }
+ 
+ :root {
+-  /* Core Backgrounds */
+-  --color-bg-base: #0b0f19;
+-  --color-bg-sidebar: #0f1623;
+-  --color-bg-surface: #1a2d4e; /* Card background — clearly distinct blue-navy */
+-  --color-bg-surface-hover: #203558;
+-  
+-  /* Text */
+-  --color-text-primary: #f9fafb;
+-  --color-text-secondary: #b4bcd0;
+-  --color-text-muted: #8a94a6;
+-  
++  /* Core Backgrounds — near-black ink */
++  --color-bg-base: #0e0e12;
++  --color-bg-sidebar: #0a0a0d;
++  --color-bg-surface: #1c1c22;
++  --color-bg-surface-hover: #26262e;
++
++  /* Text — warm bone white */
++  --color-text-primary: #f5f3ee;
++  --color-text-secondary: #a8a6ab;
++  --color-text-muted: #706e76;
++
+   /* Brand & Accents */
+-  --color-primary: #3b82f6;
+-  --color-primary-hover: #2563eb;
+-  --color-primary-transparent: rgba(59, 130, 246, 0.15);
+-  
++  --color-primary: #ff4b33;
++  --color-primary-hover: #ff6449;
++  --color-primary-transparent: rgba(255, 75, 51, 0.16);
++
++  /* Secondary accent — live teal-green (complete/good states) */
++  --color-accent-teal: #2dd4a7;
++  --color-accent-teal-bg: rgba(45, 212, 167, 0.14);
++
++  /* Tertiary accent — role/identity violet */
++  --color-accent-violet: #7c7ce0;
++  --color-accent-violet-bg: rgba(124, 124, 224, 0.16);
++
+   /* Semantic */
+-  --color-success: #10b981;
+-  --color-success-bg: rgba(16, 185, 129, 0.1);
+-  --color-danger: #ef4444;
+-  --color-danger-bg: rgba(239, 68, 68, 0.1);
+-  --color-warning: #f59e0b;
+-  --color-warning-bg: rgba(245, 158, 11, 0.1);
+-  --color-info: #6366f1;
+-  --color-info-bg: rgba(99, 102, 241, 0.1);
+-  
++  --color-success: #2dd4a7;
++  --color-success-bg: rgba(45, 212, 167, 0.14);
++  --color-danger: #ff4b33;
++  --color-danger-bg: rgba(255, 75, 51, 0.14);
++  --color-warning: #f5b942;
++  --color-warning-bg: rgba(245, 185, 66, 0.14);
++  --color-info: #7c7ce0;
++  --color-info-bg: rgba(124, 124, 224, 0.14);
++
+   /* Borders */
+-  --border-subtle: rgba(255, 255, 255, 0.12);
+-  --border-strong: rgba(255, 255, 255, 0.22);
+-  
++  --border-subtle: rgba(245, 243, 238, 0.1);
++  --border-strong: rgba(245, 243, 238, 0.2);
++
+   /* Overlays */
+-  --color-glass-panel: #1a2d4e; /* Solid navy-blue card surface */
+-  --color-input-bg: rgba(0, 0, 0, 0.25);
+-  --color-table-th: rgba(0, 0, 0, 0.2);
+-  --color-topbar-bg: rgba(11, 15, 25, 0.92);
+-  --color-bg-surface-active: rgba(255, 255, 255, 0.04);
+-  
++  --color-glass-panel: #1c1c22;
++  --color-input-bg: rgba(0, 0, 0, 0.3);
++  --color-table-th: rgba(0, 0, 0, 0.25);
++  --color-topbar-bg: rgba(14, 14, 18, 0.92);
++  --color-bg-surface-active: rgba(245, 243, 238, 0.05);
++
+   /* Fonts */
+   --font-sans: 'Inter', system-ui, sans-serif;
+-  --font-display: 'Outfit', system-ui, sans-serif;
++  --font-display: 'Fraunces', Georgia, serif;
++  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+ 
+   /* Transitions */
+   --transition-fast: 0.15s ease-in-out;
+ }
+ 
+ [data-theme='light'] {
+-  /* Core Backgrounds */
+-  --color-bg-base: #f4f6f8;
++  /* Core Backgrounds — warm bone white primary */
++  --color-bg-base: #f5f3ee;
+   --color-bg-sidebar: #ffffff;
+   --color-bg-surface: #ffffff;
+-  --color-bg-surface-hover: #f1f5f9;
+-  
+-  /* Text */
+-  --color-text-primary: #0f172a;
+-  --color-text-secondary: #475569;
+-  --color-text-muted: #64748b;
+-  
+-  /* Brand & Accents (same primary) */
+-  --color-primary: #3b82f6;
+-  --color-primary-hover: #2563eb;
+-  --color-primary-transparent: rgba(59, 130, 246, 0.15);
+-  
++  --color-bg-surface-hover: #ece9e1;
++
++  /* Text — near-black ink */
++  --color-text-primary: #0e0e12;
++  --color-text-secondary: #4a4950;
++  --color-text-muted: #79777e;
++
++  /* Brand & Accents (same hues, tuned for contrast on light) */
++  --color-primary: #e6402a;
++  --color-primary-hover: #c93521;
++  --color-primary-transparent: rgba(230, 64, 42, 0.12);
++
++  --color-accent-teal: #16a37e;
++  --color-accent-teal-bg: rgba(22, 163, 126, 0.12);
++
++  --color-accent-violet: #5f5cd1;
++  --color-accent-violet-bg: rgba(95, 92, 209, 0.12);
++
+   /* Semantic */
+-  --color-success: #059669;
+-  --color-success-bg: rgba(16, 185, 129, 0.15);
+-  --color-danger: #dc2626;
+-  --color-danger-bg: rgba(239, 68, 68, 0.15);
+-  --color-warning: #d97706;
+-  --color-warning-bg: rgba(245, 158, 11, 0.15);
+-  --color-info: #4f46e5;
+-  --color-info-bg: rgba(99, 102, 241, 0.15);
+-  
++  --color-success: #16a37e;
++  --color-success-bg: rgba(22, 163, 126, 0.12);
++  --color-danger: #e6402a;
++  --color-danger-bg: rgba(230, 64, 42, 0.12);
++  --color-warning: #b9791f;
++  --color-warning-bg: rgba(185, 121, 31, 0.12);
++  --color-info: #5f5cd1;
++  --color-info-bg: rgba(95, 92, 209, 0.12);
++
+   /* Borders */
+-  --border-subtle: rgba(0, 0, 0, 0.08);
+-  --border-strong: rgba(0, 0, 0, 0.15);
++  --border-subtle: rgba(14, 14, 18, 0.1);
++  --border-strong: rgba(14, 14, 18, 0.18);
+ 
+-  /* Hardcoded overlays extracted to variables for light mode */
+-  --color-glass-panel: rgba(255, 255, 255, 0.85);
+-  --color-input-bg: rgba(255, 255, 255, 0.9);
+-  --color-table-th: rgba(0, 0, 0, 0.03);
+-  --color-topbar-bg: rgba(255, 255, 255, 0.85);
+-  --color-bg-surface-active: rgba(0, 0, 0, 0.02);
++  /* Overlays */
++  --color-glass-panel: rgba(255, 255, 255, 0.9);
++  --color-input-bg: rgba(255, 255, 255, 0.95);
++  --color-table-th: rgba(14, 14, 18, 0.03);
++  --color-topbar-bg: rgba(245, 243, 238, 0.9);
++  --color-bg-surface-active: rgba(14, 14, 18, 0.03);
+ }
+ 
+ @layer base {
+@@ -138,9 +159,18 @@
+   }
+ 
+   h1, h2, h3, h4, h5, h6 {
+-    font-family: var(--font-sans);
++    font-family: var(--font-display);
+     font-weight: 600;
+-    letter-spacing: -0.02em;
++    letter-spacing: -0.01em;
++  }
++
++  .eyebrow, .mono-label {
++    font-family: var(--font-mono);
++    font-size: 0.6875rem;
++    font-weight: 500;
++    letter-spacing: 0.08em;
++    text-transform: uppercase;
++    color: var(--color-text-muted);
+   }
+ 
+   a {
+@@ -371,8 +401,10 @@ tr {
+ }
+ 
+ .page-header h1 {
+-  font-size: 2rem;
++  font-size: 2.25rem;
+   font-family: var(--font-display);
++  font-weight: 600;
++  letter-spacing: -0.01em;
+   color: var(--color-text-primary);
+   margin-bottom: 0.5rem;
+ }
+@@ -498,6 +530,107 @@ tr {
+   gap: 0.75rem;
+ }
+ 
++/* --- Roll call / roster primitives (signature element) --- */
++
++.roster-dots {
++  display: inline-flex;
++  align-items: center;
++  gap: 0.3rem;
++}
++
++.roster-dot {
++  width: 8px;
++  height: 8px;
++  border-radius: 50%;
++  background: var(--border-strong);
++  flex-shrink: 0;
++}
++
++.roster-dot.filled {
++  background: var(--color-primary);
++}
++
++.roster-dot.filled.complete {
++  background: var(--color-accent-teal);
++}
++
++.roster-slot {
++  display: flex;
++  align-items: center;
++  gap: 0.75rem;
++  padding: 0.625rem 0.875rem;
++  border-radius: 8px;
++  font-size: 0.875rem;
++}
++
++.roster-slot.claimed {
++  background: var(--color-bg-surface-hover);
++  color: var(--color-text-primary);
++}
++
++.roster-slot.open {
++  border: 1.5px dashed var(--border-strong);
++  color: var(--color-text-muted);
++}
++
++.roster-slot-mark {
++  width: 20px;
++  height: 20px;
++  border-radius: 50%;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  flex-shrink: 0;
++  font-size: 0.75rem;
++}
++
++.roster-slot.claimed .roster-slot-mark {
++  background: var(--color-primary-transparent);
++  color: var(--color-primary);
++}
++
++.roster-slot.claimed.leader .roster-slot-mark {
++  background: var(--color-accent-violet-bg);
++  color: var(--color-accent-violet);
++}
++
++.leader-tag {
++  font-family: var(--font-mono);
++  font-size: 0.625rem;
++  font-weight: 500;
++  letter-spacing: 0.06em;
++  text-transform: uppercase;
++  color: var(--color-accent-violet);
++  background: var(--color-accent-violet-bg);
++  padding: 0.15rem 0.45rem;
++  border-radius: 4px;
++}
++
++@keyframes claim-stamp {
++  0% { transform: scale(0.6); opacity: 0; }
++  55% { transform: scale(1.15); opacity: 1; }
++  100% { transform: scale(1); opacity: 1; }
++}
++
++.roster-slot.just-claimed .roster-slot-mark {
++  animation: claim-stamp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
++}
++
++.reg-number {
++  font-family: var(--font-mono);
++  font-size: 0.8125rem;
++  color: var(--color-text-muted);
++  letter-spacing: 0.01em;
++}
++
++.highlight-row {
++  position: relative;
++}
++
++.highlight-row td:first-child {
++  box-shadow: inset 3px 0 0 var(--color-primary);
++}
++
+ .sidebar-footer {
+   padding: 1.5rem 1rem;
+   border-top: 1px solid var(--border-subtle);

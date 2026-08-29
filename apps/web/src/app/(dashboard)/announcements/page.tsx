@@ -55,10 +55,10 @@ export default async function AnnouncementsPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '100%' }}>
       {/* Header */}
-      <header className="page-header">
+      <header className="page-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <h1>Announcements</h1>
-          <p>{offeringName}</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Dispatches</div>
+          <h1>{offeringName}</h1>
         </div>
         <div className="page-header-actions">
           {offeringId && (

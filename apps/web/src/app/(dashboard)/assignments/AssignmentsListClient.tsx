@@ -3,9 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ViewAssignmentButton from './ViewAssignmentButton';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-
 import EditAssignmentModal from './EditAssignmentModal';
 
 type SortColumn = 'title' | 'type' | 'dueDate' | 'submissions';
@@ -16,7 +13,6 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
   const [sortCol, setSortCol] = useState<SortColumn>('dueDate');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [editingAssignment, setEditingAssignment] = useState<any>(null);
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this assignment? All submissions will also be deleted. This action cannot be undone.")) return;
@@ -45,16 +41,16 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
   };
 
   const getSortIcon = (col: SortColumn) => {
-    if (sortCol !== col) return <span className="opacity-30">↕</span>;
+    if (sortCol !== col) return <span style={{ opacity: 0.3 }}>↕</span>;
     return sortDir === 'asc' ? '↑' : '↓';
   };
 
-  const getBadgeVariant = (type: string) => {
+  const getStampVariant = (type: string) => {
     switch(type) {
-      case 'HOMEWORK': return 'info';
-      case 'PROJECT': return 'warning';
-      case 'EXAM': return 'danger';
-      default: return 'default';
+      case 'HOMEWORK': return 'stamp-violet';
+      case 'PROJECT': return 'stamp-warning';
+      case 'EXAM': return 'stamp-danger';
+      default: return '';
     }
   };
 
@@ -77,18 +73,20 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
   });
 
   return (
-    <div className="flex flex-col gap-4 flex-1">
-      {/* Mobile Sort UI */}
-      <div className="lg:hidden flex items-center justify-end gap-2 mb-2">
-        <label className="text-sm text-text-secondary">Sort by:</label>
+    <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      
+      {/* Sort UI for mobile / header area */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '1.25rem 1.5rem 0', gap: '0.75rem' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sort by</div>
         <select 
-          className="bg-bg-surface border border-border-subtle text-text-primary px-3 py-1.5 rounded-md text-sm outline-none"
+          className="input-line"
           value={`${sortCol}-${sortDir}`}
           onChange={(e) => {
             const [c, d] = e.target.value.split('-');
             setSortCol(c as SortColumn);
             setSortDir(d as SortDirection);
           }}
+          style={{ width: 'auto', fontSize: '0.8125rem', padding: '0.25rem 0' }}
         >
           <option value="dueDate-asc">Due Date (Earliest)</option>
           <option value="dueDate-desc">Due Date (Latest)</option>
@@ -98,161 +96,99 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
         </select>
       </div>
 
-      {/* Desktop Table */}
-      <div className="hidden lg:block bg-bg-surface border border-border-subtle rounded-xl overflow-x-auto shadow-sm pb-24">
-        <table className="w-full text-left border-collapse min-w-[800px]">
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
           <thead>
-            <tr className="border-b border-border-subtle bg-bg-surface-hover/30">
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary cursor-pointer hover:text-text-primary select-none w-1/4" onClick={() => handleSort('title')}>
-                Title <span className="ml-1">{getSortIcon('title')}</span>
+            <tr>
+              <th style={{ width: '30%', cursor: 'pointer' }} onClick={() => handleSort('title')}>
+                Brief <span style={{ marginLeft: '0.25rem' }}>{getSortIcon('title')}</span>
               </th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary cursor-pointer hover:text-text-primary select-none w-[15%]" onClick={() => handleSort('type')}>
-                Type <span className="ml-1">{getSortIcon('type')}</span>
+              <th style={{ width: '15%', cursor: 'pointer' }} onClick={() => handleSort('type')}>
+                Type <span style={{ marginLeft: '0.25rem' }}>{getSortIcon('type')}</span>
               </th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary cursor-pointer hover:text-text-primary select-none w-1/5" onClick={() => handleSort('dueDate')}>
-                Due Date <span className="ml-1">{getSortIcon('dueDate')}</span>
+              <th style={{ width: '20%', cursor: 'pointer' }} onClick={() => handleSort('dueDate')}>
+                Deadline <span style={{ marginLeft: '0.25rem' }}>{getSortIcon('dueDate')}</span>
               </th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary cursor-pointer hover:text-text-primary select-none w-1/4" onClick={() => handleSort('submissions')}>
-                Submissions <span className="ml-1">{getSortIcon('submissions')}</span>
+              <th style={{ width: '20%', cursor: 'pointer' }} onClick={() => handleSort('submissions')}>
+                Submissions <span style={{ marginLeft: '0.25rem' }}>{getSortIcon('submissions')}</span>
               </th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary text-right w-[15%]">Actions</th>
+              <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {sortedAssignments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-text-muted">
-                  No assignments found for this offering.
+                <td colSpan={5} style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-muted)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: '1.125rem' }}>
+                  No assignments posted yet.
                 </td>
               </tr>
             ) : (
-              sortedAssignments.map((assignment) => (
-                <tr key={assignment.id} className="border-b border-border-subtle hover:bg-bg-surface-hover/50 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="text-text-primary font-medium mb-1">{assignment.title}</div>
-                    <div className="text-text-muted text-xs line-clamp-1">
-                      {assignment.description || 'No description provided.'}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <Badge variant={getBadgeVariant(assignment.type) as any}>{assignment.type}</Badge>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm ${assignment.isPast ? 'text-danger' : 'text-text-primary'}`}>
-                        {assignment.dueDate}
-                      </span>
-                      {assignment.isPast && (
-                        <Badge variant="danger">Overdue</Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs text-text-secondary">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                      {assignment.submissionsCount} / {totalEnrolled} submissions
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2 relative">
-                      <ViewAssignmentButton id={assignment.id} />
-                      {canManage && (
-                        <div className="relative">
-                          <button 
-                            className="btn-ghost p-1.5 text-text-muted hover:text-text-primary rounded-md"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdownId(openDropdownId === assignment.id ? null : assignment.id);
-                            }}
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                          </button>
-                          {openDropdownId === assignment.id && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
-                              <div className="absolute right-0 top-full mt-1 w-32 bg-bg-surface border border-border-subtle rounded-md shadow-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
-                                <button 
-                                  className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-bg-surface-hover transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEditingAssignment(assignment);
-                                    setOpenDropdownId(null);
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                                <button 
-                                  className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(assignment.id);
-                                    setOpenDropdownId(null);
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </>
-                          )}
+              sortedAssignments.map((assignment) => {
+                const progress = totalEnrolled > 0 ? (assignment.submissionsCount / totalEnrolled) * 100 : 0;
+                
+                return (
+                  <tr key={assignment.id}>
+                    <td>
+                      <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>
+                        {assignment.title}
+                      </div>
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as any}>
+                        {assignment.description || 'No description provided.'}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`stamp ${getStampVariant(assignment.type)}`}>{assignment.type}</span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: assignment.isPast ? 600 : 400, color: assignment.isPast ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
+                          {assignment.dueDate}
+                        </span>
+                        {assignment.isPast && <span className="stamp stamp-danger">Past Due</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxWidth: '140px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-secondary)' }}>
+                          <span>{assignment.submissionsCount} / {totalEnrolled}</span>
+                          <span>{Math.round(progress)}%</span>
                         </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        <div className="progress-track" style={{ height: '4px' }}>
+                          <div className="progress-fill" style={{ width: `${progress}%`, background: progress === 100 ? 'var(--color-success)' : 'var(--color-primary)' }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
+                        {canManage && (
+                          <>
+                            <button 
+                              className="btn-ghost" 
+                              style={{ padding: '0.4rem', color: 'var(--color-text-secondary)' }}
+                              onClick={() => setEditingAssignment(assignment)}
+                              title="Edit Assignment"
+                            >
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            </button>
+                            <button 
+                              className="btn-ghost" 
+                              style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
+                              onClick={() => handleDelete(assignment.id)}
+                              title="Delete Assignment"
+                            >
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                          </>
+                        )}
+                        <ViewAssignmentButton id={assignment.id} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Mobile Cards */}
-      <div className="lg:hidden flex flex-col gap-4">
-        {sortedAssignments.length === 0 ? (
-           <div className="text-center p-8 text-text-muted bg-bg-surface rounded-xl border border-border-subtle">No assignments found for this offering.</div>
-        ) : (
-           sortedAssignments.map(assignment => (
-             <Card key={assignment.id} className="p-4 flex flex-col gap-3">
-               <div className="flex justify-between items-start gap-4">
-                 <div>
-                   <div className="text-base font-semibold text-text-primary mb-1">{assignment.title}</div>
-                   <div className="text-xs text-text-muted line-clamp-1">{assignment.description || 'No description provided.'}</div>
-                 </div>
-                 <Badge variant={getBadgeVariant(assignment.type) as any}>{assignment.type}</Badge>
-               </div>
-               
-               <div className="flex flex-col gap-1.5 mt-2">
-                 <div className="flex items-center gap-2">
-                   <span className={`text-sm ${assignment.isPast ? 'text-danger font-medium' : 'text-text-primary'}`}>{assignment.dueDate}</span>
-                   {assignment.isPast && <Badge variant="danger">Overdue</Badge>}
-                 </div>
-                 <div className="flex items-center gap-2 text-text-secondary text-xs">
-                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                   {assignment.submissionsCount} / {totalEnrolled} submissions
-                 </div>
-               </div>
-
-               <div className="mt-3 flex justify-end gap-2 items-center">
-                 {canManage && (
-                   <>
-                     <button 
-                       className="btn-ghost text-xs py-1 px-2"
-                       onClick={() => setEditingAssignment(assignment)}
-                     >
-                       Edit
-                     </button>
-                     <button 
-                       className="btn-ghost text-danger text-xs py-1 px-2 hover:bg-danger/10"
-                       onClick={() => handleDelete(assignment.id)}
-                     >
-                       Delete
-                     </button>
-                   </>
-                 )}
-                 <ViewAssignmentButton id={assignment.id} />
-               </div>
-             </Card>
-           ))
-        )}
       </div>
 
       {editingAssignment && (

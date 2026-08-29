@@ -13,6 +13,7 @@ export async function GET(
     const scopeHeader = request.headers.get('x-user-scope');
     if (!scopeHeader) return NextResponse.json({ code: 'UNAUTHORIZED' }, { status: 401 });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const scope = JSON.parse(scopeHeader) as UserScope;
 
     const group = await db.group.findUnique({

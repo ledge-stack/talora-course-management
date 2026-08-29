@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@talora/database';
 import { hashPassword } from '@talora/auth';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { sendEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/rateLimit';
 import { verifyFirebaseToken } from '@/lib/firebase-admin';
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    // eslint-disable-next-line prefer-const
     let { fullName, email, studentNumber, registrationNumber, phoneNumber, password } = body;
 
     if (!fullName || !email || !studentNumber || !registrationNumber || !phoneNumber || !password) {

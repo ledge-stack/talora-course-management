@@ -126,10 +126,10 @@ export default async function GroupsPage() {
   }
 
   const overviewStats = [
-    { label: 'Total Groups', value: stats.totalGroups },
-    { label: 'Students in Groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
-    { label: 'Ungrouped Students', value: Math.max(0, stats.totalStudents - stats.studentsInGroups), isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
-    { label: 'Group Rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
+    { label: 'Total groups', value: stats.totalGroups },
+    { label: 'Students in groups', value: `${stats.studentsInGroups} / ${stats.totalStudents}` },
+    { label: 'Ungrouped students', value: Math.max(0, stats.totalStudents - stats.studentsInGroups), isWarning: (stats.totalStudents - stats.studentsInGroups) > 0 },
+    { label: 'Group rules', value: `Min ${stats.minGroupSize} · Max ${stats.maxGroupSize}` },
   ];
 
   return (
@@ -137,8 +137,8 @@ export default async function GroupsPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Group Management</h1>
-          <p className="text-text-secondary text-sm">{offeringName}</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Group formation</div>
+          <h1>{offeringName}</h1>
         </div>
         <div className="flex items-center gap-3">
           {offeringId && (
@@ -150,11 +150,9 @@ export default async function GroupsPage() {
       {/* KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {overviewStats.map((stat, i) => (
-          <div key={i} className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm">
-            <div className="text-text-secondary text-xs mb-2 font-medium">
-              {stat.label}
-            </div>
-            <div className={`text-2xl font-semibold font-display ${stat.isWarning ? 'text-danger' : 'text-text-primary'}`}>
+          <div key={i} className="ledger-panel kpi-card">
+            <div className="kpi-label">{stat.label}</div>
+            <div className="kpi-value" style={{ color: stat.isWarning ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
               {stat.value}
             </div>
           </div>

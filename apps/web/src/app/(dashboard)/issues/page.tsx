@@ -67,8 +67,8 @@ export default async function IssuesPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1 className="text-2xl font-display font-semibold text-text-primary mb-2">Issues Tracker</h1>
-          <p className="text-text-secondary text-sm">{offeringName} — {isRep ? 'All Issues' : 'My Issues'}</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>{isRep ? 'All issues' : 'My issues'}</div>
+          <h1>{offeringName}</h1>
         </div>
         <div className="flex items-center gap-3">
           {offeringId && (
@@ -78,16 +78,16 @@ export default async function IssuesPage() {
       </header>
 
       {/* Desktop Table */}
-      <div className="hidden lg:block bg-bg-surface border border-border-subtle rounded-xl overflow-x-auto shadow-sm flex-1">
+      <div className="hidden lg:block ledger-panel overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
-            <tr className="border-b border-border-subtle bg-bg-surface-hover/30">
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-[15%]">Date</th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-1/4">Title</th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-1/4">Author</th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-[15%]">Category</th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary w-[10%]">Status</th>
-              <th className="py-4 px-6 font-semibold text-sm text-text-secondary text-right w-[10%]">Actions</th>
+            <tr style={{ borderBottom: '1px solid var(--border-rule)' }} className="bg-bg-surface-hover/30">
+              <th className="py-4 px-6 eyebrow w-[15%]">Date</th>
+              <th className="py-4 px-6 eyebrow w-1/4">Title</th>
+              <th className="py-4 px-6 eyebrow w-1/4">Author</th>
+              <th className="py-4 px-6 eyebrow w-[15%]">Category</th>
+              <th className="py-4 px-6 eyebrow w-[10%]">Status</th>
+              <th className="py-4 px-6 eyebrow text-right w-[10%]">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -99,10 +99,10 @@ export default async function IssuesPage() {
               </tr>
             ) : (
               issues.map((issue) => (
-                <tr key={issue.id} className="border-b border-border-subtle hover:bg-bg-surface-hover/50 transition-colors">
-                  <td className="py-4 px-6 text-text-secondary text-xs">{issue.date}</td>
+                <tr key={issue.id} style={{ borderBottom: '1px solid var(--border-rule)' }} className="hover:bg-bg-surface-hover/50 transition-colors">
+                  <td className="py-4 px-6 reg-number">{issue.date}</td>
                   <td className="py-4 px-6">
-                    <div className="text-text-primary font-medium mb-1">{issue.title}</div>
+                    <div className="text-text-primary font-medium mb-1" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{issue.title}</div>
                     <div className="text-text-muted text-xs line-clamp-1">
                       {issue.description}
                     </div>
@@ -112,14 +112,14 @@ export default async function IssuesPage() {
                     <Badge variant="default">{issue.category}</Badge>
                   </td>
                   <td className="py-4 px-6">
-                    <Badge variant={getStatusBadgeVariant(issue.status) as any}>{issue.status}</Badge>
+                    <Badge variant={getStatusBadgeVariant(issue.status) as any}>{issue.status.charAt(0) + issue.status.slice(1).toLowerCase()}</Badge>
                   </td>
                   <td className="py-4 px-6 text-right">
                     {isRep ? (
                       <IssueActionButtons issueId={issue.id} currentStatus={issue.status} />
                     ) : (
                       <span className="text-xs text-text-muted">
-                        {issue.status === 'RESOLVED' ? 'Resolved' : 'Pending Review'}
+                        {issue.status === 'RESOLVED' ? 'Resolved' : 'Pending review'}
                       </span>
                     )}
                   </td>
@@ -133,7 +133,7 @@ export default async function IssuesPage() {
       {/* Mobile Cards */}
       <div className="lg:hidden flex flex-col gap-4">
         {issues.length === 0 ? (
-          <div className="text-center p-8 text-text-muted bg-bg-surface rounded-xl border border-border-subtle">
+          <div className="text-center p-8 text-text-muted ledger-panel">
             No issues found.
           </div>
         ) : (
@@ -141,14 +141,14 @@ export default async function IssuesPage() {
             <Card key={issue.id} className="p-4 flex flex-col gap-3">
               <div className="flex justify-between items-start gap-4">
                 <div>
-                  <div className="text-base font-semibold text-text-primary mb-1">{issue.title}</div>
+                  <div className="text-base font-semibold text-text-primary mb-1" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{issue.title}</div>
                   <div className="text-xs text-text-muted line-clamp-2">{issue.description}</div>
                 </div>
-                <Badge variant={getStatusBadgeVariant(issue.status) as any}>{issue.status}</Badge>
+                <Badge variant={getStatusBadgeVariant(issue.status) as any}>{issue.status.charAt(0) + issue.status.slice(1).toLowerCase()}</Badge>
               </div>
               
               <div className="flex items-center gap-3 text-xs text-text-secondary mt-1">
-                <span>{issue.date}</span>
+                <span className="reg-number">{issue.date}</span>
                 <span>•</span>
                 <span>{issue.author}</span>
                 <span>•</span>
@@ -160,7 +160,7 @@ export default async function IssuesPage() {
                   <IssueActionButtons issueId={issue.id} currentStatus={issue.status} />
                 ) : (
                   <span className="text-xs text-text-muted">
-                    {issue.status === 'RESOLVED' ? 'Resolved' : 'Pending Review'}
+                    {issue.status === 'RESOLVED' ? 'Resolved' : 'Pending review'}
                   </span>
                 )}
               </div>

@@ -81,12 +81,30 @@ export async function POST(
       });
     }
 
-    // Update status if it reached min size
+    // Update status if it reached min size, and also handle leadership handoff if the group was empty or leader is a rep
+    const groupUpdates: any = {};
     if (group._count.memberships + 1 >= group.offering.minGroupSize && group.status === 'FORMING') {
       const { GroupStatus } = await import('@talora/database');
+      groupUpdates.status = GroupStatus.COMPLETE;
+    }
+
+    // Check if the current leader is actually in the group
+    if (group._count.memberships === 0) {
+      // If the group had 0 members, the first person to join becomes the leader
+      groupUpdates.leaderId = studentId;
+    } else {
+      const isLeaderInGroup = await db.groupMembership.findFirst({
+        where: { groupId: group.id, studentId: group.leaderId }
+      });
+      if (!isLeaderInGroup) {
+        groupUpdates.leaderId = studentId;
+      }
+    }
+
+    if (Object.keys(groupUpdates).length > 0) {
       await db.group.update({
         where: { id: group.id },
-        data: { status: GroupStatus.COMPLETE }
+        data: groupUpdates
       });
     }
 

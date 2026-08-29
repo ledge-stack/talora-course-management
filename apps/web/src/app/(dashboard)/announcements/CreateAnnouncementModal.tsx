@@ -38,50 +38,51 @@ export default function CreateAnnouncementModal({ offeringId, onClose }: { offer
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-      <div className="glass-panel" style={{ width: '500px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem' }}>Post Announcement</h2>
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ maxWidth: '500px' }}>
+        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="modal-title">Post announcement</h2>
           <button onClick={onClose} className="btn-ghost" style={{ padding: '0.4rem' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
 
-        {error && (
-          <div style={{ padding: '0.75rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: '8px', fontSize: '0.875rem' }}>
-            {error}
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {error && (
+              <div style={{ padding: '0.75rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: '8px', fontSize: '0.875rem' }}>
+                {error}
+              </div>
+            )}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Title</label>
+              <input 
+                type="text" 
+                className="input" 
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. Midterm rescheduled" 
+                required
+                autoFocus
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Message</label>
+              <textarea 
+                className="input" 
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                placeholder="Write your announcement here" 
+                required
+                rows={5}
+                style={{ resize: 'vertical' }}
+              />
+            </div>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Title</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. Midterm Rescheduled" 
-              required
-              autoFocus
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Message</label>
-            <textarea 
-              className="input" 
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              placeholder="Write your announcement here..." 
-              required
-              rows={5}
-              style={{ resize: 'vertical' }}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div className="modal-footer">
             <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Posting...' : 'Post Announcement'}
+              {loading ? 'Posting…' : 'Post announcement'}
             </button>
           </div>
         </form>

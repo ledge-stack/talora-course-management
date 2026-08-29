@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { headers } from 'next/headers';
@@ -34,28 +35,29 @@ export default async function NotificationsPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1>Notifications</h1>
-          <p>Stay updated on group changes, assignments, and announcements</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Notifications</div>
+          <h1>Stay in the loop</h1>
+          <p>Group changes, assignments, and announcements land here</p>
         </div>
       </header>
 
       {/* Main Content Card */}
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '1.5rem' }}>
           {notifications.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-              You're all caught up! No notifications.
+              You're all caught up — no notifications.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {notifications.map((notif) => (
-                <div key={notif.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem', borderRadius: '8px', background: notif.isRead ? 'transparent' : 'var(--color-bg-surface-hover)', border: '1px solid', borderColor: notif.isRead ? 'var(--border-subtle)' : 'var(--color-primary-transparent)' }}>
+                <div key={notif.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem', borderRadius: '8px', background: notif.isRead ? 'transparent' : 'var(--color-bg-surface-hover)', boxShadow: notif.isRead ? 'none' : 'inset 3px 0 0 var(--color-primary)' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
-                      <div style={{ fontWeight: 600, color: notif.isRead ? 'var(--color-text-secondary)' : 'var(--color-text-primary)' }}>
+                      <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontWeight: 600, color: notif.isRead ? 'var(--color-text-secondary)' : 'var(--color-text-primary)' }}>
                         {notif.title}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      <div className="reg-number">
                         {notif.date}
                       </div>
                     </div>
