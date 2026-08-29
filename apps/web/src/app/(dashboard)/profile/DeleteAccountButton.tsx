@@ -44,7 +44,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
         borderColor: 'var(--color-danger-bg)' 
       }}
     >
-      {loading ? 'Deleting...' : confirming ? 'Are you sure?' : 'Delete Account'}
+      {loading ? 'Deleting…' : confirming ? 'Are you sure?' : 'Delete account'}
     </button>
   );
 }
