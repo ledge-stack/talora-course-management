@@ -248,7 +248,7 @@ export async function POST(request: Request) {
                 data: {
                   offeringId: offering.id,
                   name: data.groupName,
-                  leaderId: scope.userId, // Default leader to the rep doing the import
+                  leaderId: user!.id, // Set the first imported student as the leader
                   status: 'INCOMPLETE',
                   isOpen: true,
                 }
