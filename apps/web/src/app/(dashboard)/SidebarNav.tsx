@@ -163,6 +163,26 @@ export default function SidebarNav({
         <NavItem href="/groups"      icon={<Icon.Groups />}      label="Groups" />
         <NavItem href="/assignments" icon={<Icon.Assignments />} label="Assignments" />
 
+        {/* Course context */}
+        {courseContext && (
+          <div className="sidebar-context" style={{ padding: '0.5rem 0', margin: '0.25rem 0' }}>
+            <div className="sidebar-context-inner">
+              <div className="sidebar-context-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <div className="sidebar-context-text">
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+                  Now reading
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.3, maxWidth: '160px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  {courseContext}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
         {isRepOrAdmin && (
           <>
             <div className="nav-section-break" style={{ margin: '0.375rem 0' }} />
@@ -182,26 +202,7 @@ export default function SidebarNav({
         )}
       </nav>
 
-      {/* Course context */}
-      {courseContext && (
-        <div className="sidebar-context">
-          <div className="sidebar-context-inner">
-            <div className="sidebar-context-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
-            </div>
-            <div className="sidebar-context-text">
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-                Now reading
-              </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.3, maxWidth: '160px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                {courseContext}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Theme + Notifications + Profile */}
       <div style={{ padding: '0.375rem 0', borderTop: '1px solid var(--border-subtle)' }}>

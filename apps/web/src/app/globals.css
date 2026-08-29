@@ -265,7 +265,8 @@
 /* The sidebar is icon-only by default; expands on hover on desktop */
 .ledger-sidebar {
   position: fixed;
-  inset-y: 0;
+  top: 0;
+  bottom: 0;
   left: 0;
   z-index: 50;
   width: var(--sidebar-width);
