@@ -59,7 +59,8 @@ export default function GroupsClient({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
+  const MENU_WIDTH = 180;
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -664,10 +665,13 @@ export default function GroupsClient({
                                   const estimatedMenuHeight = 220;
                                   const spaceBelow = window.innerHeight - rect.bottom;
                                   const openUpward = spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight;
+                                  // Right-align menu with button, clamped so it never leaves the viewport
+                                  const rawLeft = rect.right - MENU_WIDTH;
+                                  const clampedLeft = Math.max(8, Math.min(rawLeft, window.innerWidth - MENU_WIDTH - 8));
                                   setDropdownPos({
                                     top: openUpward ? undefined : rect.bottom + 4,
                                     bottom: openUpward ? window.innerHeight - rect.top + 4 : undefined,
-                                    right: window.innerWidth - rect.right,
+                                    left: clampedLeft,
                                   });
                                   setOpenDropdownId(group.id);
                                 }
@@ -698,7 +702,8 @@ export default function GroupsClient({
               position: 'fixed',
               top: dropdownPos.top,
               bottom: dropdownPos.bottom,
-              right: dropdownPos.right,
+              left: dropdownPos.left,
+              width: MENU_WIDTH,
               background: 'var(--color-bg-surface)',
               border: '1px solid var(--border-subtle)',
               borderRadius: '8px',
