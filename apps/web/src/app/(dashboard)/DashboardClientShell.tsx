@@ -80,7 +80,7 @@ export default function DashboardClientShell({
         </header>
 
         {/* Page content */}
-        <div className="content-wrapper" style={{ flex: 1, padding: '1.5rem 2rem', overflowX: 'hidden' }}>
+        <div className="content-wrapper" style={{ flex: 1, padding: '1.5rem 2rem' }}>
           {children}
         </div>
       </main>
