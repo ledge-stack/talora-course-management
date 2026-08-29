@@ -77,8 +77,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const sidebarContent = (
     <>
       <div className="p-6 flex items-center gap-3 border-b border-border-subtle">
-        <div className="w-8 h-8 bg-primary rounded-md text-white flex items-center justify-center font-bold text-sm shadow-md shadow-primary/30">T</div>
-        <div className="font-display text-xl font-bold text-text-primary">Talora</div>
+        <div className="w-8 h-8 bg-primary rounded-full text-white flex items-center justify-center font-display font-semibold text-base">T</div>
+        <div className="font-display text-xl font-semibold text-text-primary tracking-tight">Talora</div>
       </div>
 
 

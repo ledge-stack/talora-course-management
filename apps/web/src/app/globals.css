@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @source "./src";
 
@@ -39,91 +39,112 @@
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --color-accent-teal: var(--color-accent-teal);
+  --color-accent-teal-bg: var(--color-accent-teal-bg);
+  --color-accent-violet: var(--color-accent-violet);
+  --color-accent-violet-bg: var(--color-accent-violet-bg);
 }
 
 :root {
-  /* Core Backgrounds */
-  --color-bg-base: #0b0f19;
-  --color-bg-sidebar: #0f1623;
-  --color-bg-surface: #1a2d4e; /* Card background — clearly distinct blue-navy */
-  --color-bg-surface-hover: #203558;
-  
-  /* Text */
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #b4bcd0;
-  --color-text-muted: #8a94a6;
-  
+  /* Core Backgrounds — near-black ink */
+  --color-bg-base: #0e0e12;
+  --color-bg-sidebar: #0a0a0d;
+  --color-bg-surface: #1c1c22;
+  --color-bg-surface-hover: #26262e;
+
+  /* Text — warm bone white */
+  --color-text-primary: #f5f3ee;
+  --color-text-secondary: #a8a6ab;
+  --color-text-muted: #706e76;
+
   /* Brand & Accents */
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-transparent: rgba(59, 130, 246, 0.15);
-  
+  --color-primary: #ff4b33;
+  --color-primary-hover: #ff6449;
+  --color-primary-transparent: rgba(255, 75, 51, 0.16);
+
+  /* Secondary accent — live teal-green (complete/good states) */
+  --color-accent-teal: #2dd4a7;
+  --color-accent-teal-bg: rgba(45, 212, 167, 0.14);
+
+  /* Tertiary accent — role/identity violet */
+  --color-accent-violet: #7c7ce0;
+  --color-accent-violet-bg: rgba(124, 124, 224, 0.16);
+
   /* Semantic */
-  --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.1);
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
-  --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
-  --color-info: #6366f1;
-  --color-info-bg: rgba(99, 102, 241, 0.1);
-  
+  --color-success: #2dd4a7;
+  --color-success-bg: rgba(45, 212, 167, 0.14);
+  --color-danger: #ff4b33;
+  --color-danger-bg: rgba(255, 75, 51, 0.14);
+  --color-warning: #f5b942;
+  --color-warning-bg: rgba(245, 185, 66, 0.14);
+  --color-info: #7c7ce0;
+  --color-info-bg: rgba(124, 124, 224, 0.14);
+
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.22);
-  
+  --border-subtle: rgba(245, 243, 238, 0.1);
+  --border-strong: rgba(245, 243, 238, 0.2);
+
   /* Overlays */
-  --color-glass-panel: #1a2d4e; /* Solid navy-blue card surface */
-  --color-input-bg: rgba(0, 0, 0, 0.25);
-  --color-table-th: rgba(0, 0, 0, 0.2);
-  --color-topbar-bg: rgba(11, 15, 25, 0.92);
-  --color-bg-surface-active: rgba(255, 255, 255, 0.04);
-  
+  --color-glass-panel: #1c1c22;
+  --color-input-bg: rgba(0, 0, 0, 0.3);
+  --color-table-th: rgba(0, 0, 0, 0.25);
+  --color-topbar-bg: rgba(14, 14, 18, 0.92);
+  --color-bg-surface-active: rgba(245, 243, 238, 0.05);
+
   /* Fonts */
   --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
   /* Transitions */
   --transition-fast: 0.15s ease-in-out;
 }
 
 [data-theme='light'] {
-  /* Core Backgrounds */
-  --color-bg-base: #f4f6f8;
+  /* Core Backgrounds — warm bone white primary */
+  --color-bg-base: #f5f3ee;
   --color-bg-sidebar: #ffffff;
   --color-bg-surface: #ffffff;
-  --color-bg-surface-hover: #f1f5f9;
-  
-  /* Text */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #64748b;
-  
-  /* Brand & Accents (same primary) */
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-transparent: rgba(59, 130, 246, 0.15);
-  
-  /* Semantic */
-  --color-success: #059669;
-  --color-success-bg: rgba(16, 185, 129, 0.15);
-  --color-danger: #dc2626;
-  --color-danger-bg: rgba(239, 68, 68, 0.15);
-  --color-warning: #d97706;
-  --color-warning-bg: rgba(245, 158, 11, 0.15);
-  --color-info: #4f46e5;
-  --color-info-bg: rgba(99, 102, 241, 0.15);
-  
-  /* Borders */
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.15);
+  --color-bg-surface-hover: #ece9e1;
 
-  /* Hardcoded overlays extracted to variables for light mode */
-  --color-glass-panel: rgba(255, 255, 255, 0.85);
-  --color-input-bg: rgba(255, 255, 255, 0.9);
-  --color-table-th: rgba(0, 0, 0, 0.03);
-  --color-topbar-bg: rgba(255, 255, 255, 0.85);
-  --color-bg-surface-active: rgba(0, 0, 0, 0.02);
+  /* Text — near-black ink */
+  --color-text-primary: #0e0e12;
+  --color-text-secondary: #4a4950;
+  --color-text-muted: #79777e;
+
+  /* Brand & Accents (same hues, tuned for contrast on light) */
+  --color-primary: #e6402a;
+  --color-primary-hover: #c93521;
+  --color-primary-transparent: rgba(230, 64, 42, 0.12);
+
+  --color-accent-teal: #16a37e;
+  --color-accent-teal-bg: rgba(22, 163, 126, 0.12);
+
+  --color-accent-violet: #5f5cd1;
+  --color-accent-violet-bg: rgba(95, 92, 209, 0.12);
+
+  /* Semantic */
+  --color-success: #16a37e;
+  --color-success-bg: rgba(22, 163, 126, 0.12);
+  --color-danger: #e6402a;
+  --color-danger-bg: rgba(230, 64, 42, 0.12);
+  --color-warning: #b9791f;
+  --color-warning-bg: rgba(185, 121, 31, 0.12);
+  --color-info: #5f5cd1;
+  --color-info-bg: rgba(95, 92, 209, 0.12);
+
+  /* Borders */
+  --border-subtle: rgba(14, 14, 18, 0.1);
+  --border-strong: rgba(14, 14, 18, 0.18);
+
+  /* Overlays */
+  --color-glass-panel: rgba(255, 255, 255, 0.9);
+  --color-input-bg: rgba(255, 255, 255, 0.95);
+  --color-table-th: rgba(14, 14, 18, 0.03);
+  --color-topbar-bg: rgba(245, 243, 238, 0.9);
+  --color-bg-surface-active: rgba(14, 14, 18, 0.03);
 }
 
 @layer base {
@@ -138,9 +159,18 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+  }
+
+  .eyebrow, .mono-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
   }
 
   a {
@@ -371,8 +401,10 @@ tr {
 }
 
 .page-header h1 {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--color-text-primary);
   margin-bottom: 0.5rem;
 }
@@ -496,6 +528,99 @@ tr {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* --- Roll call / roster primitives (signature element) --- */
+
+.roster-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.roster-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+
+.roster-dot.filled {
+  background: var(--color-primary);
+}
+
+.roster-dot.filled.complete {
+  background: var(--color-accent-teal);
+}
+
+.roster-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.roster-slot.claimed {
+  background: var(--color-bg-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.roster-slot.open {
+  border: 1.5px dashed var(--border-strong);
+  color: var(--color-text-muted);
+}
+
+.roster-slot-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.roster-slot.claimed .roster-slot-mark {
+  background: var(--color-primary-transparent);
+  color: var(--color-primary);
+}
+
+.roster-slot.claimed.leader .roster-slot-mark {
+  background: var(--color-accent-violet-bg);
+  color: var(--color-accent-violet);
+}
+
+.leader-tag {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-violet);
+  background: var(--color-accent-violet-bg);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+@keyframes claim-stamp {
+  0% { transform: scale(0.6); opacity: 0; }
+  55% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.roster-slot.just-claimed .roster-slot-mark {
+  animation: claim-stamp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.reg-number {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
 }
 
 .sidebar-footer {

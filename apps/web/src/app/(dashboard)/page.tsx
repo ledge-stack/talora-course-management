@@ -47,11 +47,11 @@ export default async function Dashboard() {
               </svg>
             </div>
 
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
-              Welcome to Talora! 🎉
+            <h1 className="font-display" style={{ fontSize: '2.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
+              Welcome to Talora
             </h1>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-              Your account is all set up. The next step is to <strong style={{ color: 'var(--color-text-primary)' }}>enroll in your course units</strong> so the system can assign you to the right groups and show you relevant assignments and announcements.
+              Your account is set up. Enroll in your course units next, so we can assign you to the right groups and show you relevant assignments and announcements.
             </p>
 
             {/* Steps */}
@@ -71,7 +71,7 @@ export default async function Dashboard() {
             </div>
 
             <a href="/enroll" className="btn-primary" style={{ padding: '0.875rem 2.5rem', fontSize: '1rem', textDecoration: 'none', borderRadius: '12px' }}>
-              Enroll in Course Units →
+              Enroll in course units →
             </a>
           </div>
         );
@@ -259,36 +259,45 @@ export default async function Dashboard() {
           </div>
         </div>
 
-        {/* My Group — full width */}
+        {/* My Group — full width, roll-call treatment */}
         <div className="lg:col-span-3 glass-panel p-6">
           <div className="flex justify-between items-center mb-5">
-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
+            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My group</h3>
             <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
           </div>
           {myGroup ? (
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
-                  {myGroup.name.charAt(0)}
-                </div>
+              <div className="flex items-center justify-between mb-5">
                 <div>
-                  <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
-                  <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
+                  <div className="eyebrow mb-1.5">Roll call</div>
+                  <div className="text-xl font-display font-semibold text-text-primary">{myGroup.name}</div>
+                </div>
+                <div className="roster-dots">
+                  {Array.from({ length: myGroup.memberships.length }).map((_, i) => (
+                    <span key={i} className="roster-dot filled complete" />
+                  ))}
+                  <span className="text-sm text-text-secondary ml-2 font-mono">{myGroup.memberships.length} claimed</span>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                {myGroup.memberships.map((m: any) => (
-                  <div key={m.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span className="text-sm text-text-primary font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.student?.fullName || 'Unknown Student'}</span>
-                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '8px', flexShrink: 0, fontSize: '0.65rem' }}>Leader</span>}
-                  </div>
-                ))}
+                {myGroup.memberships.map((m: any) => {
+                  const isLeader = m.studentId === myGroup.leaderId;
+                  return (
+                    <div key={m.id} className={`roster-slot claimed ${isLeader ? 'leader' : ''}`}>
+                      <span className="roster-slot-mark">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span className="flex-1 min-w-0 truncate font-medium">{m.student?.fullName || 'Unknown Student'}</span>
+                      {isLeader && <span className="leader-tag shrink-0">Leader</span>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <div className="text-text-muted text-sm" style={{ marginBottom: '1rem' }}>You are not currently in a group for this offering.</div>
-              <a href="/groups" className="btn-primary">Find a Group</a>
+            <div className="roster-slot open flex-col items-center text-center py-8 px-4">
+              <div className="text-text-muted text-sm mb-4">You haven't claimed a slot in a group for this offering yet.</div>
+              <a href="/groups" className="btn-primary">Find a group</a>
             </div>
           )}
         </div>
