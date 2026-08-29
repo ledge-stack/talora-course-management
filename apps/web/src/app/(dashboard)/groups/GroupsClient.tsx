@@ -759,231 +759,236 @@ export default function GroupsClient({
         );
       })()}
 
-      {showRequestsFor && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowRequestsFor(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', flexShrink: 0 }}>Pending Join Requests</h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
-              {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
-                <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div style={{ flex: '1 1 200px' }}>
-                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
-                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                      {req.studentNumber ? `${req.studentNumber} · ` : ''}{req.studentEmail}
+      {typeof document !== 'undefined' && createPortal(
+        <>
+          {showRequestsFor && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowRequestsFor(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', flexShrink: 0 }}>Pending Join Requests</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
+                  {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
+                    <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ flex: '1 1 200px' }}>
+                        <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
+                        <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                          {req.studentNumber ? `${req.studentNumber} · ` : ''}{req.studentEmail}
+                        </div>
+                        {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          className="btn-ghost" 
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
+                          onClick={() => handleProcessRequest(req.id, 'REJECTED')}
+                          disabled={loading}
+                        >
+                          Reject
+                        </button>
+                        <button 
+                          className="btn-primary" 
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
+                          onClick={() => handleProcessRequest(req.id, 'APPROVED')}
+                          disabled={loading}
+                        >
+                          Approve
+                        </button>
+                      </div>
                     </div>
-                    {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary" onClick={() => setShowRequestsFor(null)}>Close</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showRenameGroup && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowRenameGroup(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
+                <form onSubmit={handleRenameSubmit}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="label">New Group Name</label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      value={newGroupName}
+                      onChange={(e) => setNewGroupName(e.target.value)}
+                      autoFocus
+                      required
+                    />
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button 
-                      className="btn-ghost" 
-                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
-                      onClick={() => handleProcessRequest(req.id, 'REJECTED')}
-                      disabled={loading}
-                    >
-                      Reject
-                    </button>
-                    <button 
-                      className="btn-primary" 
-                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
-                      onClick={() => handleProcessRequest(req.id, 'APPROVED')}
-                      disabled={loading}
-                    >
-                      Approve
-                    </button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button type="button" className="btn-secondary" onClick={() => setShowRenameGroup(null)}>Cancel</button>
+                    <button type="submit" className="btn-primary" disabled={loading}>Save</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {showMembersGroup && (() => {
+            const activeGroup = groups.find(g => g.id === showMembersGroup);
+            const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
+
+            return (
+              <div 
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+                onClick={() => setShowMembersGroup(null)}
+              >
+                <div 
+                  className="modal-content"
+                  style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    {groupMembers.map(m => (
+                      <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
+                            {m.studentNumber} {m.phoneNumber && `· 📞 ${m.phoneNumber}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {m.isLeader ? (
+                            <span className="badge badge-primary">Leader</span>
+                          ) : (
+                            canManageActiveGroup && (
+                              <button 
+                                className="btn-ghost" 
+                                style={{ padding: '0.25rem', color: 'var(--color-error)' }}
+                                onClick={() => handleRemoveMember(showMembersGroup, m.id)}
+                                disabled={loading}
+                                title="Remove Member"
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowRequestsFor(null)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRenameGroup && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowRenameGroup(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
-            <form onSubmit={handleRenameSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="label">New Group Name</label>
-                <input 
-                  type="text" 
-                  className="input" 
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                  autoFocus
-                  required
-                />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowRenameGroup(null)}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading}>Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            );
+          })()}
 
-      {showMembersGroup && (() => {
-        const activeGroup = groups.find(g => g.id === showMembersGroup);
-        const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
-
-        return (
-          <div 
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-            onClick={() => setShowMembersGroup(null)}
-          >
+          {showTransferLeadership && (
             <div 
-              className="modal-content"
-              style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-              onClick={(e) => e.stopPropagation()}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowTransferLeadership(null)}
             >
-              <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                {groupMembers.map(m => (
-                  <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
-                        {m.studentNumber} {m.phoneNumber && `· 📞 ${m.phoneNumber}`}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {m.isLeader ? (
-                        <span className="badge badge-primary">Leader</span>
-                      ) : (
-                        canManageActiveGroup && (
-                          <button 
-                            className="btn-ghost" 
-                            style={{ padding: '0.25rem', color: 'var(--color-error)' }}
-                            onClick={() => handleRemoveMember(showMembersGroup, m.id)}
-                            disabled={loading}
-                            title="Remove Member"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                          </button>
-                        )
-                      )}
-                    </div>
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Select a member to transfer leadership to:</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  {groupMembers.filter(m => !m.isLeader).length === 0 ? (
+                    <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No other members to transfer to.</div>
+                  ) : (
+                    groupMembers.filter(m => !m.isLeader).map(m => (
+                      <button 
+                        key={m.id} 
+                        className="btn-ghost"
+                        style={{ justifyContent: 'flex-start', padding: '0.75rem', border: '1px solid var(--border-subtle)' }}
+                        onClick={() => handleTransferLeadership(m.id)}
+                        disabled={loading}
+                      >
+                        {m.fullName} ({m.studentNumber})
+                      </button>
+                    ))
+                  )}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showReserveSpot && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowReserveSpot(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Reserve Spot</h3>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
+                <form onSubmit={handleReserveSubmit}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="label">Student Number</label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      value={reserveStudentNumber}
+                      onChange={(e) => setReserveStudentNumber(e.target.value)}
+                      autoFocus
+                      required
+                      placeholder="e.g. 21/U/1234"
+                    />
                   </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button type="button" className="btn-secondary" onClick={() => setShowReserveSpot(null)}>Cancel</button>
+                    <button type="submit" className="btn-primary" disabled={loading}>Reserve</button>
+                  </div>
+                </form>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          )}
 
-      {showTransferLeadership && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowTransferLeadership(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Select a member to transfer leadership to:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {groupMembers.filter(m => !m.isLeader).length === 0 ? (
-                <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No other members to transfer to.</div>
-              ) : (
-                groupMembers.filter(m => !m.isLeader).map(m => (
-                  <button 
-                    key={m.id} 
-                    className="btn-ghost"
-                    style={{ justifyContent: 'flex-start', padding: '0.75rem', border: '1px solid var(--border-subtle)' }}
-                    onClick={() => handleTransferLeadership(m.id)}
-                    disabled={loading}
-                  >
-                    {m.fullName} ({m.studentNumber})
-                  </button>
-                ))
-              )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+          {showSettingsModal && offeringId && (
+            <ClassSettingsModal
+              offeringId={offeringId}
+              currentMin={minGroupSize || 1}
+              currentMax={maxGroupSize || 5}
+              onClose={() => setShowSettingsModal(false)}
+            />
+          )}
 
-      {showReserveSpot && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowReserveSpot(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Reserve Spot</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
-            <form onSubmit={handleReserveSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="label">Student Number</label>
-                <input 
-                  type="text" 
-                  className="input" 
-                  value={reserveStudentNumber}
-                  onChange={(e) => setReserveStudentNumber(e.target.value)}
-                  autoFocus
-                  required
-                  placeholder="e.g. 21/U/1234"
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowReserveSpot(null)}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading}>Reserve</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showSettingsModal && offeringId && (
-        <ClassSettingsModal
-          offeringId={offeringId}
-          currentMin={minGroupSize || 1}
-          currentMax={maxGroupSize || 5}
-          onClose={() => setShowSettingsModal(false)}
-        />
-      )}
-
-      {showUngrouped && (
-        <AssignUngroupedDnD
-          ungroupedStudents={ungroupedStudents}
-          groups={groups.filter(g => g.status !== 'LOCKED')}
-          loading={loading}
-          onClose={() => setShowUngrouped(false)}
-          onBulkAssign={handleBulkAutoAssign}
-          onAssign={async (studentId, groupId) => {
-            await handleForceAssign(studentId, groupId);
-          }}
-        />
+          {showUngrouped && (
+            <AssignUngroupedDnD
+              ungroupedStudents={ungroupedStudents}
+              groups={groups.filter(g => g.status !== 'LOCKED')}
+              loading={loading}
+              onClose={() => setShowUngrouped(false)}
+              onBulkAssign={handleBulkAutoAssign}
+              onAssign={async (studentId, groupId) => {
+                await handleForceAssign(studentId, groupId);
+              }}
+            />
+          )}
+        </>,
+        document.body
       )}
     </>
   );
