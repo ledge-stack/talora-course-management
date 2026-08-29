@@ -113,8 +113,8 @@ export default function TimetableGrid({ events, canEdit = false, courseUnits = [
         </div>
       )}
 
-      {/* Mobile Agenda View */}
-      <div className="md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* --- MOBILE VIEW (LIST) --- */}
+      <div className="mobile-timetable-list" style={{ flexDirection: 'column', gap: '1.5rem' }}>
         {agendaDays.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: '1.125rem', border: '1px solid var(--border-rule)', borderRadius: 'var(--radius-md)' }}>
             No events scheduled.
@@ -170,8 +170,8 @@ export default function TimetableGrid({ events, canEdit = false, courseUnits = [
         )}
       </div>
 
-      {/* Desktop Grid View */}
-      <div className="hidden md:block table-responsive-wrapper">
+      {/* --- DESKTOP VIEW (GRID) --- */}
+      <div className="desktop-timetable-grid table-responsive-wrapper">
         <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(5, 1fr)', gap: '1px', background: 'var(--border-rule)', border: '1px solid var(--border-rule)', overflow: 'hidden', minWidth: '700px' }}>
           <div style={{ background: 'var(--color-bg-base)', padding: '1rem', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Time</div>
           {days.map((day, i) => (

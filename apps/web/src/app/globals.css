@@ -1112,6 +1112,22 @@
   .profile-grid {
     grid-template-columns: 1fr !important;
   }
+  
+  .desktop-timetable-grid {
+    display: none !important;
+  }
+  
+  .mobile-timetable-list {
+    display: flex !important;
+  }
+}
+
+.desktop-timetable-grid {
+  display: block;
+}
+
+.mobile-timetable-list {
+  display: none;
 }
 
 .profile-grid {
