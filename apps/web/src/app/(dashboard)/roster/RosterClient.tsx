@@ -38,44 +38,48 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem', padding: '1.5rem 1.5rem 0' }}>
-        <div style={{ display: 'flex', gap: '0.75rem', flex: 1 }}>
-          <div style={{ position: 'relative', maxWidth: '320px', width: '100%' }}>
-            <svg style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', padding: '1.25rem 1.5rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flex: 1, alignItems: 'center' }}>
+          
+          {/* Search — ruled style */}
+          <div style={{ position: 'relative', maxWidth: '340px', width: '100%' }}>
+            <svg style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input 
               type="text" 
-              placeholder="Search students by name, ID, or email..." 
-              className="input"
+              placeholder="Search register by name or ID..." 
+              className="input-line"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '2.5rem' }}
+              style={{ paddingLeft: '1.75rem', fontSize: '0.875rem' }}
             />
           </div>
           
-          <div style={{ position: 'relative' }}>
+          {/* Filter — ruled style */}
+          <div style={{ position: 'relative', width: '160px' }}>
             <select 
-              className="select" 
+              className="input-line" 
               value={groupFilter}
               onChange={(e) => setGroupFilter(e.target.value)}
-              style={{ paddingRight: '2.5rem' }}
+              style={{ fontSize: '0.875rem', cursor: 'pointer', appearance: 'none' }}
             >
-              <option value="all">All Groups</option>
+              <option value="all">All Status</option>
               <option value="unassigned">Unassigned Only</option>
               {uniqueGroups.map(g => (
                 <option key={g} value={g}>{g}</option>
               ))}
             </select>
+            <svg style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
       </div>
 
-      <div className="table-responsive-wrapper">
+      <div style={{ overflowX: 'auto' }}>
         <table className="data-table">
           <thead>
             <tr>
-              <th style={{ width: '15%' }}>Student ID</th>
-              <th style={{ width: '25%' }}>Name</th>
-              <th style={{ width: '30%' }}>Email Address</th>
+              <th style={{ width: '16%' }}>Reg / Student ID</th>
+              <th style={{ width: '28%' }}>Name</th>
+              <th style={{ width: '26%' }}>Contact Info</th>
               <th style={{ width: '15%' }}>Group Status</th>
               <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
             </tr>
@@ -83,68 +87,75 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                  No students match your current filters.
+                <td colSpan={5} style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-muted)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: '1.125rem' }}>
+                  No students found in the register.
                 </td>
               </tr>
             ) : (
-              filteredStudents.map((student) => (
-                <tr key={student.id}>
-                  <td style={{ color: 'var(--color-text-primary)', fontWeight: 500, fontFamily: 'monospace' }}>{student.id}</td>
-                  <td style={{ color: 'var(--color-text-primary)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {student.name}
-                      {student.isRetaker && <span className="badge badge-danger" style={{ fontSize: '0.65rem' }}>Retaker</span>}
-                      {student.tookGapYear && <span className="badge badge-subtle" style={{ fontSize: '0.65rem', border: '1px solid var(--color-text-muted)' }}>Gap Year</span>}
-                    </div>
-                  </td>
-                  <td style={{ color: 'var(--color-text-secondary)' }}>
-                    <div>{student.email}</div>
-                    {student.phoneNumber && (
-                      <div style={{ fontSize: '0.75rem', marginTop: '0.125rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        {student.phoneNumber}
+              filteredStudents.map((student) => {
+                const isUnassigned = student.group === 'Unassigned';
+                return (
+                  <tr key={student.id} className={isUnassigned ? 'highlight-row' : ''}>
+                    <td className="reg-number" style={{ color: 'var(--color-text-primary)' }}>{student.id}</td>
+                    
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 500 }}>{student.name}</span>
+                        {student.isRetaker && <span className="stamp stamp-danger">Retaker</span>}
+                        {student.tookGapYear && <span className="stamp stamp-warning" style={{ color: 'var(--color-warning)', border: '1.5px solid var(--color-warning)' }}>Gap Year</span>}
                       </div>
-                    )}
-                  </td>
-                  <td>
-                    {student.group === 'Unassigned' ? (
-                      <span className="badge badge-warning">Unassigned</span>
-                    ) : (
-                      <span className="badge badge-subtle">{student.group}</span>
-                    )}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
-                      <GapYearToggle userId={student.userId} isGapYear={student.tookGapYear} canEdit={canEdit} />
-                      {canEdit && (
-                        <button 
-                          className="btn-ghost" 
-                          style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
-                          onClick={async () => {
-                            if (window.confirm(`Are you sure you want to completely remove ${student.name} from the class roster?`)) {
-                              if (!offeringId) return toast.error('No offering selected');
-                              
-                              const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, {
-                                method: 'DELETE'
-                              });
-                              if (res.ok) {
-                                window.location.reload();
-                              } else {
-                                const data = await res.json();
-                                alert(data.message || 'Failed to remove student');
-                              }
-                            }
-                          }}
-                          title="Remove from Class"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        </button>
+                    </td>
+
+                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>
+                      <div style={{ marginBottom: '0.25rem' }}>{student.email}</div>
+                      {student.phoneNumber && (
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--color-text-muted)' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          {student.phoneNumber}
+                        </div>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+
+                    <td>
+                      {isUnassigned ? (
+                        <span className="badge badge-warning">Unassigned</span>
+                      ) : (
+                        <span className="badge badge-subtle">{student.group}</span>
+                      )}
+                    </td>
+
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
+                        <GapYearToggle userId={student.userId} isGapYear={student.tookGapYear} canEdit={canEdit} />
+                        {canEdit && (
+                          <button 
+                            className="btn-ghost" 
+                            style={{ padding: '0.4rem', color: 'var(--color-danger)' }}
+                            onClick={async () => {
+                              if (window.confirm(`Are you sure you want to completely strike ${student.name} from the class register?`)) {
+                                if (!offeringId) return toast.error('No offering selected');
+                                
+                                const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, {
+                                  method: 'DELETE'
+                                });
+                                if (res.ok) {
+                                  window.location.reload();
+                                } else {
+                                  const data = await res.json();
+                                  alert(data.message || 'Failed to remove student');
+                                }
+                              }
+                            }}
+                            title="Strike from Register"
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
