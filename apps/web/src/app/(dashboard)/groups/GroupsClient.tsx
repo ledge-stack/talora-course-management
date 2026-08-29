@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import ClassSettingsModal from './ClassSettingsModal';
 import AssignUngroupedDnD from './AssignUngroupedDnD';
@@ -696,7 +697,10 @@ export default function GroupsClient({
         const group = localGroups.find(g => g.id === openDropdownId);
         if (!group) return null;
         const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
-        return (
+        
+        if (typeof document === 'undefined') return null;
+
+        return createPortal(
           <div
             style={{
               position: 'fixed',
@@ -750,7 +754,8 @@ export default function GroupsClient({
                 Lock group
               </button>
             )}
-          </div>
+          </div>,
+          document.body
         );
       })()}
 
