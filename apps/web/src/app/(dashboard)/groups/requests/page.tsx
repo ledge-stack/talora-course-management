@@ -64,13 +64,14 @@ export default async function GroupRequestsPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1>Group change requests</h1>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Group changes</div>
+          <h1>Requests</h1>
           <p>{offeringName} — pending and history</p>
         </div>
       </header>
 
       {/* Main Content Card */}
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Table */}
         <div className="table-responsive-wrapper">
           <table className="data-table">
@@ -95,7 +96,7 @@ export default async function GroupRequestsPage() {
                 requests.map((req) => (
                   <tr key={req.id}>
                     <td style={{ color: 'var(--color-text-primary)' }}>
-                      <div className="font-medium">{req.studentName}</div>
+                      <div style={{ fontWeight: 500, fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{req.studentName}</div>
                       <div className="reg-number">{req.studentNumber}</div>
                     </td>
                     <td style={{ color: 'var(--color-text-secondary)' }}>{req.fromGroupName}</td>
