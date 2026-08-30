@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import ClassSettingsModal from './ClassSettingsModal';
 import AssignUngroupedDnD from './AssignUngroupedDnD';
@@ -59,6 +61,8 @@ export default function GroupsClient({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
+  const MENU_WIDTH = 180;
   const [showRequestsFor, setShowRequestsFor] = useState<string | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,7 +80,19 @@ export default function GroupsClient({
 
   const [showUngrouped, setShowUngrouped] = useState(false);
   const [ungroupedStudents, setUngroupedStudents] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedGroupForStudent, setSelectedGroupForStudent] = useState<Record<string, string>>({});
+
+  // Close dropdown when user scrolls or clicks outside
+  useEffect(() => {
+    const close = () => { setOpenDropdownId(null); setDropdownPos(null); };
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, []);
 
   const filteredGroups = localGroups.filter(g => {
     const matchesSearch = 
@@ -378,20 +394,19 @@ export default function GroupsClient({
   };
 
   const handleDeleteGroup = async (groupId: string) => {
-    if (!confirm('Are you sure you want to delete this group? All members will become ungrouped. This cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this group? All members will be removed and groups will be renumbered.')) return;
     setLoading(true);
+    // Optimistic UI update
+    setLocalGroups(prev => prev.filter(g => g.id !== groupId));
     try {
       const res = await fetch(`/api/v1/groups/${groupId}`, {
         method: 'DELETE'
       });
-      if (!res.ok) {
-         const data = await res.json();
-         throw new Error(data.message || 'Failed to delete group');
-      }
-      setLocalGroups(prev => prev.filter(g => g.id !== groupId));
+      if (!res.ok) throw new Error('Failed to delete group');
       router.refresh();
     } catch (err: any) {
       alert(err.message);
+      router.refresh(); // Revert optimistic update on failure
     } finally {
       setLoading(false);
     }
@@ -467,14 +482,14 @@ export default function GroupsClient({
 
   return (
     <>
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
+      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
         <div className="toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
             <div style={{ position: 'relative', flex: '1 1 200px', minWidth: '150px' }}>
               <svg style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input 
                 type="text" 
-                placeholder="Search groups..." 
+                placeholder="Search groups" 
                 className="input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -488,7 +503,7 @@ export default function GroupsClient({
               onChange={(e) => setStatusFilter(e.target.value)}
               style={{ flex: '0 0 auto', minWidth: '140px' }}
             >
-              <option value="all">All Statuses</option>
+              <option value="all">All statuses</option>
               <option value="FORMING">Forming</option>
               <option value="COMPLETE">Complete</option>
               <option value="INCOMPLETE">Incomplete</option>
@@ -511,12 +526,12 @@ export default function GroupsClient({
                   disabled={loading}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Assign Ungrouped
+                  Assign ungrouped
                 </button>
                 <button 
                   className="btn-ghost flex items-center justify-center px-3 text-text-secondary" 
                   onClick={() => setShowSettingsModal(true)}
-                  title="Class Group Restrictions"
+                  title="Class group restrictions"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
@@ -530,7 +545,7 @@ export default function GroupsClient({
                 disabled={loading}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                Auto-Assign Me
+                Auto-assign me
               </button>
             )}
           </div>
@@ -540,9 +555,9 @@ export default function GroupsClient({
           <table className="data-table">
             <thead>
               <tr>
-                <th style={{ width: '25%' }}>Group Name</th>
+                <th style={{ width: '25%' }}>Group</th>
                 <th style={{ width: '25%' }}>Leader</th>
-                <th style={{ width: '20%' }}>Members</th>
+                <th style={{ width: '20%' }}>Roll call</th>
                 <th style={{ width: '15%' }}>Status</th>
                 <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
               </tr>
@@ -556,7 +571,7 @@ export default function GroupsClient({
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-text-muted opacity-50 mb-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         <p className="text-text-primary font-medium">No groups in this course yet.</p>
                         <p className="text-sm max-w-md mx-auto leading-relaxed">
-                          If you are looking for your groups, make sure you have the correct course selected using the <strong>Course Switcher</strong> at the top right of the screen.
+                          If you're looking for your groups, check that you have the right course selected using the course switcher at the top right of the screen.
                         </p>
                       </div>
                     ) : (
@@ -574,8 +589,8 @@ export default function GroupsClient({
                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
                       <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          {group.name}
-                          {isOwnGroup && <span className="badge badge-success">Your Group</span>}
+                          <span className="font-display">{group.name}</span>
+                          {isOwnGroup && <span className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)' }}>Your group</span>}
                           
                           {canManage ? (
                             <button 
@@ -584,11 +599,11 @@ export default function GroupsClient({
                               style={{ cursor: 'pointer', border: 'none', background: group.isOpen ? 'var(--color-primary-transparent)' : 'rgba(255,255,255,0.05)' }}
                               title="Click to toggle group open/closed"
                             >
-                              {group.isOpen ? 'Open' : 'Invite Only'}
+                              {group.isOpen ? 'Open' : 'Invite only'}
                             </button>
                           ) : (
                             <span className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}>
-                              {group.isOpen ? 'Open' : 'Invite Only'}
+                              {group.isOpen ? 'Open' : 'Invite only'}
                             </span>
                           )}
 
@@ -601,7 +616,7 @@ export default function GroupsClient({
                               className="badge badge-warning"
                               style={{ cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                             >
-                              <span>{groupRequests.length} Request{groupRequests.length !== 1 ? 's' : ''}</span>
+                              <span>{groupRequests.length} request{groupRequests.length !== 1 ? 's' : ''}</span>
                             </button>
                           )}
                         </div>
@@ -616,12 +631,15 @@ export default function GroupsClient({
                         )}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ flex: 1, height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', background: 'var(--color-primary)', width: `${(group.membersCount / group.capacity) * 100}%` }} />
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', minWidth: '32px' }}>
-                            {group.membersCount} / {group.capacity}
+                        <div className="roster-dots">
+                          {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`}
+                            />
+                          ))}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
+                            {group.membersCount}/{group.capacity}
                           </span>
                         </div>
                       </td>
@@ -639,7 +657,7 @@ export default function GroupsClient({
                             onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
                             disabled={loading}
                           >
-                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to Join') : 'Transfer Here'}
+                            {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request to join') : 'Transfer here'}
                           </button>
                         )}
                         
@@ -650,7 +668,7 @@ export default function GroupsClient({
                             onClick={() => handleLeaveGroup(group.id)}
                             disabled={loading}
                           >
-                            Leave Group
+                            Leave group
                           </button>
                         )}
 
@@ -661,65 +679,28 @@ export default function GroupsClient({
                               style={{ padding: '0.4rem', color: 'var(--color-text-muted)' }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setOpenDropdownId(openDropdownId === group.id ? null : group.id);
+                                if (openDropdownId === group.id) {
+                                  setOpenDropdownId(null);
+                                  setDropdownPos(null);
+                                } else {
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                  const estimatedMenuHeight = 220;
+                                  const spaceBelow = window.innerHeight - rect.bottom;
+                                  const openUpward = spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight;
+                                  // Right-align menu with button, clamped so it never leaves the viewport
+                                  const rawLeft = rect.right - MENU_WIDTH;
+                                  const clampedLeft = Math.max(8, Math.min(rawLeft, window.innerWidth - MENU_WIDTH - 8));
+                                  setDropdownPos({
+                                    top: openUpward ? undefined : rect.bottom + 4,
+                                    bottom: openUpward ? window.innerHeight - rect.top + 4 : undefined,
+                                    left: clampedLeft,
+                                  });
+                                  setOpenDropdownId(group.id);
+                                }
                               }}
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
                             </button>
-                            {openDropdownId === group.id && (
-                              <div 
-                                style={{ 
-                                  position: 'absolute', 
-                                  right: '1.5rem',
-                                  top: '2.5rem',
-                                  background: 'var(--color-bg-surface)', 
-                                  border: '1px solid var(--border-subtle)', 
-                                  borderRadius: '8px', 
-                                  padding: '0.5rem', 
-                                  display: 'flex', 
-                                  flexDirection: 'column', 
-                                  gap: '0.25rem',
-                                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)',
-                                  zIndex: 50,
-                                  minWidth: '150px',
-                                  textAlign: 'left'
-                                }}
-                                onClick={e => e.stopPropagation()}
-                              >
-                                {groupRequests.length > 0 && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }} onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); }}>
-                                    View Join Requests
-                                  </button>
-                                )}
-
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); }}>
-                                  View Members
-                                </button>
-                                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); }}>
-                                  Transfer Leadership
-                                </button>
-                                {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
-                                  <>
-                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); }}>
-                                      Add Member by ID
-                                    </button>
-                                    <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }} onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); }}>
-                                      Reserve Spot
-                                    </button>
-                                  </>
-                                )}
-                                {group.status !== 'LOCKED' && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }} onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); }}>
-                                    Lock Group
-                                  </button>
-                                )}
-                                {isRep && (
-                                  <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-error)' }} onClick={() => { handleDeleteGroup(group.id); setOpenDropdownId(null); }}>
-                                    Delete Group
-                                  </button>
-                                )}
-                              </div>
-                            )}
                           </>
                         )}
                       </td>
@@ -732,231 +713,309 @@ export default function GroupsClient({
         </div>
       </div>
 
-      {showRequestsFor && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowRequestsFor(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}
-            onClick={(e) => e.stopPropagation()}
+      {/* Portal dropdown — renders outside table so it's never clipped */}
+      {openDropdownId && dropdownPos && (() => {
+        const group = localGroups.find(g => g.id === openDropdownId);
+        if (!group) return null;
+        const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
+        
+        if (typeof document === 'undefined') return null;
+
+        return createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: dropdownPos.top,
+              bottom: dropdownPos.bottom,
+              left: dropdownPos.left,
+              width: MENU_WIDTH,
+              background: 'var(--color-bg-surface)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.25rem',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
+              zIndex: 9999,
+              minWidth: '175px',
+              textAlign: 'left',
+            }}
+            onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', flexShrink: 0 }}>Pending Join Requests</h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
-              {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
-                <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div style={{ flex: '1 1 200px' }}>
-                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
-                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                      {req.studentNumber ? `${req.studentNumber} · ` : ''}{req.studentEmail}
-                    </div>
-                    {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button 
-                      className="btn-ghost" 
-                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
-                      onClick={() => handleProcessRequest(req.id, 'REJECTED')}
-                      disabled={loading}
-                    >
-                      Reject
-                    </button>
-                    <button 
-                      className="btn-primary" 
-                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
-                      onClick={() => handleProcessRequest(req.id, 'APPROVED')}
-                      disabled={loading}
-                    >
-                      Approve
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowRequestsFor(null)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRenameGroup && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowRenameGroup(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
-            <form onSubmit={handleRenameSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="label">New Group Name</label>
-                <input 
-                  type="text" 
-                  className="input" 
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                  autoFocus
-                  required
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowRenameGroup(null)}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading}>Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showMembersGroup && (() => {
-        const activeGroup = groups.find(g => g.id === showMembersGroup);
-        const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
-
-        return (
-          <div 
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-            onClick={() => setShowMembersGroup(null)}
-          >
-            <div 
-              className="modal-content"
-              style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                {groupMembers.map(m => (
-                  <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
-                        {m.studentNumber} {m.phoneNumber && `· 📞 ${m.phoneNumber}`}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {m.isLeader ? (
-                        <span className="badge badge-primary">Leader</span>
-                      ) : (
-                        canManageActiveGroup && (
-                          <button 
-                            className="btn-ghost" 
-                            style={{ padding: '0.25rem', color: 'var(--color-error)' }}
-                            onClick={() => handleRemoveMember(showMembersGroup, m.id)}
-                            disabled={loading}
-                            title="Remove Member"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
-              </div>
-            </div>
-          </div>
+            {groupRequests.length > 0 && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-primary)' }}
+                onClick={() => { setShowRequestsFor(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                View join requests
+              </button>
+            )}
+            <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+              onClick={() => { handleFetchMembers(group.id, 'view'); setOpenDropdownId(null); setDropdownPos(null); }}>
+              View members
+            </button>
+            <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+              onClick={() => { handleFetchMembers(group.id, 'transfer'); setOpenDropdownId(null); setDropdownPos(null); }}>
+              Transfer leadership
+            </button>
+            {group.status !== 'LOCKED' && group.membersCount < group.capacity && (
+              <>
+                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+                  onClick={() => { handleAddByStudentNumber(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                  Add member by ID
+                </button>
+                <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start' }}
+                  onClick={() => { setShowReserveSpot(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                  Reserve spot
+                </button>
+              </>
+            )}
+            {group.status !== 'LOCKED' && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-warning)' }}
+                onClick={() => { handleLockGroup(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                Lock group
+              </button>
+            )}
+            {(isRep || group.leaderId === currentUserId) && (
+              <button className="btn-ghost" style={{ padding: '0.5rem', fontSize: '0.8125rem', justifyContent: 'flex-start', color: 'var(--color-danger)' }}
+                onClick={() => { handleDeleteGroup(group.id); setOpenDropdownId(null); setDropdownPos(null); }}>
+                Delete group
+              </button>
+            )}
+          </div>,
+          document.body
         );
       })()}
 
-      {showTransferLeadership && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowTransferLeadership(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Select a member to transfer leadership to:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {groupMembers.filter(m => !m.isLeader).length === 0 ? (
-                <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No other members to transfer to.</div>
-              ) : (
-                groupMembers.filter(m => !m.isLeader).map(m => (
-                  <button 
-                    key={m.id} 
-                    className="btn-ghost"
-                    style={{ justifyContent: 'flex-start', padding: '0.75rem', border: '1px solid var(--border-subtle)' }}
-                    onClick={() => handleTransferLeadership(m.id)}
-                    disabled={loading}
-                  >
-                    {m.fullName} ({m.studentNumber})
-                  </button>
-                ))
-              )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {typeof document !== 'undefined' && createPortal(
+        <>
+          {showRequestsFor && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowRequestsFor(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '500px', borderRadius: '12px', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', flexShrink: 0 }}>Pending Join Requests</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.5rem', flex: 1 }}>
+                  {pendingRequests.filter(r => (r.targetGroupId || r.groupId) === showRequestsFor).map(req => (
+                    <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ flex: '1 1 200px' }}>
+                        <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{req.studentName}</div>
+                        <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                          {req.studentNumber ? `${req.studentNumber} · ` : ''}{req.studentEmail}
+                        </div>
+                        {req.reason && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{req.reason}"</div>}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          className="btn-ghost" 
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
+                          onClick={() => handleProcessRequest(req.id, 'REJECTED')}
+                          disabled={loading}
+                        >
+                          Reject
+                        </button>
+                        <button 
+                          className="btn-primary" 
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.8125rem' }}
+                          onClick={() => handleProcessRequest(req.id, 'APPROVED')}
+                          disabled={loading}
+                        >
+                          Approve
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-      {showReserveSpot && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
-          onClick={() => setShowReserveSpot(null)}
-        >
-          <div 
-            className="modal-content"
-            style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Reserve Spot</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
-            <form onSubmit={handleReserveSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="label">Student Number</label>
-                <input 
-                  type="text" 
-                  className="input" 
-                  value={reserveStudentNumber}
-                  onChange={(e) => setReserveStudentNumber(e.target.value)}
-                  autoFocus
-                  required
-                  placeholder="e.g. 21/U/1234"
-                />
+                <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary" onClick={() => setShowRequestsFor(null)}>Close</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowReserveSpot(null)}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={loading}>Reserve</button>
+            </div>
+          )}
+
+          {showRenameGroup && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowRenameGroup(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Rename Group</h3>
+                <form onSubmit={handleRenameSubmit}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="label">New Group Name</label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      value={newGroupName}
+                      onChange={(e) => setNewGroupName(e.target.value)}
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button type="button" className="btn-secondary" onClick={() => setShowRenameGroup(null)}>Cancel</button>
+                    <button type="submit" className="btn-primary" disabled={loading}>Save</button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {showSettingsModal && offeringId && (
-        <ClassSettingsModal
-          offeringId={offeringId}
-          currentMin={minGroupSize || 1}
-          currentMax={maxGroupSize || 5}
-          onClose={() => setShowSettingsModal(false)}
-        />
-      )}
+          {showMembersGroup && (() => {
+            const activeGroup = groups.find(g => g.id === showMembersGroup);
+            const canManageActiveGroup = activeGroup && (isRep || currentUserId === activeGroup.leaderId);
 
-      {showUngrouped && (
-        <AssignUngroupedDnD
-          ungroupedStudents={ungroupedStudents}
-          groups={groups.filter(g => g.status !== 'LOCKED')}
-          loading={loading}
-          onClose={() => setShowUngrouped(false)}
-          onBulkAssign={handleBulkAutoAssign}
-          onAssign={async (studentId, groupId) => {
-            await handleForceAssign(studentId, groupId);
-          }}
-        />
+            return (
+              <div 
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+                onClick={() => setShowMembersGroup(null)}
+              >
+                <div 
+                  className="modal-content"
+                  style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Group Members</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    {groupMembers.map(m => (
+                      <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ color: 'var(--color-text-primary)' }}>{m.fullName}</span>
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
+                            {m.studentNumber} {m.phoneNumber && `· 📞 ${m.phoneNumber}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {m.isLeader ? (
+                            <span className="badge badge-primary">Leader</span>
+                          ) : (
+                            canManageActiveGroup && (
+                              <button 
+                                className="btn-ghost" 
+                                style={{ padding: '0.25rem', color: 'var(--color-error)' }}
+                                onClick={() => handleRemoveMember(showMembersGroup, m.id)}
+                                disabled={loading}
+                                title="Remove Member"
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button className="btn-secondary" onClick={() => setShowMembersGroup(null)}>Close</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {showTransferLeadership && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowTransferLeadership(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Transfer Leadership</h3>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Select a member to transfer leadership to:</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  {groupMembers.filter(m => !m.isLeader).length === 0 ? (
+                    <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No other members to transfer to.</div>
+                  ) : (
+                    groupMembers.filter(m => !m.isLeader).map(m => (
+                      <button 
+                        key={m.id} 
+                        className="btn-ghost"
+                        style={{ justifyContent: 'flex-start', padding: '0.75rem', border: '1px solid var(--border-subtle)' }}
+                        onClick={() => handleTransferLeadership(m.id)}
+                        disabled={loading}
+                      >
+                        {m.fullName} ({m.studentNumber})
+                      </button>
+                    ))
+                  )}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary" onClick={() => setShowTransferLeadership(null)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showReserveSpot && (
+            <div 
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+              onClick={() => setShowReserveSpot(null)}
+            >
+              <div 
+                className="modal-content"
+                style={{ background: 'var(--color-bg-surface)', padding: '1.5rem', width: '90%', maxWidth: '400px', borderRadius: '12px', maxHeight: '90dvh', overflowY: 'auto' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Reserve Spot</h3>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>Reserve a spot for a student who hasn't joined Talora yet.</p>
+                <form onSubmit={handleReserveSubmit}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="label">Student Number</label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      value={reserveStudentNumber}
+                      onChange={(e) => setReserveStudentNumber(e.target.value)}
+                      autoFocus
+                      required
+                      placeholder="e.g. 21/U/1234"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button type="button" className="btn-secondary" onClick={() => setShowReserveSpot(null)}>Cancel</button>
+                    <button type="submit" className="btn-primary" disabled={loading}>Reserve</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {showSettingsModal && offeringId && (
+            <ClassSettingsModal
+              offeringId={offeringId}
+              currentMin={minGroupSize || 1}
+              currentMax={maxGroupSize || 5}
+              onClose={() => setShowSettingsModal(false)}
+            />
+          )}
+
+          {showUngrouped && (
+            <AssignUngroupedDnD
+              ungroupedStudents={ungroupedStudents}
+              groups={groups.filter(g => g.status !== 'LOCKED')}
+              loading={loading}
+              onClose={() => setShowUngrouped(false)}
+              onBulkAssign={handleBulkAutoAssign}
+              onAssign={async (studentId, groupId) => {
+                await handleForceAssign(studentId, groupId);
+              }}
+            />
+          )}
+        </>,
+        document.body
       )}
     </>
   );

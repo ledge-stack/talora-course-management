@@ -79,17 +79,31 @@ export async function DELETE(
 
     if (!group) return NextResponse.json({ code: 'NOT_FOUND', message: 'Group not found' }, { status: 404 });
 
-    // Only class representatives (or platform admins) can delete a group entirely
     const isRep = scope.roles.some(r => r.role === 'CLASS_REPRESENTATIVE' || r.role === 'PLATFORM_ADMIN');
+    const isLeader = group.leaderId === scope.userId;
 
-    if (!isRep) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only Class Representatives can delete a group' }, { status: 403 });
+    if (!isRep && !isLeader) {
+      return NextResponse.json({ code: 'FORBIDDEN', message: 'Not authorized to delete this group' }, { status: 403 });
     }
 
-    // Prisma's onDelete: Cascade will automatically delete GroupMembership, GroupChangeRequest, and GroupPlaceholder
-    await db.group.delete({
-      where: { id: params.id }
+    await db.group.delete({ where: { id: group.id } });
+
+    // Renumber remaining standard "Group N" groups for this offering
+    const allGroups = await db.group.findMany({
+      where: { offeringId: group.offeringId },
+      orderBy: { createdAt: 'asc' }
     });
+
+    let number = 1;
+    for (const g of allGroups) {
+      if (/^Group \d+$/i.test(g.name)) {
+         await db.group.update({
+            where: { id: g.id },
+            data: { name: `Group ${number}` }
+         });
+         number++;
+      }
+    }
 
     return NextResponse.json({ message: 'Group deleted successfully' });
   } catch (error) {

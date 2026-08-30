@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       
       const workbook = new ExcelJS.Workbook();
       if (file.name.endsWith('.csv')) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { Readable } = require('stream');
         const stream = Readable.from(buffer);
         await workbook.csv.read(stream);
@@ -96,6 +97,7 @@ export async function POST(request: Request) {
       
       const workbook = new ExcelJS.Workbook();
       if (file.name.endsWith('.csv')) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { Readable } = require('stream');
         const stream = Readable.from(buffer);
         await workbook.csv.read(stream);
@@ -124,7 +126,7 @@ export async function POST(request: Request) {
 
       try {
         const result = await model.generateContent(prompt);
-        let text = result.response.text().replace(/```json/gi, '').replace(/```/gi, '').trim();
+        const text = result.response.text().replace(/```json/gi, '').replace(/```/gi, '').trim();
         const aiParsed = JSON.parse(text);
         extractedData = aiParsed.extractedRows;
       } catch (e) {
@@ -248,7 +250,7 @@ export async function POST(request: Request) {
                 data: {
                   offeringId: offering.id,
                   name: data.groupName,
-                  leaderId: user!.id, // The first student added to the group becomes the leader
+                  leaderId: user!.id, // Set the first imported student as the leader
                   status: 'INCOMPLETE',
                   isOpen: true,
                 }
@@ -276,34 +278,18 @@ export async function POST(request: Request) {
              } else {
                results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Enrolled as ungrouped.` });
              }
-           } else if (membershipExists.groupId !== group!.id) {
-             const oldGroupId = membershipExists.groupId;
-             const newGroupId = group!.id;
-             
+          } else if (membershipExists.groupId !== group!.id) {
              // User is in a different group, update their group
-             const memberCount = await db.groupMembership.count({ where: { groupId: newGroupId } });
+             const memberCount = await db.groupMembership.count({ where: { groupId: group!.id } });
              if (memberCount < offering.maxGroupSize || dryRun) {
                if (!dryRun) {
                  await db.groupMembership.update({
                    where: { studentId_offeringId: { studentId: user!.id, offeringId: offering.id } },
-                   data: { groupId: newGroupId }
+                   data: { groupId: group!.id }
                  });
-
-                 // Was this student the leader of their old group?
-                 const oldGroup = await db.group.findUnique({ where: { id: oldGroupId } });
-                 if (oldGroup && oldGroup.leaderId === user!.id) {
-                     // The leader of the old group is moving to this new group.
-                     // Make them the leader of the new group to preserve leadership on rename/merge.
-                     await db.group.update({
-                         where: { id: newGroupId },
-                         data: { leaderId: user!.id }
-                     });
-                     results.details.push({ row: data, warning: `Moved to '${data.groupName}' and established as Leader.` });
-                 } else {
-                     results.details.push({ row: data, warning: `Moved from previous group to '${data.groupName}'.` });
-                 }
                }
                isGroupUpdated = true;
+               results.details.push({ row: data, warning: `Moved from previous group to '${data.groupName}'.` });
              } else {
                results.details.push({ row: data, warning: `Group '${data.groupName}' is full. Kept in previous group.` });
              }
@@ -322,20 +308,6 @@ export async function POST(request: Request) {
         console.error('Error importing row:', err);
         results.errors++;
         results.details.push({ row: data, error: err.message });
-      }
-    }
-
-    // --- CLEANUP PHASE ---
-    if (!dryRun) {
-      // Delete any groups that were created but have 0 members 
-      // (e.g. ghost groups from errors, or old groups that were completely emptied by transfers)
-      const allGroups = await db.group.findMany({
-        where: { offeringId: offering.id },
-        include: { _count: { select: { memberships: true } } }
-      });
-      const emptyGroupIds = allGroups.filter(g => g._count.memberships === 0).map(g => g.id);
-      if (emptyGroupIds.length > 0) {
-        await db.group.deleteMany({ where: { id: { in: emptyGroupIds } } });
       }
     }
 

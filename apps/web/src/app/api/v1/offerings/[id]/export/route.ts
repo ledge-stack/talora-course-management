@@ -15,10 +15,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const offering = await db.courseOffering.findUnique({
       where: { id: params.id },
-      include: { class: true, unit: true }
+      include: { unit: true, class: true }
     });
-    
-    if (!offering) return new NextResponse('Not found', { status: 404 });
+
+    if (!offering) return new NextResponse('Offering not found', { status: 404 });
 
     const rosterUsers = await db.user.findMany({
       where: {
@@ -26,36 +26,45 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           { enrollments: { some: { offeringId: params.id } } },
           { memberships: { some: { offeringId: params.id } } }
         ]
+      },
+      include: {
+        memberships: {
+          where: { offeringId: params.id },
+          include: { group: true }
+        }
       }
     });
 
-    // Flat alphabetical list
     const students = rosterUsers.map(user => ({
       fullName: user.fullName,
       studentNumber: user.studentNumber || '',
       registrationNumber: user.registrationNumber || '',
-      phoneNumber: user.phoneNumber || 'N/A'
+      email: user.email,
+      group: user.memberships[0]?.group?.name || 'Unassigned'
     }));
 
+    // Alphabetical sort by full name
     students.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Class Roster');
 
+    // Define columns
     worksheet.columns = [
       { header: 'Full Name', key: 'fullName', width: 35 },
       { header: 'Student Number', key: 'studentNumber', width: 20 },
       { header: 'Registration Number', key: 'registrationNumber', width: 25 },
-      { header: 'Phone Number', key: 'phoneNumber', width: 20 }
+      { header: 'Email', key: 'email', width: 35 },
+      { header: 'Group', key: 'group', width: 20 }
     ];
 
     // Style the header row
     worksheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.font = { bold: true };
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FF4F46E5' } // Primary color
+        fgColor: { argb: 'FFEEEEEE' }
       };
       cell.border = {
         top: { style: 'thin' },
@@ -66,7 +75,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
     });
 
-    students.forEach(student => {
+    // Add data rows
+    students.forEach((student) => {
       worksheet.addRow(student);
     });
 
@@ -86,9 +96,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const buffer = await workbook.xlsx.writeBuffer();
     
-    const safeClassName = offering.class.name.replace(/[^a-z0-9]/gi, '_');
-    const safeUnitCode = offering.unit.code.replace(/[^a-z0-9]/gi, '_');
-    const filename = `${safeClassName}_${safeUnitCode}_Roster.xlsx`;
+    // Proper filename with unit code
+    const unitCode = offering.unit.code.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `class_roster_${unitCode}.xlsx`;
 
     return new NextResponse(buffer, {
       status: 200,
