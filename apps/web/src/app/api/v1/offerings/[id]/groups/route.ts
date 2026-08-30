@@ -99,18 +99,19 @@ export async function POST(
     }
     const autoName = `Group ${maxNumber + 1}`;
 
-    // Prisma casts string to enum automatically
     const newGroup = await db.group.create({
       data: {
         name: autoName,
         offeringId: offering.id,
         leaderId: scope.userId,
         status: 'FORMING',
-        memberships: {
-          create: [
-            { studentId: scope.userId, offeringId: offering.id }
-          ]
-        }
+        ...(isStudent ? {
+          memberships: {
+            create: [
+              { studentId: scope.userId, offeringId: offering.id }
+            ]
+          }
+        } : {})
       },
     });
 

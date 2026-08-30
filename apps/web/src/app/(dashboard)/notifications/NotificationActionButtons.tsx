@@ -34,7 +34,7 @@ export default function NotificationActionButtons({ notificationId }: { notifica
       className="btn-ghost" 
       style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-primary)' }}
     >
-      Mark Read
+      Mark read
     </button>
   );
 }

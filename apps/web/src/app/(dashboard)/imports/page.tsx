@@ -94,27 +94,29 @@ export default function ImportsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
       <header className="page-header">
         <div>
-          <h1>Bulk Imports</h1>
-          <p>Upload CSV files to automatically enroll students and form groups.</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Bulk imports</div>
+          <h1>Import a class roster</h1>
+          <p>Upload a CSV file to automatically enroll students and form groups.</p>
         </div>
       </header>
 
-      <div className="glass-panel" style={{ padding: '2rem' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Import Class Roster (Admin / Rep)</h2>
+      <div className="ledger-panel" style={{ padding: '2rem' }}>
+        <div className="eyebrow" style={{ marginBottom: '1rem' }}>Admin / rep only</div>
         <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
           Upload a CSV file containing <strong>FullName</strong>, <strong>Email</strong>, and <strong>StudentNumber</strong> columns.
-          The background worker will parse the file, create missing user accounts, and enroll students into your class.
+          The background worker parses the file, creates missing user accounts, and enrolls students into your class.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Course Offering</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Course offering</label>
             <select 
               value={offeringId} 
               onChange={e => setOfferingId(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--color-bg-surface)', color: 'var(--color-text-primary)' }}
+              className="select"
+              style={{ width: '100%' }}
             >
-              {offerings.length === 0 && <option value="">Loading offerings...</option>}
+              {offerings.length === 0 && <option value="">Loading offerings…</option>}
               {offerings.map(o => (
                 <option key={o.id} value={o.id}>{o.class?.name || o.id} - {o.unit?.code || 'Course'}</option>
               ))}
@@ -122,7 +124,7 @@ export default function ImportsPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>CSV File</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>CSV file</label>
             <div 
               style={{
                 border: '2px dashed var(--border-strong)',
@@ -149,7 +151,7 @@ export default function ImportsPage() {
             >
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: '0 auto 1rem', color: 'var(--color-primary)' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               {file ? (
-                <div style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{file.name}</div>
+                <div className="reg-number" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>{file.name}</div>
               ) : (
                 <div>Drag and drop your CSV file here, or click to browse</div>
               )}
@@ -169,7 +171,7 @@ export default function ImportsPage() {
             disabled={isUploading || !file}
             style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}
           >
-            {isUploading ? 'Processing...' : 'Upload & Start Import'}
+            {isUploading ? 'Processing…' : 'Upload and start import'}
           </button>
         </div>
 
@@ -177,8 +179,8 @@ export default function ImportsPage() {
         {jobStatus && (
           <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--color-bg-base)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <strong style={{ color: 'var(--color-text-primary)' }}>Import Status: <span style={{ textTransform: 'capitalize' }}>{jobStatus.state}</span></strong>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>{jobStatus.progress ?? 0}%</span>
+              <strong style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>Import status: <span style={{ textTransform: 'capitalize' }}>{jobStatus.state}</span></strong>
+              <span className="reg-number">{jobStatus.progress ?? 0}%</span>
             </div>
             
             <div style={{ height: '8px', background: 'var(--border-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -193,7 +195,7 @@ export default function ImportsPage() {
             {jobStatus.state === 'completed' && jobStatus.result && (
               <div style={{ marginTop: '1rem', color: 'var(--color-success)', fontSize: '0.875rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                Successfully enrolled {jobStatus.result.importedCount} students out of {jobStatus.result.totalRows} rows.
+                Enrolled {jobStatus.result.importedCount} of {jobStatus.result.totalRows} students.
               </div>
             )}
 

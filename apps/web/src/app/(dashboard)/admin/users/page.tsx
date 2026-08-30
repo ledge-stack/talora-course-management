@@ -169,33 +169,35 @@ export default function AdminUsersPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', marginBottom: '0.25rem', color: 'var(--color-text-primary)' }}>User Directory &amp; Roles</h1>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Platform admin</div>
+          <h1>User directory</h1>
           <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
-            Manage platform users, their global role assignments, and account access.
+            Manage platform users, role assignments, and account access.
           </p>
         </div>
       </header>
 
-      <div className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="ledger-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, maxWidth: '600px' }}>
           <input
             type="text"
-            placeholder="Search by name, email or ID..."
+            placeholder="Search by name, email, or ID"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ flex: 1, padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}
+            className="input"
+            style={{ flex: 1 }}
           />
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            style={{ padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-bg-base)', border: '1px solid var(--border-subtle)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}
+            className="select"
           >
-            <option value="ALL">All Roles</option>
-            <option value="PLATFORM_ADMIN">Platform Admin</option>
-            <option value="CLASS_REPRESENTATIVE">Class Rep</option>
-            <option value="GROUP_LEADER">Group Leader</option>
+            <option value="ALL">All roles</option>
+            <option value="PLATFORM_ADMIN">Platform admin</option>
+            <option value="CLASS_REPRESENTATIVE">Class rep</option>
+            <option value="GROUP_LEADER">Group leader</option>
             <option value="STUDENT">Student</option>
           </select>
         </div>
@@ -207,57 +209,54 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <div className="glass-panel" style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+      <div className="ledger-panel" style={{ overflowX: 'auto' }}>
+        <table className="data-table" style={{ width: '100%' }}>
           <thead>
-            <tr style={{ background: 'var(--color-bg-base)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Name</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Email</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Roles</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Status</th>
-              <th style={{ padding: '1rem 1.5rem', fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>Actions</th>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Status</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>Loading users...</td></tr>
+              <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>Loading users…</td></tr>
             ) : users.length === 0 ? (
               <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>No users found.</td></tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} style={{ borderBottom: '1px solid var(--border-subtle)', opacity: user.isActive ? 1 : 0.6 }}>
-                  <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-primary)' }}>
-                    <div style={{ fontWeight: 500 }}>{user.fullName}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{user.studentNumber || 'No ID'}</div>
+                <tr key={user.id} style={{ opacity: user.isActive ? 1 : 0.6 }}>
+                  <td style={{ color: 'var(--color-text-primary)' }}>
+                    <div style={{ fontWeight: 500, fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{user.fullName}</div>
+                    <div className="reg-number">{user.studentNumber || 'No ID'}</div>
                   </td>
-                  <td style={{ padding: '1rem 1.5rem', color: 'var(--color-text-secondary)' }}>{user.email}</td>
-                  <td style={{ padding: '1rem 1.5rem' }}>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{user.email}</td>
+                  <td>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       {user.roles.map(r => (
                         <span key={r.role} className="badge" style={{
-                          background: r.role === 'PLATFORM_ADMIN' ? 'var(--color-danger-bg)' : 'var(--color-primary-transparent)',
-                          color: r.role === 'PLATFORM_ADMIN' ? 'var(--color-danger)' : 'var(--color-primary)'
+                          background: r.role === 'PLATFORM_ADMIN' ? 'var(--color-danger-bg)' : r.role === 'GROUP_LEADER' ? 'var(--color-accent-violet-bg)' : 'var(--color-primary-transparent)',
+                          color: r.role === 'PLATFORM_ADMIN' ? 'var(--color-danger)' : r.role === 'GROUP_LEADER' ? 'var(--color-accent-violet)' : 'var(--color-primary)'
                         }}>
-                          {r.role}{r.role === 'CLASS_REPRESENTATIVE' && r.classId ? '' : r.role === 'CLASS_REPRESENTATIVE' ? ' ⚠️' : ''}
+                          {r.role.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase())}{r.role === 'CLASS_REPRESENTATIVE' && !r.classId ? ' ⚠️' : ''}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td style={{ padding: '1rem 1.5rem' }}>
-                    <span className="badge" style={{
-                      background: user.isActive ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-danger-bg)',
-                      color: user.isActive ? 'var(--color-success)' : 'var(--color-danger)'
-                    }}>
+                  <td>
+                    <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
                       {user.isActive ? 'Active' : 'Suspended'}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                  <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                       <button onClick={() => handleToggleActive(user)} className="btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>
                         {user.isActive ? 'Suspend' : 'Activate'}
                       </button>
                       <button onClick={() => openEditModal(user)} className="btn-primary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>
-                        Edit Roles
+                        Edit roles
                       </button>
                       <button onClick={() => handleDeleteAccount(user)} className="btn-ghost" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', color: 'var(--color-danger)' }}>
                         Delete
@@ -273,12 +272,14 @@ export default function AdminUsersPage() {
 
       {/* Edit Roles Modal */}
       {editingUser && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '2rem' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '0.25rem' }}>Edit Roles</h2>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>{editingUser.fullName}</p>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ width: '100%', maxWidth: '440px' }}>
+            <div className="modal-header">
+              <h2 className="modal-title">Edit roles</h2>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>{editingUser.fullName}</p>
+            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {roleOptions.map(role => {
                 const isChecked = editRoles.some(r => r.role === role);
                 const entry = editRoles.find(r => r.role === role);
@@ -291,7 +292,7 @@ export default function AdminUsersPage() {
                         onChange={(e) => toggleRole(role, e.target.checked)}
                         style={{ width: '18px', height: '18px' }}
                       />
-                      <span style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>{role.replace(/_/g, ' ')}</span>
+                      <span style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>{role.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase())}</span>
                     </label>
 
                     {/* Show class selector when CLASS_REPRESENTATIVE is checked */}
@@ -303,7 +304,8 @@ export default function AdminUsersPage() {
                         <select
                           value={entry?.classId || ''}
                           onChange={(e) => setClassForRole(role, e.target.value)}
-                          style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '6px', background: 'var(--color-bg-base)', border: entry?.classId ? '1px solid var(--border-subtle)' : '1px solid var(--color-danger)', color: 'var(--color-text-primary)', outline: 'none', fontSize: '0.875rem' }}
+                          className="select"
+                          style={{ width: '100%', borderColor: entry?.classId ? undefined : 'var(--color-danger)' }}
                         >
                           <option value="">— Select a class —</option>
                           {classes.map(c => (
@@ -322,10 +324,10 @@ export default function AdminUsersPage() {
               })}
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <div className="modal-footer">
               <button className="btn-secondary" onClick={() => setEditingUser(null)}>Cancel</button>
               <button className="btn-primary" onClick={handleRoleSave} disabled={savingRoles}>
-                {savingRoles ? 'Saving...' : 'Save Roles'}
+                {savingRoles ? 'Saving…' : 'Save roles'}
               </button>
             </div>
           </div>

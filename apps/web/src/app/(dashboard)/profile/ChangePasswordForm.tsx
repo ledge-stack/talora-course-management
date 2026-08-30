@@ -52,8 +52,8 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
-      <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '1.25rem' }}>Change Password</h2>
+    <div className="ledger-panel" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
+      <div className="eyebrow" style={{ marginBottom: '1.25rem' }}>Change password</div>
       
       {error && (
         <div style={{ padding: '0.75rem', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
@@ -70,7 +70,7 @@ export default function ChangePasswordForm() {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
-            Current Password
+            Current password
           </label>
           <div style={{ position: 'relative' }}>
             <input 
@@ -97,7 +97,7 @@ export default function ChangePasswordForm() {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
-            New Password
+            New password
           </label>
           <div style={{ position: 'relative' }}>
             <input 
@@ -114,7 +114,7 @@ export default function ChangePasswordForm() {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
-            Confirm New Password
+            Confirm new password
           </label>
           <div style={{ position: 'relative' }}>
             <input 
@@ -131,7 +131,7 @@ export default function ChangePasswordForm() {
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Saving...' : 'Update Password'}
+            {loading ? 'Saving…' : 'Update password'}
           </button>
         </div>
       </form>

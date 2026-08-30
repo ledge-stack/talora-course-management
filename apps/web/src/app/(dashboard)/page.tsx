@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { headers, cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { getCachedOfferingKPIs } from '@/lib/cached-queries';
@@ -47,11 +48,11 @@ export default async function Dashboard() {
               </svg>
             </div>
 
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
-              Welcome to Talora! 🎉
+            <h1 className="font-display" style={{ fontSize: '2.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
+              Welcome to Talora
             </h1>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-              Your account is all set up. The next step is to <strong style={{ color: 'var(--color-text-primary)' }}>enroll in your course units</strong> so the system can assign you to the right groups and show you relevant assignments and announcements.
+              Your account is set up. Enroll in your course units next, so we can assign you to the right groups and show you relevant assignments and announcements.
             </p>
 
             {/* Steps */}
@@ -71,7 +72,7 @@ export default async function Dashboard() {
             </div>
 
             <a href="/enroll" className="btn-primary" style={{ padding: '0.875rem 2.5rem', fontSize: '1rem', textDecoration: 'none', borderRadius: '12px' }}>
-              Enroll in Course Units →
+              Enroll in course units →
             </a>
           </div>
         );
@@ -184,171 +185,232 @@ export default async function Dashboard() {
   const userRoles = scopeHeader ? JSON.parse(scopeHeader).roles?.map((r: any) => r.role) || [] : [];
   const isRepOrAdmin = userRoles.some((r: string) => r.includes('REPRESENTATIVE') || r.includes('ADMIN'));
 
-  return (
-    <div className="flex flex-col gap-8">
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const nextDeadline = dbDeadlines[0] ?? null;
+  const nextDeadlineDays = nextDeadline
+    ? Math.ceil((new Date(nextDeadline.dueDate).getTime() - Date.now()) / 86400000)
+    : null;
+  const latestNotif = recentActivity[0] ?? null;
 
-      {/* Header */}
-      <header className="page-header">
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+      {/* ── Masthead ─────────────────────────────────────────── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        paddingBottom: '1.25rem',
+        borderBottom: '1px solid var(--border-rule)',
+      }}>
         <div>
-          <h1>Dashboard</h1>
-          <p>{offeringName}</p>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+            {today}
+          </div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-text-primary)', lineHeight: 1.05, margin: 0 }}>
+            {offeringName}
+          </h1>
         </div>
-        <div className="page-header-actions">
-          <span className="text-text-muted text-[0.8125rem] flex items-center gap-2 border border-border-subtle px-3.5 py-1.5 rounded-md">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3"/></svg>
-            Live synced
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-accent-teal)' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-accent-teal)', display: 'inline-block', boxShadow: '0 0 8px var(--color-accent-teal)', animation: 'pulse-glow 3s ease-in-out infinite' }} />
+            Live
+          </div>
           {isRepOrAdmin && (
-            <button className="btn-primary">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
-              New Announcement
-            </button>
+            <a href="/announcements" className="btn-primary" style={{ fontSize: '0.8125rem', padding: '0.4rem 0.875rem' }}>
+              + Announce
+            </a>
           )}
         </div>
-      </header>
+      </div>
 
-      {/* Dashboard Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── Three dispatch cards ──────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
 
-        {/* Recent Activity — spans 2 cols */}
-        <div className="lg:col-span-2 glass-panel p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Notifications &amp; Activity</h3>
-            <a href="/notifications" className="text-primary text-[0.8125rem] font-medium">View all</a>
+        {/* My Group dispatch */}
+        <div className="ledger-panel" style={{ padding: '1.375rem 1.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+            My group
           </div>
-          <div className="flex flex-col">
-            {recentActivity.length === 0 ? (
-              <div className="text-text-muted text-sm">No recent activity.</div>
-            ) : recentActivity.map((item: any) => (
-              <div key={item.id} className="activity-item">
-                <div className="w-8 h-8 rounded-full bg-primary-transparent text-primary flex items-center justify-center shrink-0">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          {myGroup ? (
+            <>
+              <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.375rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', marginBottom: '1rem' }}>
+                {myGroup.name}
+              </div>
+              <div className="roster-dots" style={{ marginBottom: '1rem' }}>
+                {myGroup.memberships.map((_: any, i: number) => (
+                  <span key={i} className="roster-dot filled complete" />
+                ))}
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>
+                  {myGroup.memberships.length} members
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                {myGroup.memberships.slice(0, 4).map((m: any) => {
+                  const isLeader = m.studentId === myGroup.leaderId;
+                  return (
+                    <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', fontSize: '0.875rem' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isLeader ? 'var(--color-accent-violet)' : 'var(--color-primary)', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--color-text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.student?.fullName || '—'}</span>
+                      {isLeader && <span className="leader-tag">Lead</span>}
+                    </div>
+                  );
+                })}
+                {myGroup.memberships.length > 4 && (
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>+{myGroup.memberships.length - 4} more</div>
+                )}
+              </div>
+              <a href="/groups" className="btn-inline" style={{ marginTop: '1rem', display: 'inline-flex' }}>View group →</a>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', color: 'var(--color-text-muted)' }}>No group yet.</div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>You haven't claimed a slot in any group for this offering.</div>
+              <a href="/groups" className="btn-primary" style={{ alignSelf: 'flex-start', fontSize: '0.8125rem', padding: '0.4rem 0.875rem' }}>Find a group →</a>
+            </div>
+          )}
+        </div>
+
+        {/* Next deadline dispatch */}
+        <div className="ledger-panel" style={{ padding: '1.375rem 1.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+            Next deadline
+          </div>
+          {nextDeadline ? (
+            <>
+              <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.375rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', marginBottom: '0.625rem', lineHeight: 1.2 }}>
+                {nextDeadline.title}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '2.25rem',
+                  fontWeight: 700,
+                  letterSpacing: '-0.04em',
+                  color: nextDeadlineDays! <= 2 ? 'var(--color-danger)' : 'var(--color-primary)',
+                  lineHeight: 1,
+                }}>{nextDeadlineDays}</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>days left</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginTop: '0.125rem' }}>{new Date(nextDeadline.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                 </div>
+              </div>
+              {nextDeadlineDays! <= 2 && (
+                <span className="stamp stamp-danger" style={{ display: 'inline-flex', marginBottom: '0.75rem' }}>Urgent</span>
+              )}
+              <a href="/assignments" className="btn-inline" style={{ display: 'inline-flex' }}>View assignment →</a>
+            </>
+          ) : (
+            <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', color: 'var(--color-text-muted)' }}>
+              No upcoming deadlines.
+            </div>
+          )}
+        </div>
+
+        {/* Latest notification dispatch */}
+        <div className="ledger-panel" style={{ padding: '1.375rem 1.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+            Latest update
+          </div>
+          {latestNotif ? (
+            <>
+              <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
+                {latestNotif.title}
+              </div>
+              {latestNotif.body && (
+                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '0.75rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as any}>
+                  {latestNotif.body}
+                </div>
+              )}
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                {new Date(latestNotif.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <a href="/notifications" className="btn-inline" style={{ marginTop: '0.75rem', display: 'inline-flex' }}>All notifications →</a>
+            </>
+          ) : (
+            <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', color: 'var(--color-text-muted)' }}>
+              Nothing new.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Class Overview — Reps / Admins ───────────────────── */}
+      {isRepOrAdmin && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Section label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+              Class overview
+            </div>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border-rule)' }} />
+            <span className="badge badge-violet">Rep</span>
+          </div>
+
+          {/* KPI ledger row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+            {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
+              <a key={kpi.key} href={kpi.link.startsWith('/') ? kpi.link : '#'} className="ledger-panel hover-border" style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', textDecoration: 'none', transition: 'border-color 0.15s ease' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.04em', color: kpi.color, lineHeight: 1 }}>{kpi.value}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>{kpi.label}</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, marginTop: '0.125rem' }}>{kpi.sub}</div>
+              </a>
+            ))}
+          </div>
+
+          {/* Submission progress */}
+          {latestAssignment && (
+            <div className="ledger-panel" style={{ padding: '1.25rem 1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.875rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
-                  <div className="text-sm text-text-primary">{item.title}</div>
-                  <div className="text-xs text-text-muted mt-0.5">{new Date(item.createdAt).toLocaleDateString()}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>Submission progress</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
+                    {latestAssignment.title}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--color-accent-teal)', lineHeight: 1 }}>
+                    {stats.totalEnrolled ? Math.round((stats.totalSubmissions / stats.totalEnrolled) * 100) : 0}%
+                  </span>
+                  <a href="/assignments" className="btn-inline">View →</a>
+                </div>
+              </div>
+              <div className="progress-track" style={{ height: '5px', marginBottom: '0.75rem' }}>
+                <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions / stats.totalEnrolled) * 100 : 0}%`, background: 'var(--color-accent-teal)' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                <span><span style={{ color: 'var(--color-accent-teal)' }}>●</span> {stats.totalSubmissions} submitted</span>
+                <span><span style={{ color: 'var(--color-danger)' }}>●</span> {stats.totalEnrolled - stats.totalSubmissions} pending</span>
+                <span><span style={{ color: 'var(--color-text-muted)' }}>●</span> {stats.totalEnrolled} total</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Recent notifications (non-rep fallback) ──────────── */}
+      {!isRepOrAdmin && recentActivity.length > 1 && (
+        <div className="ledger-panel" style={{ overflow: 'hidden' }}>
+          <div style={{ padding: '1rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border-rule)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Notifications</div>
+            <a href="/notifications" className="btn-inline" style={{ fontSize: '0.75rem' }}>All →</a>
+          </div>
+          <div>
+            {recentActivity.slice(1).map((item: any) => (
+              <div key={item.id} style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border-rule)', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--border-strong)', flexShrink: 0, marginTop: '0.375rem' }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>{new Date(item.createdAt).toLocaleDateString()}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      )}
 
-        {/* Upcoming Deadlines — spans 1 col */}
-        <div className="lg:col-span-1 glass-panel p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">Upcoming Deadlines</h3>
-            <a href="/timetable" className="text-primary text-[0.8125rem] font-medium">Calendar</a>
-          </div>
-          <div className="flex flex-col gap-3.5">
-            {dbDeadlines.length === 0 ? (
-              <div className="text-text-muted text-sm">No upcoming deadlines.</div>
-            ) : dbDeadlines.map((dl: any) => {
-              const diffDays = Math.ceil((new Date(dl.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
-              const urgency = diffDays <= 2 ? 'var(--color-danger)' : 'var(--color-primary)';
-              const badgeCls = diffDays <= 2 ? 'badge-danger' : 'badge-primary';
-              return (
-                <div key={dl.id} className="flex justify-between items-center">
-                  <div className="flex items-center gap-2.5 text-sm text-text-secondary">
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: urgency, flexShrink: 0 }} />
-                    {dl.title}
-                  </div>
-                  <span className={`badge ${badgeCls}`}>{diffDays}d left</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* My Group — full width */}
-        <div className="lg:col-span-3 glass-panel p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-[0.9375rem] font-semibold text-text-primary">My Group</h3>
-            <a href="/groups" className="text-primary text-[0.8125rem] font-medium">View all groups</a>
-          </div>
-          {myGroup ? (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
-                  {myGroup.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="text-base font-semibold text-text-primary">{myGroup.name}</div>
-                  <div className="text-[0.8125rem] text-text-secondary">{myGroup.memberships.length} members</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                {myGroup.memberships.map((m: any) => (
-                  <div key={m.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span className="text-sm text-text-primary font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.student?.fullName || 'Unknown Student'}</span>
-                    {m.studentId === myGroup.leaderId && <span className="badge badge-primary" style={{ marginLeft: '8px', flexShrink: 0, fontSize: '0.65rem' }}>Leader</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <div className="text-text-muted text-sm" style={{ marginBottom: '1rem' }}>You are not currently in a group for this offering.</div>
-              <a href="/groups" className="btn-primary">Find a Group</a>
-            </div>
-          )}
-        </div>
-
-        {/* Class Overview — Reps/Admins only */}
-        {isRepOrAdmin && (
-          <div className="lg:col-span-3 flex flex-col gap-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-text-primary">Class Overview</h2>
-              <span className="badge badge-warning">Class Rep Privileges Active</span>
-            </div>
-
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
-              {kpis.filter(k => k.key !== 'deadlines').map(kpi => (
-                <div key={kpi.key} className="glass-panel kpi-card">
-                  <div className="kpi-card-header">
-                    <div className="kpi-icon" style={{ background: kpi.iconBg, color: kpi.color }}>{kpi.icon}</div>
-                    {kpi.badge && <span className={`badge ${kpi.badge.cls}`}>{kpi.badge.text}</span>}
-                  </div>
-                  <div className="kpi-value" style={{ color: kpi.color }}>{kpi.value}</div>
-                  <div className="kpi-label">{kpi.label}</div>
-                  <div className="kpi-sublabel">{kpi.sub}</div>
-                  <a href={kpi.link.startsWith('/') ? kpi.link : '#'} className="kpi-link">
-                    {kpi.link.startsWith('/') ? 'View details' : kpi.link} →
-                  </a>
-                </div>
-              ))}
-            </div>
-
-            <div className="glass-panel p-6">
-              <div className="flex justify-between items-start mb-5">
-                <div>
-                  <h3 className="text-[0.9375rem] font-semibold text-text-primary mb-1">
-                    {latestAssignment ? latestAssignment.title : 'Assignments'} — Class Submission Progress
-                  </h3>
-                  <div className="text-[0.8125rem] text-text-secondary">
-                    {latestAssignment ? `Due ${new Date(latestAssignment.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ` : ''}
-                    {stats.totalSubmissions} of {stats.totalEnrolled} students submitted
-                  </div>
-                </div>
-                <a href="/assignments" className="text-primary text-[0.8125rem] font-medium">View all submissions</a>
-              </div>
-              <div className="progress-track h-2 mb-4">
-                <div className="progress-fill" style={{ width: `${stats.totalEnrolled ? (stats.totalSubmissions/stats.totalEnrolled)*100 : 0}%`, background: 'var(--color-success)' }} />
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex gap-5">
-                  <span className="text-text-secondary"><span className="text-success">●</span> Submitted: <strong className="text-text-primary">{stats.totalSubmissions}</strong></span>
-                  <span className="text-text-secondary"><span className="text-danger">●</span> Pending: <strong className="text-text-primary">{stats.totalEnrolled - stats.totalSubmissions}</strong></span>
-                  <span className="text-text-secondary"><span className="text-text-muted">●</span> Total: <strong className="text-text-primary">{stats.totalEnrolled}</strong></span>
-                </div>
-                <span className="font-extrabold text-text-primary font-display text-base">
-                  {stats.totalEnrolled ? Math.round((stats.totalSubmissions/stats.totalEnrolled)*100) : 0}%
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </div>
     </div>
   );
 }

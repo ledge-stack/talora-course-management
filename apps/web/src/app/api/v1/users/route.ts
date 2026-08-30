@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     const roleFilter = searchParams.get('role') || '';
 
     // Build filter
-    let whereClause: any = {
+    const whereClause: any = {
       institutionId: caller.institutionId,
     };
 
@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
 
     // Strip out passwordHash and return
     const safeUsers = users.map(u => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwordHash, resetToken, resetTokenExpires, verificationToken, verificationTokenExpires, ...safe } = u;
       return safe;
     });

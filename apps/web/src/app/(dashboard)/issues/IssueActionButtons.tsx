@@ -39,7 +39,7 @@ export default function IssueActionButtons({ issueId, currentStatus }: { issueId
           className="btn-secondary" 
           style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
         >
-          Mark Triaged
+          Mark triaged
         </button>
       )}
       {currentStatus !== 'RESOLVED' && (

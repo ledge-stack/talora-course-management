@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cookies } from 'next/headers';
 import { db } from '@talora/database';
 import { headers } from 'next/headers';
@@ -48,7 +49,7 @@ export default async function GroupRequestsPage() {
         studentName: studentMap.get(r.studentId)?.fullName || 'Unknown',
         studentNumber: studentMap.get(r.studentId)?.studentNumber || '',
         fromGroupName: r.group.name,
-        targetGroupName: r.targetGroupId ? targetGroupMap.get(r.targetGroupId) : 'Leave Group (Unassigned)',
+        targetGroupName: r.targetGroupId ? targetGroupMap.get(r.targetGroupId) : 'Leave group (unassigned)',
         reason: r.reason,
         status: r.status,
         createdAt: r.createdAt
@@ -63,21 +64,22 @@ export default async function GroupRequestsPage() {
       {/* Header */}
       <header className="page-header">
         <div>
-          <h1>Group Change Requests</h1>
-          <p>{offeringName} — Pending & History</p>
+          <div className="eyebrow" style={{ marginBottom: '0.375rem' }}>Group changes</div>
+          <h1>Requests</h1>
+          <p>{offeringName} — pending and history</p>
         </div>
       </header>
 
       {/* Main Content Card */}
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Table */}
         <div className="table-responsive-wrapper">
           <table className="data-table">
             <thead>
               <tr>
                 <th style={{ width: '20%' }}>Student</th>
-                <th style={{ width: '15%' }}>Current Group</th>
-                <th style={{ width: '15%' }}>Requested Target</th>
+                <th style={{ width: '15%' }}>Current group</th>
+                <th style={{ width: '15%' }}>Requested target</th>
                 <th style={{ width: '25%' }}>Reason</th>
                 <th style={{ width: '10%' }}>Status</th>
                 <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
@@ -94,15 +96,15 @@ export default async function GroupRequestsPage() {
                 requests.map((req) => (
                   <tr key={req.id}>
                     <td style={{ color: 'var(--color-text-primary)' }}>
-                      <div>{req.studentName}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{req.studentNumber}</div>
+                      <div style={{ fontWeight: 500, fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{req.studentName}</div>
+                      <div className="reg-number">{req.studentNumber}</div>
                     </td>
                     <td style={{ color: 'var(--color-text-secondary)' }}>{req.fromGroupName}</td>
                     <td style={{ color: 'var(--color-text-primary)' }}>{req.targetGroupName}</td>
                     <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>{req.reason}</td>
                     <td>
                       <span className={`badge ${req.status === 'PENDING' ? 'badge-warning' : req.status === 'APPROVED' ? 'badge-success' : 'badge-danger'}`}>
-                        {req.status}
+                        {req.status.charAt(0) + req.status.slice(1).toLowerCase()}
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>

@@ -46,6 +46,7 @@ export const getCachedAnnouncements = (offeringId: string) =>
   )();
 
 /** Fetch KPI counts for an offering. Cached 60s — stale is acceptable for aggregate stats. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getCachedOfferingKPIs = (offeringId: string, classId: string, termId: string) =>
   unstable_cache(
     async () => {
