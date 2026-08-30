@@ -36,9 +36,9 @@ export function GapYearToggle({ userId, isGapYear, canEdit }: { userId: string, 
       disabled={loading}
       className="btn-ghost" 
       style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', color: isGapYear ? 'var(--color-text-primary)' : 'var(--color-text-muted)', border: '1px solid var(--border-subtle)' }}
-      title={isGapYear ? "Remove Gap Year status" : "Mark as Non-Retaker (Gap Year)"}
+      title={isGapYear ? "Remove gap year status" : "Mark as non-retaker (gap year)"}
     >
-      {loading ? '...' : isGapYear ? 'Remove Gap Year' : 'Mark Gap Year'}
+      {loading ? '…' : isGapYear ? 'Remove gap year' : 'Mark gap year'}
     </button>
   );
 }
