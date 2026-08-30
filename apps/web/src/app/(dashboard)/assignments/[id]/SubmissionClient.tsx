@@ -55,32 +55,26 @@ export default function SubmissionClient({ assignmentId, initialSubmission }: Su
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Your Work</h2>
+    <div className="ledger-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-rule)', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
+        <div className="eyebrow">Your work</div>
         {initialSubmission && (
           <span className="badge badge-success">
-            Submitted {initialSubmission.submittedAt}
+            Submitted <span className="reg-number" style={{ color: 'inherit' }}>{initialSubmission.submittedAt}</span>
           </span>
         )}
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label htmlFor="submissionUrl" style={{ fontSize: '0.875rem', fontWeight: 500 }}>Submission Link (Google Drive, GitHub, Figma, etc.)</label>
+          <label htmlFor="submissionUrl" style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Submission link (Google Drive, GitHub, Figma, etc.)</label>
           <input 
             type="url" 
             id="submissionUrl"
+            className="input"
             value={fileUrl}
             onChange={(e) => setFileUrl(e.target.value)}
-            placeholder="https://..."
-            style={{ 
-              padding: '0.75rem', 
-              borderRadius: '8px', 
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-bg-surface)',
-              color: 'var(--color-text-primary)'
-            }}
+            placeholder="https://…"
           />
         </div>
 
@@ -96,7 +90,7 @@ export default function SubmissionClient({ assignmentId, initialSubmission }: Su
           disabled={isSubmitting || (!initialSubmission && !fileUrl)}
           style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}
         >
-          {isSubmitting ? 'Submitting...' : initialSubmission ? 'Update Submission' : 'Turn In'}
+          {isSubmitting ? 'Submitting…' : initialSubmission ? 'Update submission' : 'Turn in'}
         </button>
       </form>
     </div>

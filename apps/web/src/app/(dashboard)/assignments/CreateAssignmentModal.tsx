@@ -46,7 +46,7 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border-subtle bg-bg-surface p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl">
           <div className="flex justify-between items-center mb-2">
-            <Dialog.Title className="text-xl font-display font-semibold text-text-primary">Create Assignment</Dialog.Title>
+            <Dialog.Title className="text-xl font-display italic font-semibold text-text-primary">Create assignment</Dialog.Title>
             <Dialog.Close asChild>
               <button className="btn-ghost p-1.5 text-text-muted hover:text-text-primary rounded-full">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -72,7 +72,7 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
                 </select>
               </div>
               <div className="flex-1">
-                <label className="label">Due Date & Time</label>
+                <label className="label">Due date &amp; time</label>
                 <input 
                   type="datetime-local" 
                   className="input w-full" 
@@ -90,7 +90,7 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
                 className="input w-full" 
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="e.g. Midterm Report" 
+                placeholder="e.g. Midterm report" 
                 required
               />
             </div>
@@ -100,7 +100,7 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
                 className="input w-full resize-y" 
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="Provide instructions or a link to the specification..." 
+                placeholder="Provide instructions or a link to the specification" 
                 rows={4}
               />
             </div>
@@ -109,7 +109,7 @@ export default function CreateAssignmentModal({ offeringId, onClose }: { offerin
                 <button type="button" className="btn-secondary">Cancel</button>
               </Dialog.Close>
               <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Assignment'}
+                {loading ? 'Creating…' : 'Create assignment'}
               </button>
             </div>
           </form>
