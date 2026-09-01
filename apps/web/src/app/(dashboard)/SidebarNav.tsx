@@ -154,6 +154,27 @@ export default function SidebarNav({
         <span className="sidebar-stamp-wordmark">alora</span>
       </div>
 
+      {/* Course context (Raised higher) */}
+      {courseContext && (
+        <div className="sidebar-context" style={{ padding: '0 1rem 1rem 1rem' }}>
+          <div className="sidebar-context-inner">
+            <div className="sidebar-context-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <div className="sidebar-context-text">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+                Now reading
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.3, maxWidth: '160px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                {courseContext}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="sidebar-nav">
         <NavItem href="/"            icon={<Icon.Dashboard />}   label="Dashboard" />
@@ -163,29 +184,14 @@ export default function SidebarNav({
         <NavItem href="/groups"      icon={<Icon.Groups />}      label="Groups" />
         <NavItem href="/assignments" icon={<Icon.Assignments />} label="Assignments" />
 
-        {/* Course context */}
-        {courseContext && (
-          <div className="sidebar-context" style={{ padding: '0.5rem 0', margin: '0.25rem 0' }}>
-            <div className="sidebar-context-inner">
-              <div className="sidebar-context-icon">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-              </div>
-              <div className="sidebar-context-text">
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-                  Now reading
-                </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.3, maxWidth: '160px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                  {courseContext}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
         {isRepOrAdmin && (
           <>
             <div className="nav-section-break" style={{ margin: '0.375rem 0' }} />
+            <NavItem href="/imports"        icon={
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            } label="Imports & Exports" />
             <NavItem href="/announcements"  icon={<Icon.Announce />}  label="Announcements" />
             <NavItem href="/issues"          icon={<Icon.Issues />}   label="Issues" />
           </>
