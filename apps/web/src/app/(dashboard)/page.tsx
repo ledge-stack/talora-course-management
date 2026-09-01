@@ -262,7 +262,7 @@ export default async function Dashboard() {
                   <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>+{myGroup.memberships.length - 4} more</div>
                 )}
               </div>
-              <a href="/groups" className="btn-inline" style={{ marginTop: '1rem', display: 'inline-flex' }}>View group →</a>
+              <a href="/groups/mine" className="btn-inline" style={{ marginTop: '1rem', display: 'inline-flex' }}>View group & to-dos →</a>
             </>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
