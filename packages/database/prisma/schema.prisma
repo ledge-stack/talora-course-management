@@ -170,6 +170,7 @@ model Group {
   memberships GroupMembership[]
   changeRequests GroupChangeRequest[]
   placeholders   GroupPlaceholder[]
+  submissions    Submission[]
 
   @@index([offeringId])
   @@index([status])
@@ -253,14 +254,18 @@ model Assignment {
 model Submission {
   id           String   @id @default(uuid())
   assignmentId String
+  groupId      String
   studentId    String
   fileUrl      String
   submittedAt  DateTime @default(now())
 
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  group        Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
   student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  @@unique([assignmentId, groupId])
   @@index([assignmentId])
+  @@index([groupId])
   @@index([studentId])
 }
 

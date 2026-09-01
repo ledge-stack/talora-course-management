@@ -10,6 +10,7 @@ export default async function AssignmentDetailsPage({ params }: { params: { id: 
   const scopeHeader = headers().get('x-user-scope');
   let assignment: any = null;
   let submission: any = null;
+  let hasGroup = true;
 
   if (scopeHeader) {
     try {
@@ -31,14 +32,24 @@ export default async function AssignmentDetailsPage({ params }: { params: { id: 
           offeringName: `${dbAssignment.offering.unit.title} · ${dbAssignment.offering.class.name}`
         };
 
-        const dbSubmission = await db.submission.findFirst({
-          where: { assignmentId: dbAssignment.id, studentId: payload.userId }
+        const dbMembership = await db.groupMembership.findUnique({
+          where: { studentId_offeringId: { studentId: payload.userId, offeringId: dbAssignment.offeringId } }
         });
+
+        hasGroup = !!dbMembership;
+
+        const dbSubmission = dbMembership
+          ? await db.submission.findUnique({
+              where: { assignmentId_groupId: { assignmentId: dbAssignment.id, groupId: dbMembership.groupId } },
+              include: { student: { select: { fullName: true } } }
+            })
+          : null;
 
         if (dbSubmission) {
           submission = {
             id: dbSubmission.id,
             fileUrl: dbSubmission.fileUrl,
+            submittedBy: dbSubmission.student.fullName,
             submittedAt: new Date(dbSubmission.submittedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
           };
         }
@@ -92,7 +103,7 @@ export default async function AssignmentDetailsPage({ params }: { params: { id: 
         </div>
       </div>
 
-      <SubmissionClient assignmentId={assignment.id} initialSubmission={submission} />
+      <SubmissionClient assignmentId={assignment.id} initialSubmission={submission} hasGroup={hasGroup} />
     </div>
   );
 }

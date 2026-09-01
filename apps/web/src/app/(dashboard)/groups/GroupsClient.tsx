@@ -590,7 +590,11 @@ export default function GroupsClient({
                       <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span className="font-display">{group.name}</span>
-                          {isOwnGroup && <span className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)' }}>Your group</span>}
+                          {isOwnGroup && (
+                            <a href="/groups/mine" className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)', textDecoration: 'none' }}>
+                              Your group →
+                            </a>
+                          )}
                           
                           {canManage ? (
                             <button 
