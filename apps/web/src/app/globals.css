@@ -1161,10 +1161,11 @@
   .data-table tr {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
     background: var(--color-bg-surface);
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
   
   .data-table tr.highlight-row {
