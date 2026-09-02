@@ -1144,6 +1144,19 @@
     min-width: 0;
   }
   
+  .groups-container-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .groups-container-panel > .toolbar {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+
   .groups-mobile-list {
     display: flex !important;
   }

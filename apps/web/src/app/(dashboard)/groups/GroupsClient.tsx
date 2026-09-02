@@ -482,7 +482,7 @@ export default function GroupsClient({
 
   return (
     <>
-      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
+      <div className="ledger-panel groups-container-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
         <div className="toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
             <div style={{ position: 'relative', flex: '1 1 200px', minWidth: '150px' }}>
