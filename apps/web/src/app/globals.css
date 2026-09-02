@@ -1131,7 +1131,7 @@
   }
   
   .ledger-topbar {
-    background: #0d0d10 !important;
+    background: var(--color-bg-base) !important;
     z-index: 50;
     flex-wrap: wrap;
     gap: 0.75rem;
