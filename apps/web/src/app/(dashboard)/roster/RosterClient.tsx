@@ -96,9 +96,9 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                 const isUnassigned = student.group === 'Unassigned';
                 return (
                   <tr key={student.id} className={isUnassigned ? 'highlight-row' : ''}>
-                    <td className="reg-number" style={{ color: 'var(--color-text-primary)' }}>{student.id}</td>
+                    <td data-label="Reg / Student ID" className="reg-number" style={{ color: 'var(--color-text-primary)' }}>{student.id}</td>
                     
-                    <td>
+                    <td data-label="Name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: 500 }}>{student.name}</span>
                         {student.isRetaker && <span className="stamp stamp-danger">Retaker</span>}
@@ -106,7 +106,7 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                       </div>
                     </td>
 
-                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>
+                    <td data-label="Contact Info" style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>
                       <div style={{ marginBottom: '0.25rem' }}>{student.email}</div>
                       {student.phoneNumber && (
                         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--color-text-muted)' }}>
@@ -116,7 +116,7 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                       )}
                     </td>
 
-                    <td>
+                    <td data-label="Group Status">
                       {isUnassigned ? (
                         <span className="badge badge-warning">Unassigned</span>
                       ) : (
@@ -124,7 +124,7 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
                       )}
                     </td>
 
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="Actions" style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
                         <GapYearToggle userId={student.userId} isGapYear={student.tookGapYear} canEdit={canEdit} />
                         {canEdit && (

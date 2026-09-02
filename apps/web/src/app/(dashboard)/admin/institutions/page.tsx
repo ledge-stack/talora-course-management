@@ -53,18 +53,18 @@ export default function InstitutionsPage() {
           <tbody>
             {mockInstitutions.map((inst, i) => (
               <tr key={i}>
-                <td className="reg-number">{inst.id}</td>
-                <td style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{inst.name}</td>
-                <td style={{ color: 'var(--color-text-secondary)' }}>{inst.domain}</td>
-                <td style={{ color: 'var(--color-text-primary)' }}>{inst.students.toLocaleString()}</td>
-                <td>
+                <td data-label="Inst. ID" className="reg-number">{inst.id}</td>
+                <td data-label="Name" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{inst.name}</td>
+                <td data-label="Primary domain" style={{ color: 'var(--color-text-secondary)' }}>{inst.domain}</td>
+                <td data-label="Enrolled users" style={{ color: 'var(--color-text-primary)' }}>{inst.students.toLocaleString()}</td>
+                <td data-label="Status">
                   {inst.status === 'Active' ? (
                     <span className="badge badge-success">Active</span>
                   ) : (
                     <span className="badge badge-subtle">Inactive</span>
                   )}
                 </td>
-                <td style={{ textAlign: 'right' }}>
+                <td data-label="Actions" style={{ textAlign: 'right' }}>
                   <button className="btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>Manage</button>
                 </td>
               </tr>

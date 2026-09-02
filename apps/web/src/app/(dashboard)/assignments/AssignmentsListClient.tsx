@@ -128,7 +128,7 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
                 
                 return (
                   <tr key={assignment.id}>
-                    <td>
+                    <td data-label="Brief">
                       <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>
                         {assignment.title}
                       </div>
@@ -136,10 +136,10 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
                         {assignment.description || 'No description provided.'}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Type">
                       <span className={`stamp ${getStampVariant(assignment.type)}`}>{assignment.type}</span>
                     </td>
-                    <td>
+                    <td data-label="Deadline">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <span style={{ fontSize: '0.875rem', fontWeight: assignment.isPast ? 600 : 400, color: assignment.isPast ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
                           {assignment.dueDate}
@@ -147,7 +147,7 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
                         {assignment.isPast && <span className="stamp stamp-danger">Past Due</span>}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Submissions">
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxWidth: '140px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-secondary)' }}>
                           <span>{assignment.submissionsCount} / {totalEnrolled}</span>
@@ -158,7 +158,7 @@ export default function AssignmentsListClient({ assignments, totalEnrolled, canM
                         </div>
                       </div>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="Actions" style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
                         {canManage && (
                           <>

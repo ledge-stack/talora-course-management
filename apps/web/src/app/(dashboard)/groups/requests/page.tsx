@@ -95,19 +95,19 @@ export default async function GroupRequestsPage() {
               ) : (
                 requests.map((req) => (
                   <tr key={req.id}>
-                    <td style={{ color: 'var(--color-text-primary)' }}>
+                    <td data-label="Student" style={{ color: 'var(--color-text-primary)' }}>
                       <div style={{ fontWeight: 500, fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{req.studentName}</div>
                       <div className="reg-number">{req.studentNumber}</div>
                     </td>
-                    <td style={{ color: 'var(--color-text-secondary)' }}>{req.fromGroupName}</td>
-                    <td style={{ color: 'var(--color-text-primary)' }}>{req.targetGroupName}</td>
-                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>{req.reason}</td>
-                    <td>
+                    <td data-label="Current group" style={{ color: 'var(--color-text-secondary)' }}>{req.fromGroupName}</td>
+                    <td data-label="Requested target" style={{ color: 'var(--color-text-primary)' }}>{req.targetGroupName}</td>
+                    <td data-label="Reason" style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>{req.reason}</td>
+                    <td data-label="Status">
                       <span className={`badge ${req.status === 'PENDING' ? 'badge-warning' : req.status === 'APPROVED' ? 'badge-success' : 'badge-danger'}`}>
                         {req.status.charAt(0) + req.status.slice(1).toLowerCase()}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="Actions" style={{ textAlign: 'right' }}>
                       {req.status === 'PENDING' ? (
                         <RequestActionButtons requestId={req.id} />
                       ) : (

@@ -1120,6 +1120,55 @@
   .mobile-timetable-list {
     display: flex !important;
   }
+  
+  .content-wrapper {
+    padding: 1rem !important;
+  }
+
+  .table-responsive-wrapper {
+    overflow-x: hidden;
+  }
+
+  .data-table {
+    min-width: 0;
+  }
+  
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--color-bg-surface);
+  }
+
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-rule);
+    text-align: right;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    text-align: left;
+    margin-right: 1rem;
+  }
 }
 
 .desktop-timetable-grid {

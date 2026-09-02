@@ -248,7 +248,7 @@ export default function GroupsClient({
   };
 
   const handleAddByStudentNumber = async (groupId: string) => {
-    const studentNumber = prompt('Enter the student number to add to this group:');
+    const studentNumber = prompt('Enter the student number to add to this group:')?.trim();
     if (!studentNumber) return;
     setLoading(true);
     setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: g.membersCount + 1 } : g));
@@ -587,7 +587,7 @@ export default function GroupsClient({
 
                   return (
                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
-                      <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                      <td data-label="Group" style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span className="font-display">{group.name}</span>
                           {isOwnGroup && (
@@ -625,7 +625,7 @@ export default function GroupsClient({
                           )}
                         </div>
                       </td>
-                      <td style={{ color: 'var(--color-text-primary)' }}>
+                      <td data-label="Leader" style={{ color: 'var(--color-text-primary)' }}>
                         <div style={{ fontWeight: 500 }}>{group.leader}</div>
                         {group.leaderPhone && (
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -634,7 +634,7 @@ export default function GroupsClient({
                           </div>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Roll call">
                         <div className="roster-dots">
                           {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
                             <span
@@ -647,13 +647,13 @@ export default function GroupsClient({
                           </span>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
                         {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
                         {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
                         {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
                       </td>
-                      <td style={{ textAlign: 'right', position: 'relative' }}>
+                      <td data-label="Actions" style={{ textAlign: 'right', position: 'relative' }}>
                         {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
                           <button 
                             className="btn-secondary"
