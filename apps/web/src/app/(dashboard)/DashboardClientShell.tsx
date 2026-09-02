@@ -60,12 +60,12 @@ export default function DashboardClientShell({
 
             {/* Breadcrumb */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              <span className="mobile-hidden" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 Talora
               </span>
               {pathname !== '/' && (
                 <>
-                  <span style={{ color: 'var(--border-strong)', fontSize: '0.75rem' }}>/</span>
+                  <span className="mobile-hidden" style={{ color: 'var(--border-strong)', fontSize: '0.75rem' }}>/</span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                     {pathname.split('/').filter(Boolean)[0]}
                   </span>

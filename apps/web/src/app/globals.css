@@ -1110,6 +1110,10 @@
     display: none !important;
   }
   
+  .mobile-hidden {
+    display: none !important;
+  }
+  
   .profile-grid {
     grid-template-columns: 1fr !important;
   }
@@ -1133,14 +1137,7 @@
   .ledger-topbar {
     background: var(--color-bg-base) !important;
     z-index: 50;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem !important;
-    height: auto !important;
-  }
-
-  .ledger-topbar > div {
-    flex-wrap: wrap;
+    padding: 0.5rem 1rem !important;
   }
 
   .data-table {
