@@ -782,13 +782,13 @@
   width: 100%;
 }
 
-.data-table {
+.data-table, .roster-table {
   width: 100%;
   min-width: 700px;
   border-collapse: collapse;
 }
 
-.data-table th {
+.data-table th, .roster-table th {
   text-align: left;
   padding: 0.75rem 1.25rem;
   font-family: var(--font-mono);
@@ -801,20 +801,20 @@
   background: var(--color-table-th);
 }
 
-.data-table td {
+.data-table td, .roster-table td {
   padding: 0.875rem 1.25rem;
   border-bottom: 1px solid var(--border-rule);
   font-size: 0.875rem;
   color: var(--color-text-primary);
 }
 
-.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:last-child td, .roster-table tr:last-child td { border-bottom: none; }
 
-.data-table tr {
+.data-table tr, .roster-table tr {
   transition: background-color var(--transition-fast);
 }
 
-.data-table tr:hover td {
+.data-table tr:hover td, .roster-table tr:hover td {
   background: var(--color-bg-surface-active);
 }
 
@@ -1128,6 +1128,11 @@
   .table-responsive-wrapper {
     overflow-x: hidden;
   }
+  
+  .ledger-topbar {
+    background: #0d0d10 !important; /* solid color to prevent bleed through */
+    z-index: 50; /* ensure it stays above all */
+  }
 
   .data-table {
     min-width: 0;
@@ -1143,6 +1148,14 @@
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     background: var(--color-bg-surface);
+  }
+  
+  .data-table tr.highlight-row {
+    border-left: 3px solid var(--color-primary);
+  }
+  
+  .data-table tr.highlight-row td:first-child {
+    box-shadow: none;
   }
 
   .data-table td {

@@ -511,7 +511,7 @@ export default function GroupsClient({
             </select>
 
             {isRep && (
-              <div className="flex gap-2 w-full md:w-auto shrink-0">
+              <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0">
                 <button 
                   className="btn-secondary flex-1 md:flex-none flex items-center justify-center gap-2" 
                   onClick={handleExportExcel}
