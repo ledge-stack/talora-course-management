@@ -584,11 +584,12 @@ export default function GroupsClient({
                   const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
                   const canManage = isRep || currentUserId === group.leaderId;
                   const isOwnGroup = userGroupId === group.id;
+                  const isOverCapacity = group.membersCount > group.capacity;
 
                   return (
                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
                       <td data-label="Group" style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span className="font-display">{group.name}</span>
                           {isOwnGroup && (
                             <a href="/groups/mine" className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)', textDecoration: 'none' }}>
@@ -596,6 +597,25 @@ export default function GroupsClient({
                             </a>
                           )}
                           
+                          {isOverCapacity && (
+                            <span 
+                              className="badge badge-danger" 
+                              style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '0.25rem',
+                                color: 'var(--color-danger)', 
+                                background: 'var(--color-danger-bg)', 
+                                border: '1px solid var(--color-danger)',
+                                fontSize: '0.6875rem'
+                              }}
+                              title={`Exceeds restriction: Group has ${group.membersCount} members, exceeding max limit of ${group.capacity}`}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                              <span>Over limit</span>
+                            </span>
+                          )}
+
                           {canManage ? (
                             <button 
                               onClick={(e) => handleToggleOpen(group.id, group.isOpen, e)}
@@ -636,22 +656,40 @@ export default function GroupsClient({
                       </td>
                       <td data-label="Roll call">
                         <div className="roster-dots">
-                          {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
-                            <span
-                              key={i}
-                              className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`}
-                            />
-                          ))}
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
+                          {Array.from({ length: Math.max(group.capacity, group.membersCount) }).map((_, i) => {
+                            const isExtra = i >= group.capacity;
+                            const isFilled = i < group.membersCount;
+                            return (
+                              <span
+                                key={i}
+                                className={`roster-dot ${isFilled ? `filled ${isExtra ? 'danger' : (group.membersCount >= (minGroupSize || 1) ? 'complete' : '')}` : ''}`}
+                                style={isExtra && isFilled ? { background: 'var(--color-danger)', borderColor: 'var(--color-danger)' } : undefined}
+                                title={isExtra ? `Extra member #${i + 1} (exceeds max capacity of ${group.capacity})` : undefined}
+                              />
+                            );
+                          })}
+                          <span style={{ fontSize: '0.75rem', color: isOverCapacity ? 'var(--color-danger)' : 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)', fontWeight: isOverCapacity ? 700 : 400, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }} title={isOverCapacity ? "Exceeds max restriction limit" : undefined}>
                             {group.membersCount}/{group.capacity}
+                            {isOverCapacity && (
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            )}
                           </span>
                         </div>
                       </td>
                       <td data-label="Status">
-                        {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
-                        {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
-                        {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
-                        {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
+                        {isOverCapacity ? (
+                          <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }} title={`Exceeds max capacity restriction (${group.membersCount}/${group.capacity})`}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Over limit
+                          </span>
+                        ) : (
+                          <>
+                            {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
+                            {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
+                            {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
+                            {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
+                          </>
+                        )}
                       </td>
                       <td data-label="Actions" style={{ textAlign: 'right', position: 'relative' }}>
                         {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
@@ -734,17 +772,18 @@ export default function GroupsClient({
             const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
             const canManage = isRep || currentUserId === group.leaderId;
             const isOwnGroup = userGroupId === group.id;
+            const isOverCapacity = group.membersCount > group.capacity;
 
             return (
               <div
                 key={group.id}
                 style={{
                   background: 'var(--color-bg-surface)',
-                  border: `1px solid ${isOwnGroup ? 'var(--color-primary)' : 'var(--border-strong)'}`,
+                  border: `1px solid ${isOwnGroup ? 'var(--color-primary)' : isOverCapacity ? 'var(--color-danger)' : 'var(--border-strong)'}`,
                   borderRadius: '10px',
                   overflow: 'hidden',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  borderLeft: isOwnGroup ? '3px solid var(--color-primary)' : undefined,
+                  borderLeft: isOwnGroup ? '3px solid var(--color-primary)' : isOverCapacity ? '3px solid var(--color-danger)' : undefined,
                 }}
               >
                 {/* Card header row */}
@@ -755,6 +794,24 @@ export default function GroupsClient({
                       <a href="/groups/mine" className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)', textDecoration: 'none', fontSize: '0.6875rem' }}>
                         Your group →
                       </a>
+                    )}
+                    {isOverCapacity && (
+                      <span 
+                        className="badge badge-danger" 
+                        style={{ 
+                          color: 'var(--color-danger)', 
+                          background: 'var(--color-danger-bg)', 
+                          border: '1px solid var(--color-danger)',
+                          fontSize: '0.6875rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}
+                        title={`Exceeds max restriction of ${group.capacity}`}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Over limit</span>
+                      </span>
                     )}
                     {canManage ? (
                       <button
@@ -823,11 +880,18 @@ export default function GroupsClient({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 1rem', borderBottom: '1px solid var(--border-rule)' }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Roll call</span>
                   <div className="roster-dots">
-                    {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
-                      <span key={i} className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`} />
-                    ))}
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
+                    {Array.from({ length: Math.max(group.capacity, group.membersCount) }).map((_, i) => {
+                      const isExtra = i >= group.capacity;
+                      const isFilled = i < group.membersCount;
+                      return (
+                        <span key={i} className={`roster-dot ${isFilled ? `filled ${isExtra ? 'danger' : (group.membersCount >= (minGroupSize || 1) ? 'complete' : '')}` : ''}`} style={isExtra && isFilled ? { background: 'var(--color-danger)', borderColor: 'var(--color-danger)' } : undefined} />
+                      );
+                    })}
+                    <span style={{ fontSize: '0.75rem', color: isOverCapacity ? 'var(--color-danger)' : 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)', fontWeight: isOverCapacity ? 700 : 400, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }} title={isOverCapacity ? "Exceeds max restriction limit" : undefined}>
                       {group.membersCount}/{group.capacity}
+                      {isOverCapacity && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -835,10 +899,19 @@ export default function GroupsClient({
                 {/* Status + Actions row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 1rem' }}>
                   <div>
-                    {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
-                    {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
-                    {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
-                    {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
+                    {isOverCapacity ? (
+                      <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Over limit
+                      </span>
+                    ) : (
+                      <>
+                        {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
+                        {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
+                        {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
+                        {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
+                      </>
+                    )}
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (

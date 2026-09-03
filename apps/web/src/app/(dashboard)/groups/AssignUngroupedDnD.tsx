@@ -102,7 +102,14 @@ function DroppableGroupColumn({ group, items }: { group: Group | { id: 'ungroupe
       <div className="flex items-center justify-between mb-4">
         <h4 className="font-semibold text-text-primary text-sm truncate pr-2">{group.name}</h4>
         {!isUngrouped && (
-          <span className="text-xs text-text-secondary px-2 py-0.5 bg-bg-base rounded-full font-mono shrink-0">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-mono shrink-0 flex items-center gap-1 ${
+            (group.membersCount + items.length) > group.capacity 
+              ? 'bg-danger-transparent text-danger font-semibold border border-danger/30' 
+              : 'bg-bg-base text-text-secondary'
+          }`}>
+            {(group.membersCount + items.length) > group.capacity && (
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            )}
             {group.membersCount + items.length} / {group.capacity}
           </span>
         )}
