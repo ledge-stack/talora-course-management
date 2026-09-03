@@ -7,6 +7,13 @@ import { Analytics } from '@vercel/analytics/next';
 export const metadata = {
   title: 'Talora — Class & Group Coordination Platform',
   description: 'API-first university class coordination, group formation, and submission management platform.',
+  manifest: '/manifest.json',
+  themeColor: '#0d0d10',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Talora',
+  },
 };
 
 import { Toaster } from '@/components/ui/Toast';

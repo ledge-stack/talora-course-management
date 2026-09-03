@@ -228,12 +228,12 @@ export default function AdminUsersPage() {
             ) : (
               users.map((user) => (
                 <tr key={user.id} style={{ opacity: user.isActive ? 1 : 0.6 }}>
-                  <td style={{ color: 'var(--color-text-primary)' }}>
+                  <td data-label="Name" style={{ color: 'var(--color-text-primary)' }}>
                     <div style={{ fontWeight: 500, fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>{user.fullName}</div>
                     <div className="reg-number">{user.studentNumber || 'No ID'}</div>
                   </td>
-                  <td style={{ color: 'var(--color-text-secondary)' }}>{user.email}</td>
-                  <td>
+                  <td data-label="Email" style={{ color: 'var(--color-text-secondary)' }}>{user.email}</td>
+                  <td data-label="Roles">
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       {user.roles.map(r => (
                         <span key={r.role} className="badge" style={{
@@ -245,12 +245,12 @@ export default function AdminUsersPage() {
                       ))}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
                       {user.isActive ? 'Active' : 'Suspended'}
                     </span>
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td data-label="Actions" style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                       <button onClick={() => handleToggleActive(user)} className="btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>
                         {user.isActive ? 'Suspend' : 'Activate'}

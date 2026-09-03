@@ -19,9 +19,10 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     
     if (body.studentId) {
-      studentId = body.studentId;
+      studentId = typeof body.studentId === 'string' ? body.studentId.trim() : body.studentId;
     } else if (body.studentNumber) {
-      const student = await db.user.findFirst({ where: { studentNumber: body.studentNumber } });
+      const trimmedStudentNumber = typeof body.studentNumber === 'string' ? body.studentNumber.trim() : body.studentNumber;
+      const student = await db.user.findFirst({ where: { studentNumber: trimmedStudentNumber } });
       if (!student) return NextResponse.json({ code: 'NOT_FOUND', message: 'No student found with that student number' }, { status: 404 });
       studentId = student.id;
     }

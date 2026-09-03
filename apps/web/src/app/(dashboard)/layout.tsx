@@ -92,7 +92,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <>
       <CourseSwitcher availableOfferings={availableOfferings} activeOfferingId={activeOfferingId} />
       <form action="/api/v1/auth/logout" method="POST">
-        <button type="submit" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '0.375rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-strong)', background: 'transparent', color: 'var(--color-text-muted)', cursor: 'pointer' }}>Log out</button>
+        <button type="submit" className="logout-btn" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '0.375rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-strong)', background: 'transparent', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="mobile-hidden">Log out</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
       </form>
     </>
   );

@@ -248,7 +248,7 @@ export default function GroupsClient({
   };
 
   const handleAddByStudentNumber = async (groupId: string) => {
-    const studentNumber = prompt('Enter the student number to add to this group:');
+    const studentNumber = prompt('Enter the student number to add to this group:')?.trim();
     if (!studentNumber) return;
     setLoading(true);
     setLocalGroups(prev => prev.map(g => g.id === groupId ? { ...g, membersCount: g.membersCount + 1 } : g));
@@ -482,7 +482,7 @@ export default function GroupsClient({
 
   return (
     <>
-      <div className="ledger-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
+      <div className="ledger-panel groups-container-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }} onClick={() => setOpenDropdownId(null)}>
         <div className="toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
             <div style={{ position: 'relative', flex: '1 1 200px', minWidth: '150px' }}>
@@ -511,7 +511,7 @@ export default function GroupsClient({
             </select>
 
             {isRep && (
-              <div className="flex gap-2 w-full md:w-auto shrink-0">
+              <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0">
                 <button 
                   className="btn-secondary flex-1 md:flex-none flex items-center justify-center gap-2" 
                   onClick={handleExportExcel}
@@ -551,7 +551,7 @@ export default function GroupsClient({
           </div>
         </div>
 
-        <div className="table-responsive-wrapper" style={{ marginTop: '1rem', paddingBottom: '10rem' }}>
+        <div className="table-responsive-wrapper groups-desktop-table" style={{ marginTop: '1rem', paddingBottom: '10rem' }}>
           <table className="data-table">
             <thead>
               <tr>
@@ -587,7 +587,7 @@ export default function GroupsClient({
 
                   return (
                     <tr key={group.id} className={isOwnGroup ? 'highlight-row' : ''}>
-                      <td style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                      <td data-label="Group" style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span className="font-display">{group.name}</span>
                           {isOwnGroup && (
@@ -625,7 +625,7 @@ export default function GroupsClient({
                           )}
                         </div>
                       </td>
-                      <td style={{ color: 'var(--color-text-primary)' }}>
+                      <td data-label="Leader" style={{ color: 'var(--color-text-primary)' }}>
                         <div style={{ fontWeight: 500 }}>{group.leader}</div>
                         {group.leaderPhone && (
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -634,7 +634,7 @@ export default function GroupsClient({
                           </div>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Roll call">
                         <div className="roster-dots">
                           {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
                             <span
@@ -647,13 +647,13 @@ export default function GroupsClient({
                           </span>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
                         {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
                         {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
                         {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
                       </td>
-                      <td style={{ textAlign: 'right', position: 'relative' }}>
+                      <td data-label="Actions" style={{ textAlign: 'right', position: 'relative' }}>
                         {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
                           <button 
                             className="btn-secondary"
@@ -714,6 +714,158 @@ export default function GroupsClient({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Mobile card list — replaces table on small screens ── */}
+        <div className="groups-mobile-list" style={{ marginTop: '1rem', paddingBottom: '10rem', display: 'none', flexDirection: 'column', gap: '0.75rem' }}>
+          {filteredGroups.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+              {localGroups.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.4, marginBottom: '0.5rem' }}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <p style={{ fontWeight: 500 }}>No groups in this course yet.</p>
+                  <p style={{ fontSize: '0.8125rem', maxWidth: '280px', lineHeight: 1.5, color: 'var(--color-text-muted)' }}>
+                    Check that you have the right course selected using the switcher above.
+                  </p>
+                </div>
+              ) : 'No groups match your current filters.'}
+            </div>
+          ) : filteredGroups.map((group) => {
+            const groupRequests = pendingRequests.filter(r => (r.targetGroupId || r.groupId) === group.id);
+            const canManage = isRep || currentUserId === group.leaderId;
+            const isOwnGroup = userGroupId === group.id;
+
+            return (
+              <div
+                key={group.id}
+                style={{
+                  background: 'var(--color-bg-surface)',
+                  border: `1px solid ${isOwnGroup ? 'var(--color-primary)' : 'var(--border-strong)'}`,
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  borderLeft: isOwnGroup ? '3px solid var(--color-primary)' : undefined,
+                }}
+              >
+                {/* Card header row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-rule)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span className="font-display" style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{group.name}</span>
+                    {isOwnGroup && (
+                      <a href="/groups/mine" className="leader-tag" style={{ color: 'var(--color-accent-teal)', background: 'var(--color-accent-teal-bg)', textDecoration: 'none', fontSize: '0.6875rem' }}>
+                        Your group →
+                      </a>
+                    )}
+                    {canManage ? (
+                      <button
+                        onClick={(e) => handleToggleOpen(group.id, group.isOpen, e)}
+                        className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}
+                        style={{ cursor: 'pointer', border: 'none', background: group.isOpen ? 'var(--color-primary-transparent)' : undefined }}
+                        title="Click to toggle open/closed"
+                      >
+                        {group.isOpen ? 'Open' : 'Invite only'}
+                      </button>
+                    ) : (
+                      <span className={`badge ${group.isOpen ? 'badge-primary' : 'badge-subtle'}`}>
+                        {group.isOpen ? 'Open' : 'Invite only'}
+                      </span>
+                    )}
+                    {canManage && groupRequests.length > 0 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setShowRequestsFor(group.id); }}
+                        className="badge badge-warning"
+                        style={{ cursor: 'pointer', border: 'none' }}
+                      >
+                        {groupRequests.length} request{groupRequests.length !== 1 ? 's' : ''}
+                      </button>
+                    )}
+                  </div>
+                  {canManage && (
+                    <button
+                      className="btn-ghost"
+                      style={{ padding: '0.4rem', color: 'var(--color-text-muted)', flexShrink: 0 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (openDropdownId === group.id) {
+                          setOpenDropdownId(null); setDropdownPos(null);
+                        } else {
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          const estimatedMenuHeight = 220;
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const openUpward = spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight;
+                          const rawLeft = rect.right - MENU_WIDTH;
+                          const clampedLeft = Math.max(8, Math.min(rawLeft, window.innerWidth - MENU_WIDTH - 8));
+                          setDropdownPos({ top: openUpward ? undefined : rect.bottom + 4, bottom: openUpward ? window.innerHeight - rect.top + 4 : undefined, left: clampedLeft });
+                          setOpenDropdownId(group.id);
+                        }
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* Leader row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 1rem', borderBottom: '1px solid var(--border-rule)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Leader</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{group.leader}</div>
+                    {group.leaderPhone && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'flex-end' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        {group.leaderPhone}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Roll call row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 1rem', borderBottom: '1px solid var(--border-rule)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Roll call</span>
+                  <div className="roster-dots">
+                    {Array.from({ length: Math.min(group.capacity, 10) }).map((_, i) => (
+                      <span key={i} className={`roster-dot ${i < group.membersCount ? `filled ${group.membersCount >= (minGroupSize || 1) ? 'complete' : ''}` : ''}`} />
+                    ))}
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginLeft: '0.375rem', fontFamily: 'var(--font-mono)' }}>
+                      {group.membersCount}/{group.capacity}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status + Actions row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 1rem' }}>
+                  <div>
+                    {group.status === 'COMPLETE' && <span className="badge badge-success">Complete</span>}
+                    {group.status === 'FORMING' && <span className="badge badge-primary">Forming</span>}
+                    {group.status === 'INCOMPLETE' && <span className="badge badge-warning">Incomplete</span>}
+                    {group.status === 'LOCKED' && <span className="badge badge-subtle">Locked</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    {currentUserId && group.membersCount < group.capacity && group.status !== 'LOCKED' && !isOwnGroup && (
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: '0.25rem 0.625rem', fontSize: '0.75rem' }}
+                        onClick={(e) => handleJoinGroup(group.id, e, group.isOpen)}
+                        disabled={loading}
+                      >
+                        {!isUserInGroup ? (group.isOpen ? 'Join' : 'Request') : 'Transfer'}
+                      </button>
+                    )}
+                    {isOwnGroup && currentUserId && (
+                      <button
+                        className="btn-ghost"
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-error)' }}
+                        onClick={() => handleLeaveGroup(group.id)}
+                        disabled={loading}
+                      >
+                        Leave
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

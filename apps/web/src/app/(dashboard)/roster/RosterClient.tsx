@@ -73,8 +73,8 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
+      <div className="ledger-panel hidden lg:block" style={{ overflowX: 'auto' }}>
+        <table className="roster-table" style={{ width: '100%' }}>
           <thead>
             <tr>
               <th style={{ width: '16%' }}>Reg / Student ID</th>
@@ -159,6 +159,71 @@ export default function RosterClient({ students, canEdit, offeringId }: { studen
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Compact List View */}
+      <div className="block lg:hidden ledger-panel" style={{ background: 'var(--color-glass-panel)' }}>
+        {filteredStudents.length === 0 ? (
+          <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+            No students found.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {filteredStudents.map((student) => {
+              const isUnassigned = student.group === 'Unassigned';
+              return (
+                <div key={student.id} style={{ padding: '1rem', borderBottom: '1px solid var(--border-rule)', borderLeft: isUnassigned ? '3px solid var(--color-primary)' : '3px solid transparent' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{student.name}</span>
+                      <span className="reg-number" style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{student.id}</span>
+                    </div>
+                    <div>
+                      {isUnassigned ? (
+                        <span className="badge badge-warning" style={{ fontSize: '0.65rem', padding: '0.125rem 0.375rem' }}>Unassigned</span>
+                      ) : (
+                        <span className="badge badge-subtle" style={{ fontSize: '0.65rem', padding: '0.125rem 0.375rem' }}>{student.group}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{student.email}</span>
+                      {student.phoneNumber && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>{student.phoneNumber}</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {student.isRetaker && <span className="stamp stamp-danger" style={{ fontSize: '0.6rem', padding: '0.125rem' }}>Retaker</span>}
+                      {student.tookGapYear && <span className="stamp stamp-warning" style={{ fontSize: '0.6rem', padding: '0.125rem' }}>Gap Year</span>}
+                    </div>
+                  </div>
+                  
+                  {canEdit && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border-subtle)', gap: '0.5rem' }}>
+                      <GapYearToggle userId={student.userId} isGapYear={student.tookGapYear} canEdit={canEdit} />
+                      <button 
+                        className="btn-ghost" 
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-danger)' }}
+                        onClick={async () => {
+                          if (window.confirm(`Are you sure you want to completely strike ${student.name}?`)) {
+                            if (!offeringId) return toast.error('No offering selected');
+                            const res = await fetch(`/api/v1/offerings/${offeringId}/enrollments/${student.userId}`, { method: 'DELETE' });
+                            if (res.ok) window.location.reload();
+                            else alert('Failed to remove student');
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
